@@ -1,0 +1,578 @@
+﻿<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>@ViewData["Title"] - EasySheba</title>
+
+    <link rel="icon" type="image/x-icon" href="/images/easysheba-logo.png">
+
+    <!-- Bootstrap -->
+    <link rel="stylesheet" href="~/lib/bootstrap/dist/css/bootstrap.min.css" />
+
+    <!-- Font Awesome Icons -->
+    <link rel="stylesheet"
+          href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" />
+
+    <!-- Reset CSS - Ensure no gaps -->
+    <style>
+            /* GLOBAL RESET */
+            html, body {
+                margin: 0 !important;
+                padding: 0 !important;
+                width: 100%;
+                overflow-x: hidden;
+                font-family: 'Segoe UI', sans-serif;
+                background: #f9fafb;
+            }
+
+            main {
+                margin: 0 !important;
+                padding: 0 !important;
+                width: 100%;
+            }
+
+            .container {
+                max-width: 1280px;
+                margin: 0 auto;
+                padding: 0 20px;
+            }
+
+            /* COLOR VARIABLES */
+            :root {
+                --primary-brand: #ffffff;
+                --secondary-brand: #16a34a;
+                --accent-green: #15803d;
+                --light-green: #ecfdf5;
+                --text-dark: #1f2937;
+            }
+
+            /* ===== TOPBAR ===== */
+            .topbar {
+                background: var(--secondary-brand) !important;
+                font-size: 0.9rem;
+            }
+
+                .topbar a:hover {
+                    opacity: 0.8;
+                }
+
+            /* ===== NAVBAR ===== */
+            .main-navbar {
+                background: #ffffff !important;
+                border-bottom: 1px solid #e5e7eb;
+            }
+
+            .navbar-brand span {
+                color: #16a34a !important;
+            }
+
+            .nav-link {
+                color: var(--text-dark) !important;
+                font-weight: 500;
+                transition: 0.3s;
+                border-radius: 8px;
+                padding: 8px 12px;
+            }
+
+                .nav-link:hover {
+                    color: #16a34a !important;
+                    background: #ecfdf5;
+                }
+
+            /* Buttons in navbar */
+            .login-btn {
+                background: #ecfdf5;
+                color: #16a34a !important;
+            }
+
+            .register-btn {
+                background: #16a34a;
+                color: #fff !important;
+            }
+
+                .register-btn:hover {
+                    background: #15803d;
+                }
+
+            .appointment-btn,
+            .dashboard-btn,
+            .super-dashboard-btn {
+                background: #16a34a;
+                color: #fff !important;
+            }
+
+                .appointment-btn:hover,
+                .dashboard-btn:hover,
+                .super-dashboard-btn:hover {
+                    background: #15803d;
+                }
+
+            .logout-btn {
+                color: #ef4444 !important;
+            }
+
+                .logout-btn:hover {
+                    background: #fee2e2;
+                }
+
+            .user-email {
+                font-weight: 600;
+                color: #374151 !important;
+            }
+
+            /* ===== SEARCH BUTTON ===== */
+            .search-icon-btn {
+                border: none;
+                background: #ecfdf5;
+                color: #16a34a;
+                border-radius: 50%;
+                width: 38px;
+                height: 38px;
+                transition: 0.3s;
+            }
+
+                .search-icon-btn:hover {
+                    background: #16a34a;
+                    color: white;
+                }
+
+            /* ===== SEARCH OVERLAY ===== */
+            .search-overlay {
+                position: fixed;
+                top: 0;
+                left: 0;
+                width: 100%;
+                height: 100%;
+                background: rgba(0,0,0,0.5);
+                display: none;
+                z-index: 9999;
+            }
+
+            .search-popup {
+                background: #ffffff;
+                max-width: 600px;
+                margin: 100px auto;
+                padding: 25px;
+                border-radius: 15px;
+                box-shadow: 0 10px 40px rgba(0,0,0,0.15);
+            }
+
+                .search-popup input {
+                    width: 100%;
+                    padding: 12px 40px;
+                    border-radius: 10px;
+                    border: 1px solid #e5e7eb;
+                    outline: none;
+                }
+
+                    .search-popup input:focus {
+                        border-color: #16a34a;
+                    }
+
+            .search-icon {
+                position: absolute;
+                left: 12px;
+                top: 50%;
+                transform: translateY(-50%);
+                color: #16a34a;
+            }
+
+            .result-item {
+                display: block;
+                padding: 10px;
+                border-radius: 10px;
+                margin-bottom: 5px;
+                transition: 0.3s;
+                text-decoration: none;
+            }
+
+                .result-item:hover {
+                    background: #ecfdf5;
+                }
+
+            .result-title {
+                display: block;
+                font-weight: 600;
+                color: #111827;
+            }
+
+            .result-subtitle {
+                font-size: 12px;
+                color: #6b7280;
+            }
+
+            /* ===== MAIN CONTENT ===== */
+            .section-bg {
+                background: #f9fafb;
+            }
+
+            /* ===== FOOTER ===== */
+            .footer {
+                background: #065f46 !important;
+            }
+
+                .footer h4, .footer h5 {
+                    color: #86efac;
+                }
+
+                .footer a:hover {
+                    color: #ffffff !important;
+                }
+
+            .footer-bottom {
+                color: #bbf7d0 !important;
+            }
+
+            /* ===== DROPDOWN ===== */
+            .dropdown-menu {
+                border-radius: 10px;
+                border: 1px solid #e5e7eb;
+                box-shadow: 0 10px 25px rgba(0,0,0,0.08);
+            }
+
+            .dropdown-item:hover {
+                background: #ecfdf5;
+                color: #16a34a;
+            }
+
+            /* ===== RESPONSIVE ===== */
+            @@media (max-width: 768px) {
+                .search-popup {
+                    margin: 50px 15px;
+                }
+            }
+    </style>
+</head>
+
+<body>
+    <!-- ===== TOPBAR ===== -->
+    <div class="topbar py-1" style="background: var(--secondary-brand); color: #fff; font-size: 1rem;">
+        <div class="container d-flex justify-content-between align-items-center">
+            <div class="topbar-left d-flex gap-4 align-items-center">
+                <span><i class="fa-solid fa-phone me-1"></i> <b>Emergency:</b> +880 1700-000000</span>
+                <span><i class="fa-solid fa-envelope me-1"></i> support@easysheba.com</span>
+            </div>
+            <div class="topbar-right d-flex gap-2 align-items-center">
+                <a href="#" class="text-white"><i class="fab fa-facebook-f"></i></a>
+                <a href="#" class="text-white"><i class="fab fa-instagram"></i></a>
+                <a href="#" class="text-white"><i class="fab fa-twitter"></i></a>
+                <a href="#" class="text-white"><i class="fab fa-youtube"></i></a>
+                <a href="#" class="text-white"><i class="fab fa-linkedin-in"></i></a>
+            </div>
+        </div>
+    </div>
+
+    <!-- ===== NAVBAR ===== -->
+    <nav class="navbar navbar-expand-lg main-navbar shadow-sm" style="background: var(--primary-brand);">
+        <div class="container">
+            <a class="navbar-brand d-flex align-items-center gap-2" href="/">
+                <img src="~/images/easysheba-logo.png" alt="EasySheba Logo" style="height: 38px; width: 38px; border-radius: 50%; box-shadow: 0 2px 8px rgba(26,54,93,0.10);" />
+                <span style="color: var(--booking-btn); font-weight: bold; font-size: 1.7rem; letter-spacing: 1px;">EasySheba</span>
+            </a>
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#mainMenu">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            <div class="collapse navbar-collapse" id="mainMenu">
+                <ul class="navbar-nav ms-auto align-items-center gap-1">
+
+                    @if (!User.Identity.IsAuthenticated)
+                    {
+                        <!-- ========== GUEST NAVIGATION (NOT LOGGED IN) ========== -->
+                        <li class="nav-item">
+                            <a class="nav-link" href="/">Home</a>
+                        </li>
+
+                        <!-- Services Dropdown -->
+                        <li class="nav-item dropdown">
+                            <a class="nav-link dropdown-toggle" href="#" role="button"
+                               data-bs-toggle="dropdown">
+                                Services
+                            </a>
+                            <ul class="dropdown-menu">
+                                <li><a class="dropdown-item" href="/Doctor">Doctor Appointment</a></li>
+                                <li><a class="dropdown-item" href="/MedicalTest">Medical Test</a></li>
+                                <li><a class="dropdown-item" href="/Bed">Bed Booking</a></li>
+                            </ul>
+                        </li>
+
+                        <!-- About Link -->
+                        <li class="nav-item">
+                            <a class="nav-link" href="/Home/About">About</a>
+                        </li>
+
+                        <!-- Blog Link -->
+                        <li class="nav-item">
+                            <a class="nav-link" href="/Blog">Blog</a>
+                        </li>
+
+                        <li class="nav-item">
+                            <a class="nav-link login-btn" href="/Account/Login">
+                                <i class="fa-regular fa-circle-user"></i> Login
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link register-btn" href="/Account/Register">
+                                <i class="fa-solid fa-user-plus"></i> Register
+                            </a>
+                        </li>
+                    }
+                    else
+                    {
+                        <!-- ========== AUTHENTICATED USER NAVIGATION ========== -->
+                        @if (User.IsInRole("Patient"))
+                        {
+                            <!-- ===== PATIENT NAVIGATION ===== -->
+                            <li class="nav-item">
+                                <a class="nav-link" href="/">Home</a>
+                            </li>
+
+                            <li class="nav-item dropdown">
+                                <a class="nav-link dropdown-toggle" href="#" role="button"
+                                   data-bs-toggle="dropdown">
+                                    Services
+                                </a>
+                                <ul class="dropdown-menu">
+                                    <li><a class="dropdown-item" href="/Doctor">Doctor Appointment</a></li>
+                                    <li><a class="dropdown-item" href="/MedicalTest">Medical Test</a></li>
+                                    <li><a class="dropdown-item" href="/Bed">Bed Booking</a></li>
+                                </ul>
+                            </li>
+
+                            <li class="nav-item"><a class="nav-link" href="/Home/About">About</a></li>
+                            <li class="nav-item"><a class="nav-link" href="/Blog">Blog</a></li>
+
+                            <li class="nav-item">
+                                <span class="nav-link user-email">
+                                    <i class="fa-regular fa-circle-user"></i> @User.Identity.Name
+                                </span>
+                            </li>
+
+                            <li class="nav-item">
+                                <a class="nav-link appointment-btn" href="/Appointment/MyAppointments">
+                                    <i class="fa-regular fa-calendar-check"></i> My Appointments
+                                </a>
+                            </li>
+                        }
+
+                        @if (User.IsInRole("HospitalAdmin"))
+                        {
+                            <!-- ===== HOSPITAL ADMIN NAVIGATION ===== -->
+                            <li class="nav-item">
+                                <span class="nav-link user-email">
+                                    <i class="fa-regular fa-circle-user"></i> @User.Identity.Name
+                                </span>
+                            </li>
+
+                            <li class="nav-item">
+                                <a class="nav-link dashboard-btn" href="/HospitalAdmin">
+                                    <i class="fa-solid fa-chart-line"></i> Admin Dashboard
+                                </a>
+                            </li>
+                        }
+
+                        @if (User.IsInRole("SuperAdmin"))
+                        {
+                            <!-- ===== SUPER ADMIN NAVIGATION ===== -->
+                            <li class="nav-item">
+                                <span class="nav-link user-email">
+                                    <i class="fa-regular fa-circle-user"></i> @User.Identity.Name
+                                </span>
+                            </li>
+
+                            <li class="nav-item">
+                                <a class="nav-link super-dashboard-btn" href="/SuperAdmin">
+                                    <i class="fa-solid fa-crown"></i> Super Panel
+                                </a>
+                            </li>
+                        }
+
+                        <!-- Logout Button - Visible to ALL authenticated users -->
+                        <li class="nav-item">
+                            <form asp-controller="Account" asp-action="Logout" method="post" class="d-inline">
+                                @Html.AntiForgeryToken()
+                                <button type="submit" class="nav-link logout-btn">
+                                    <i class="fa-solid fa-sign-out-alt"></i> Logout
+                                </button>
+                            </form>
+                        </li>
+                    }
+
+                    <!-- Search Icon - Visible to EVERYONE -->
+                    <li class="nav-item">
+                        <button class="search-icon-btn" id="searchToggle" aria-label="Search">
+                            <i class="fa-solid fa-magnifying-glass"></i>
+                        </button>
+                    </li>
+                </ul>
+            </div>
+        </div>
+    </nav>
+
+    <!-- ===== SEARCH OVERLAY ===== -->
+    <div class="search-overlay" id="searchBox">
+        <div class="search-popup">
+            <div class="d-flex justify-content-between align-items-center mb-3">
+                <h5 class="mb-0 fw-bold">Search EasySheba</h5>
+                <button type="button" class="btn-close" id="searchClose"></button>
+            </div>
+            <div class="position-relative">
+                <i class="fa-solid fa-search search-icon"></i>
+                <input type="text" id="globalSearchInput" placeholder="Search doctors, tests, beds, hospitals..." autocomplete="off" />
+            </div>
+            <div id="searchResults" class="mt-3" style="display: none;"></div>
+        </div>
+    </div>
+
+    <!-- ===== PAGE CONTENT - NO MARGIN, NO PADDING ===== -->
+    <main class="section-bg py-4" style="min-height: 60vh;">
+        <div class="container">
+            @RenderBody()
+        </div>
+    </main>
+
+    <!-- ===== FOOTER ===== -->
+    <footer class="footer mt-5" style="background: var(--primary-brand); color: #fff;">
+        <div class="container py-4">
+            <div class="row g-4">
+                <div class="col-md-3">
+                    <h4 style="color: var(--booking-btn); font-weight: bold;">EasySheba</h4>
+                    <p>EasySheba helps patients book doctor appointments, medical tests, and hospital beds easily online.</p>
+                </div>
+                <div class="col-md-3">
+                    <h5>Quick Links</h5>
+                    <ul class="list-unstyled">
+                        <li><a href="/" class="text-white-50">Home</a></li>
+                        <li><a href="/Home/About" class="text-white-50">About</a></li>
+                        <li><a href="/Blog" class="text-white-50">Blog</a></li>
+                        <li><a href="#" class="text-white-50">Contact</a></li>
+                    </ul>
+                </div>
+                <div class="col-md-3">
+                    <h5>Our Services</h5>
+                    <ul class="list-unstyled">
+                        <li><a href="/Doctor" class="text-white-50">Doctor Appointment</a></li>
+                        <li><a href="/MedicalTest" class="text-white-50">Medical Test</a></li>
+                        <li><a href="/Bed" class="text-white-50">Bed Booking</a></li>
+                    </ul>
+                </div>
+                <div class="col-md-3">
+                    <h5>Contact Us</h5>
+                    <p>Dhaka, Bangladesh</p>
+                    <p>+880 1700-000000</p>
+                    <p>support@easysheba.com</p>
+                </div>
+            </div>
+            <div class="footer-bottom mt-4 pt-3 border-top border-secondary text-center" style="color: #b3c6e0; font-size: 0.95rem;">
+                © @DateTime.Now.Year EasySheba | All Rights Reserved
+            </div>
+        </div>
+    </footer>
+
+    <!-- Scripts -->
+    <script src="~/lib/jquery/dist/jquery.min.js"></script>
+    <script src="~/lib/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="~/js/site.js"></script>
+
+    <!-- Search Functionality Script - FIXED -->
+    <script>
+        $(document).ready(function() {
+            // Search Toggle
+            $("#searchToggle").click(function(e) {
+                e.preventDefault();
+                $(".search-overlay").fadeIn(300);
+                setTimeout(() => $("#globalSearchInput").focus(), 300);
+            });
+
+            $("#searchClose, .search-overlay").click(function(e) {
+                if (e.target === this || $(e.target).hasClass('btn-close')) {
+                    $(".search-overlay").fadeOut(300);
+                    $("#globalSearchInput").val('');
+                    $("#searchResults").hide();
+                }
+            });
+
+            $(".search-popup").click(function(e) {
+                e.stopPropagation();
+            });
+
+            // Live Search
+            let searchTimer;
+            $("#globalSearchInput").on("keyup", function() {
+                clearTimeout(searchTimer);
+                var query = $(this).val();
+
+                if (query.length < 2) {
+                    $("#searchResults").hide();
+                    return;
+                }
+
+                searchTimer = setTimeout(function() {
+                    $.ajax({
+                        url: '/Search/GlobalSearch',
+                        type: 'GET',
+                        data: { query: query },
+                        success: function(data) {
+                            let html = '<div class="search-results-list">';
+
+                            if (data.doctors && data.doctors.length > 0) {
+                                html += '<h6 class="mt-2 mb-2"><i class="fas fa-user-md"></i> Doctors</h6>';
+                                data.doctors.forEach(function(item) {
+                                    html += `<a href="/Doctor" class="result-item">
+                                                <span class="result-title">Dr. ${item.name}</span>
+                                                <span class="result-subtitle">${item.specialist}</span>
+                                            </a>`;
+                                });
+                            }
+
+                            if (data.tests && data.tests.length > 0) {
+                                html += '<h6 class="mt-3 mb-2"><i class="fas fa-flask"></i> Medical Tests</h6>';
+                                data.tests.forEach(function(item) {
+                                    html += `<a href="/MedicalTest" class="result-item">
+                                                <span class="result-title">${item.testName}</span>
+                                                <span class="result-subtitle">${item.hospitalName}</span>
+                                            </a>`;
+                                });
+                            }
+
+                            if (data.beds && data.beds.length > 0) {
+                                html += '<h6 class="mt-3 mb-2"><i class="fas fa-bed"></i> Beds</h6>';
+                                data.beds.forEach(function(item) {
+                                    html += `<a href="/Bed" class="result-item">
+                                                <span class="result-title">${item.bedType}</span>
+                                                <span class="result-subtitle">${item.hospitalName}</span>
+                                            </a>`;
+                                });
+                            }
+
+                            if ((!data.doctors || data.doctors.length === 0) &&
+                                (!data.tests || data.tests.length === 0) &&
+                                (!data.beds || data.beds.length === 0)) {
+                                html += '<p class="text-muted text-center py-3">No results found</p>';
+                            }
+
+                            html += '</div>';
+                            $("#searchResults").html(html).show();
+                        },
+                        error: function(xhr, status, error) {
+                            console.log("Search error: " + error);
+                            $("#searchResults").html('<p class="text-danger text-center py-3">Search temporarily unavailable</p>').show();
+                        }
+                    });
+                }, 300);
+            });
+
+            // Close search on Escape key
+            $(document).keyup(function(e) {
+                if (e.key === "Escape") {
+                    $(".search-overlay").fadeOut(300);
+                    $("#globalSearchInput").val('');
+                    $("#searchResults").hide();
+                }
+            });
+        });
+    </script>
+
+    @RenderSection("Scripts", required: false)
+</body>
+</html>

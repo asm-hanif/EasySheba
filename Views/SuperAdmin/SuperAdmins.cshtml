@@ -1,0 +1,588 @@
+﻿@model List<EasySheba.Controllers.SuperAdminViewModel>
+
+@{
+    ViewData["Title"] = "Super Admins | EasySheba";
+    var confirmedCount = Model.Count(a => a.EmailConfirmed);
+    var pendingCount = Model.Count(a => !a.EmailConfirmed);
+}
+
+<div class="dashboard-wrapper">
+    <!-- Hero Section -->
+    <div class="hero-section">
+        <div class="hero-bg-shapes">
+            <div class="shape shape-1"></div>
+            <div class="shape shape-2"></div>
+            <div class="shape shape-3"></div>
+        </div>
+        <div class="hero-content">
+            <div class="hero-tag">
+                <span class="pulse-dot"></span> Super Admin
+            </div>
+            <h1 class="hero-heading">
+                Super <span class="gradient-text">Admins</span>
+            </h1>
+            <p class="hero-subheading">
+                Manage system administrators and their permissions.
+            </p>
+        </div>
+    </div>
+
+    <!-- Main Content -->
+    <div class="dashboard-main">
+        <!-- Alerts -->
+        @if (TempData["Success"] != null)
+        {
+            <div class="alert-modern success">
+                <i class="fas fa-check-circle"></i>
+                <span>@TempData["Success"]</span>
+                <button class="alert-close" onclick="this.parentElement.remove()">×</button>
+            </div>
+        }
+        @if (TempData["Error"] != null)
+        {
+            <div class="alert-modern error">
+                <i class="fas fa-exclamation-circle"></i>
+                <span>@TempData["Error"]</span>
+                <button class="alert-close" onclick="this.parentElement.remove()">×</button>
+            </div>
+        }
+
+        <!-- Stats Cards -->
+        <div class="stats-grid">
+            <div class="stat-card-modern">
+                <div class="stat-icon-bg">
+                    <i class="fas fa-user-shield"></i>
+                </div>
+                <div class="stat-content">
+                    <h3 class="stat-number">@Model.Count</h3>
+                    <p class="stat-label">Total Super Admins</p>
+                </div>
+            </div>
+            <div class="stat-card-modern">
+                <div class="stat-icon-bg" style="background:#e6f7ec;">
+                    <i class="fas fa-check-circle" style="color:#16a34a;"></i>
+                </div>
+                <div class="stat-content">
+                    <h3 class="stat-number">@confirmedCount</h3>
+                    <p class="stat-label">Confirmed</p>
+                    <span class="stat-trend success">Active</span>
+                </div>
+            </div>
+            <div class="stat-card-modern">
+                <div class="stat-icon-bg" style="background:#fef3c7;">
+                    <i class="fas fa-clock" style="color:#f59e0b;"></i>
+                </div>
+                <div class="stat-content">
+                    <h3 class="stat-number">@pendingCount</h3>
+                    <p class="stat-label">Pending</p>
+                    <span class="stat-trend warning">Needs confirmation</span>
+                </div>
+            </div>
+        </div>
+
+        <!-- Action Buttons -->
+        <div class="action-buttons-row">
+            <a asp-action="AddSuperAdmin" class="btn-primary">
+                <i class="fas fa-user-plus"></i> Add New Super Admin
+            </a>
+            <a asp-action="Index" class="btn-secondary">
+                <i class="fas fa-arrow-left"></i> Back to Dashboard
+            </a>
+        </div>
+
+        <!-- No Data State -->
+        @if (!Model.Any())
+        {
+            <div class="empty-modern">
+                <div class="empty-icon">
+                    <i class="fas fa-user-shield"></i>
+                </div>
+                <h3>No super admins found</h3>
+                <p>You haven't created any super admin accounts yet.</p>
+                <a asp-action="AddSuperAdmin" class="btn-primary" style="margin-top: 20px; display: inline-flex;">
+                    <i class="fas fa-user-plus"></i> Add First Super Admin
+                </a>
+            </div>
+        }
+        else
+        {
+            <!-- Super Admins Grid -->
+            <div class="admins-grid">
+                @foreach (var admin in Model)
+                {
+                    <div class="admin-card">
+                        <div class="admin-card-header">
+                            <div class="admin-avatar">
+                                <i class="fas fa-user-circle"></i>
+                            </div>
+                            <div class="admin-status">
+                                <span class="status-badge @(admin.EmailConfirmed ? "confirmed" : "pending")">
+                                    <i class="fas fa-circle"></i> @(admin.EmailConfirmed ? "Confirmed" : "Pending")
+                                </span>
+                            </div>
+                        </div>
+                        <div class="admin-card-body">
+                            <h3 class="admin-email" title="@admin.Email">@admin.Email</h3>
+                            <p class="admin-username">@@@admin.UserName</p>
+                            <div class="admin-details">
+                                <div class="detail-item">
+                                    <i class="fas fa-id-card"></i>
+                                    <span class="detail-label">User ID:</span>
+                                    <span class="detail-value" title="@admin.Id">@admin.Id.Substring(0, 8)...</span>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="admin-card-footer">
+                            <form asp-action="RemoveSuperAdmin" method="post" class="remove-form">
+                                @Html.AntiForgeryToken()
+                                <input type="hidden" name="id" value="@admin.Id" />
+                                <button type="submit" class="btn-remove" onclick="return confirmRemove('@admin.Email')">
+                                    <i class="fas fa-user-minus"></i> Remove Admin
+                                </button>
+                            </form>
+                        </div>
+                    </div>
+                }
+            </div>
+        }
+    </div>
+</div>
+
+@section Scripts {
+    <script>
+        function confirmRemove(email) {
+            return confirm(`⚠️ Are you sure you want to remove "${email}"?\n\nThis action cannot be undone!`);
+        }
+
+        setTimeout(function() {
+            document.querySelectorAll('.alert-modern').forEach(function(alert) {
+                alert.style.opacity = '0';
+                setTimeout(() => alert.remove(), 300);
+            });
+        }, 5000);
+    </script>
+}
+
+<style>
+    /* ========== MODERN STYLES (matching other admin pages) ========== */
+    .dashboard-wrapper {
+        background: #f5f7fb;
+        min-height: 100vh;
+    }
+
+    /* Hero Section */
+    .hero-section {
+        background: linear-gradient(125deg, #ffffff 0%, #f8fafc 100%);
+        padding: 60px 5% 80px;
+        position: relative;
+        overflow: hidden;
+    }
+    .hero-bg-shapes { position: absolute; top: 0; left: 0; width: 100%; height: 100%; pointer-events: none; }
+    .shape { position: absolute; border-radius: 50%; background: rgba(22, 163, 74, 0.03); }
+    .shape-1 { width: 400px; height: 400px; top: -150px; right: -100px; }
+    .shape-2 { width: 250px; height: 250px; bottom: -80px; left: 10%; background: rgba(22, 163, 74, 0.05); }
+    .shape-3 { width: 180px; height: 180px; top: 30%; left: -60px; background: rgba(22, 163, 74, 0.04); }
+    .hero-content {
+        max-width: 1100px;
+        margin: 0 auto;
+        position: relative;
+        z-index: 2;
+        text-align: center;
+    }
+    .hero-tag {
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+        background: rgba(22, 163, 74, 0.1);
+        padding: 6px 18px;
+        border-radius: 40px;
+        font-size: 0.8rem;
+        font-weight: 500;
+        color: #16a34a;
+        margin-bottom: 24px;
+    }
+    .pulse-dot {
+        width: 8px;
+        height: 8px;
+        background: #16a34a;
+        border-radius: 50%;
+        display: inline-block;
+        animation: pulse 1.5s infinite;
+    }
+    @@keyframes pulse {
+        0%, 100% { opacity: 1; transform: scale(1); }
+        50% { opacity: 0.5; transform: scale(1.2); }
+    }
+    .hero-heading {
+        font-size: 3.5rem;
+        font-weight: 800;
+        color: #0f172a;
+        margin-bottom: 16px;
+        line-height: 1.2;
+    }
+    .gradient-text {
+        background: linear-gradient(135deg, #16a34a, #15803d);
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+        background-clip: text;
+    }
+    .hero-subheading {
+        font-size: 1.1rem;
+        color: #5a6e8a;
+        max-width: 550px;
+        margin: 0 auto;
+    }
+
+    /* Main Content */
+    .dashboard-main {
+        max-width: 1300px;
+        margin: 0 auto;
+        padding: 40px 24px 60px;
+    }
+
+    /* Alerts */
+    .alert-modern {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+        padding: 14px 20px;
+        border-radius: 16px;
+        margin-bottom: 24px;
+        animation: slideIn 0.3s ease;
+    }
+    @@keyframes slideIn {
+        from { transform: translateY(-10px); opacity: 0; }
+        to { transform: translateY(0); opacity: 1; }
+    }
+    .alert-modern.success {
+        background: #e8f5e9;
+        border-left: 4px solid #16a34a;
+        color: #1e7b3a;
+    }
+    .alert-modern.error {
+        background: #ffebee;
+        border-left: 4px solid #ef4444;
+        color: #b91c1c;
+    }
+    .alert-close {
+        margin-left: auto;
+        background: none;
+        border: none;
+        font-size: 1.2rem;
+        cursor: pointer;
+        color: inherit;
+        opacity: 0.6;
+    }
+
+    /* Stats Cards */
+    .stats-grid {
+        display: grid;
+        grid-template-columns: repeat(3, 1fr);
+        gap: 24px;
+        margin-bottom: 40px;
+    }
+    .stat-card-modern {
+        background: white;
+        border-radius: 24px;
+        padding: 20px;
+        transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
+        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.02);
+        border: 1px solid #eef2f6;
+        display: flex;
+        align-items: center;
+        gap: 16px;
+    }
+    .stat-card-modern:hover {
+        transform: translateY(-4px);
+        box-shadow: 0 20px 35px -12px rgba(0, 0, 0, 0.12);
+        border-color: rgba(22, 163, 74, 0.2);
+    }
+    .stat-icon-bg {
+        width: 56px;
+        height: 56px;
+        background: #e8f5e9;
+        border-radius: 18px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        flex-shrink: 0;
+    }
+    .stat-icon-bg i {
+        font-size: 28px;
+        color: #16a34a;
+    }
+    .stat-content {
+        flex: 1;
+    }
+    .stat-number {
+        font-size: 2rem;
+        font-weight: 800;
+        color: #0f172a;
+        margin-bottom: 4px;
+    }
+    .stat-label {
+        font-size: 0.85rem;
+        color: #64748b;
+        margin-bottom: 6px;
+    }
+    .stat-trend {
+        font-size: 0.7rem;
+        display: inline-flex;
+        align-items: center;
+        gap: 4px;
+        padding: 2px 8px;
+        border-radius: 20px;
+        background: #f1f5f9;
+    }
+    .stat-trend.success {
+        color: #16a34a;
+        background: #e8f5e9;
+    }
+    .stat-trend.warning {
+        color: #f59e0b;
+        background: #fef3c7;
+    }
+
+    /* Action Buttons Row */
+    .action-buttons-row {
+        display: flex;
+        gap: 16px;
+        margin-bottom: 40px;
+        flex-wrap: wrap;
+    }
+    .btn-primary, .btn-secondary {
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+        padding: 10px 24px;
+        border-radius: 12px;
+        font-weight: 600;
+        font-size: 0.85rem;
+        transition: all 0.2s;
+        text-decoration: none;
+        cursor: pointer;
+        border: none;
+    }
+    .btn-primary {
+        background: #16a34a;
+        color: white;
+        box-shadow: 0 4px 8px rgba(22, 163, 74, 0.2);
+    }
+    .btn-primary:hover {
+        background: #15803d;
+        transform: translateY(-2px);
+        box-shadow: 0 8px 16px rgba(22, 163, 74, 0.3);
+    }
+    .btn-secondary {
+        background: white;
+        border: 1px solid #e2e8f0;
+        color: #475569;
+    }
+    .btn-secondary:hover {
+        border-color: #16a34a;
+        color: #16a34a;
+        transform: translateY(-2px);
+    }
+
+    /* Admins Grid */
+    .admins-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(350px, 1fr));
+        gap: 32px;
+    }
+
+    /* Admin Card */
+    .admin-card {
+        background: white;
+        border-radius: 24px;
+        overflow: hidden;
+        transition: all 0.3s ease;
+        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.02);
+        border: 1px solid #eef2f6;
+        display: flex;
+        flex-direction: column;
+    }
+    .admin-card:hover {
+        transform: translateY(-4px);
+        box-shadow: 0 20px 35px -12px rgba(0, 0, 0, 0.12);
+        border-color: rgba(22, 163, 74, 0.2);
+    }
+
+    /* Card Header */
+    .admin-card-header {
+        background: #fafef7;
+        padding: 24px 24px 16px;
+        border-bottom: 1px solid #eef2f0;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+    }
+    .admin-avatar i {
+        font-size: 56px;
+        color: #16a34a;
+        transition: transform 0.3s;
+    }
+    .admin-card:hover .admin-avatar i {
+        transform: scale(1.05);
+    }
+    .status-badge {
+        display: inline-flex;
+        align-items: center;
+        gap: 6px;
+        padding: 4px 12px;
+        border-radius: 30px;
+        font-size: 0.7rem;
+        font-weight: 600;
+    }
+    .status-badge.confirmed {
+        background: #e6f7ec;
+        color: #16a34a;
+    }
+    .status-badge.pending {
+        background: #fef3c7;
+        color: #f59e0b;
+    }
+    .status-badge i {
+        font-size: 6px;
+    }
+
+    /* Card Body */
+    .admin-card-body {
+        padding: 20px 24px;
+        flex: 1;
+    }
+    .admin-email {
+        font-size: 1rem;
+        font-weight: 700;
+        color: #0f172a;
+        margin-bottom: 4px;
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+    }
+    .admin-username {
+        color: #64748b;
+        font-size: 0.8rem;
+        margin-bottom: 20px;
+    }
+    .admin-details {
+        background: #fafef7;
+        border-radius: 14px;
+        padding: 12px;
+    }
+    .detail-item {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+        font-size: 0.8rem;
+    }
+    .detail-item i {
+        width: 28px;
+        height: 28px;
+        background: white;
+        border-radius: 8px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        color: #16a34a;
+        font-size: 0.8rem;
+        box-shadow: 0 1px 2px rgba(0,0,0,0.02);
+    }
+    .detail-label {
+        color: #94a3b8;
+        font-weight: 500;
+    }
+    .detail-value {
+        margin-left: auto;
+        color: #1e293b;
+        font-weight: 600;
+    }
+
+    /* Card Footer */
+    .admin-card-footer {
+        padding: 16px 24px 24px;
+        background: white;
+        border-top: 1px solid #eef2f0;
+    }
+    .btn-remove {
+        width: 100%;
+        background: #fee2e2;
+        color: #dc2626;
+        border: 1px solid #dc2626;
+        padding: 10px;
+        border-radius: 12px;
+        font-weight: 600;
+        font-size: 0.85rem;
+        cursor: pointer;
+        transition: all 0.2s;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 8px;
+    }
+    .btn-remove:hover {
+        background: #dc2626;
+        color: white;
+        transform: translateY(-2px);
+        box-shadow: 0 4px 12px rgba(220, 38, 38, 0.3);
+    }
+
+    /* Empty State */
+    .empty-modern {
+        text-align: center;
+        padding: 80px 20px;
+        background: white;
+        border-radius: 32px;
+        margin-top: 40px;
+    }
+    .empty-icon {
+        width: 80px;
+        height: 80px;
+        background: #f1f5f9;
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        margin: 0 auto 20px;
+        font-size: 2.5rem;
+        color: #94a3b8;
+    }
+    .empty-modern h3 {
+        font-size: 1.3rem;
+        color: #334155;
+        margin-bottom: 8px;
+    }
+    .empty-modern p {
+        color: #64748b;
+    }
+
+    /* Responsive */
+    @@media (max-width: 900px) {
+        .hero-heading {
+            font-size: 2rem;
+        }
+        .stats-grid {
+            grid-template-columns: repeat(2, 1fr);
+        }
+        .admins-grid {
+            grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+        }
+    }
+    @@media (max-width: 768px) {
+        .stats-grid {
+            grid-template-columns: 1fr;
+        }
+        .action-buttons-row {
+            flex-direction: column;
+        }
+        .btn-primary, .btn-secondary {
+            justify-content: center;
+            width: 100%;
+        }
+        .admin-card-header {
+            flex-direction: column;
+            gap: 12px;
+            text-align: center;
+        }
+    }
+</style>

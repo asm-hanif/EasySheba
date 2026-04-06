@@ -1,0 +1,357 @@
+﻿@model IEnumerable<EasySheba.Models.Appointment>
+
+@{
+    ViewData["Title"] = "Bed Appointments | EasySheba";
+    var bedAppointments = Model.Where(a => a.AppointmentType == "Bed").ToList();
+    var pendingCount = bedAppointments.Count(a => a.Status == "Pending");
+    var approvedCount = bedAppointments.Count(a => a.Status == "Approved");
+    var rejectedCount = bedAppointments.Count(a => a.Status == "Rejected");
+}
+
+<div class="dashboard-wrapper">
+    <!-- Hero Section -->
+    <div class="hero-section">
+        <div class="hero-bg-shapes">
+            <div class="shape shape-1"></div>
+            <div class="shape shape-2"></div>
+            <div class="shape shape-3"></div>
+        </div>
+        <div class="hero-content">
+            <div class="hero-tag">
+                <span class="pulse-dot"></span> Hospital Admin
+            </div>
+            <h1 class="hero-heading">
+                Bed <span class="gradient-text">Appointments</span>
+            </h1>
+            <p class="hero-subheading">
+                Manage and approve bed booking requests.
+            </p>
+        </div>
+    </div>
+
+    <!-- Main Content -->
+    <div class="dashboard-main">
+        <!-- Alerts -->
+        @if (TempData["success"] != null)
+        {
+            <div class="alert-modern success">
+                <i class="fas fa-check-circle"></i>
+                <span>@TempData["success"]</span>
+                <button class="alert-close" onclick="this.parentElement.remove()">×</button>
+            </div>
+        }
+        @if (TempData["error"] != null)
+        {
+            <div class="alert-modern error">
+                <i class="fas fa-exclamation-circle"></i>
+                <span>@TempData["error"]</span>
+                <button class="alert-close" onclick="this.parentElement.remove()">×</button>
+            </div>
+        }
+
+        <!-- Stats Cards (Bed-specific) -->
+        <div class="stats-grid">
+            <div class="stat-card-modern">
+                <div class="stat-icon-bg">
+                    <i class="fas fa-bed"></i>
+                </div>
+                <div class="stat-content">
+                    <h3 class="stat-number">@bedAppointments.Count</h3>
+                    <p class="stat-label">Total Bed Requests</p>
+                </div>
+            </div>
+            <div class="stat-card-modern">
+                <div class="stat-icon-bg" style="background:#fef3c7;">
+                    <i class="fas fa-clock" style="color:#d97706;"></i>
+                </div>
+                <div class="stat-content">
+                    <h3 class="stat-number">@pendingCount</h3>
+                    <p class="stat-label">Pending</p>
+                    <span class="stat-trend warning">Need attention</span>
+                </div>
+            </div>
+            <div class="stat-card-modern">
+                <div class="stat-icon-bg" style="background:#e6f7ec;">
+                    <i class="fas fa-check-circle" style="color:#16a34a;"></i>
+                </div>
+                <div class="stat-content">
+                    <h3 class="stat-number">@approvedCount</h3>
+                    <p class="stat-label">Approved</p>
+                    <span class="stat-trend success">Confirmed</span>
+                </div>
+            </div>
+            <div class="stat-card-modern">
+                <div class="stat-icon-bg" style="background:#fee2e2;">
+                    <i class="fas fa-times-circle" style="color:#dc2626;"></i>
+                </div>
+                <div class="stat-content">
+                    <h3 class="stat-number">@rejectedCount</h3>
+                    <p class="stat-label">Rejected</p>
+                    <span class="stat-trend danger">Not approved</span>
+                </div>
+            </div>
+        </div>
+
+        <!-- Filter Tabs -->
+        <div class="filter-tabs">
+            <a asp-action="AllAppointments" class="filter-tab">
+                <i class="fas fa-list"></i> All
+            </a>
+            <a asp-action="DoctorAppointments" class="filter-tab">
+                <i class="fas fa-user-md"></i> Doctors
+            </a>
+            <a asp-action="TestAppointments" class="filter-tab">
+                <i class="fas fa-flask"></i> Tests
+            </a>
+            <a asp-action="BedAppointments" class="filter-tab active">
+                <i class="fas fa-bed"></i> Beds
+            </a>
+            <button id="refreshBtn" class="refresh-modern ms-auto">
+                <i class="fas fa-sync-alt"></i> Refresh
+            </button>
+        </div>
+
+        <!-- Appointments Grid -->
+        @if (!bedAppointments.Any())
+        {
+            <div class="empty-modern">
+                <div class="empty-icon">
+                    <i class="fas fa-bed"></i>
+                </div>
+                <h3>No bed appointments found</h3>
+                <p>There are no bed booking requests at the moment.</p>
+            </div>
+        }
+        else
+        {
+            <div class="doctors-grid-modern" id="appointmentsGrid">
+                @foreach (var appointment in bedAppointments)
+                {
+                    <div class="appointment-card-modern @appointment.Status.ToLower()">
+                        <div class="card-header-modern">
+                            <div class="service-badge">
+                                <i class="fas fa-bed"></i>
+                                <span>Bed</span>
+                            </div>
+                            <div class="status-badge @appointment.Status.ToLower()">
+                                <i class="fas @(appointment.Status == "Approved" ? "fa-check-circle" : appointment.Status == "Pending" ? "fa-clock" : "fa-times-circle")"></i>
+                                <span>@appointment.Status</span>
+                            </div>
+                        </div>
+                        <div class="card-body-modern">
+                            <!-- Bed Info -->
+                            @if (appointment.Bed != null)
+                            {
+                                <div class="info-group">
+                                    <div class="info-title">Bed Details</div>
+                                    <div class="info-row">
+                                        <i class="fas fa-bed"></i>
+                                        <span>@appointment.Bed.BedType</span>
+                                    </div>
+                                    <div class="info-row">
+                                        <i class="fas fa-tag"></i>
+                                        <span>৳@appointment.Bed.PricePerDay / day</span>
+                                    </div>
+                                    <div class="info-row">
+                                        <i class="fas fa-hospital"></i>
+                                        <span>@appointment.Bed.HospitalName</span>
+                                    </div>
+                                    <div class="info-row">
+                                        <i class="fas fa-location-dot"></i>
+                                        <span>@appointment.Bed.HospitalLocation</span>
+                                    </div>
+                                    <div class="info-row">
+                                        <i class="fas fa-thermometer-half"></i>
+                                        <span>@(string.IsNullOrEmpty(appointment.Bed.AcNonAc) ? "Standard" : appointment.Bed.AcNonAc)</span>
+                                    </div>
+                                    <div class="info-row">
+                                        <i class="fas fa-bath"></i>
+                                        <span>@((appointment.Bed.AttachedBathroom ?? false) ? "Attached Bath" : "Shared Bath")</span>
+                                    </div>
+                                    <div class="info-row">
+                                        <i class="fas fa-tv"></i>
+                                        <span>@((appointment.Bed.TvAvailable ?? false) ? "TV" : "No TV")</span>
+                                    </div>
+                                    <div class="info-row">
+                                        <i class="fas fa-wifi"></i>
+                                        <span>@((appointment.Bed.WifiAvailable ?? false) ? "WiFi" : "No WiFi")</span>
+                                    </div>
+                                    <div class="info-row">
+                                        <i class="fas fa-chart-line"></i>
+                                        <span>Available: @appointment.Bed.AvailableBeds / @appointment.Bed.TotalBeds</span>
+                                    </div>
+                                </div>
+                            }
+
+                            <!-- Patient Info -->
+                            <div class="info-group">
+                                <div class="info-title">Patient Details</div>
+                                <div class="info-row">
+                                    <i class="fas fa-user"></i>
+                                    <span>@appointment.PatientName</span>
+                                </div>
+                                <div class="info-row">
+                                    <i class="fas fa-phone-alt"></i>
+                                    <span>@appointment.Phone</span>
+                                </div>
+                                @if (!string.IsNullOrEmpty(appointment.Email))
+                                {
+                                    <div class="info-row">
+                                        <i class="fas fa-envelope"></i>
+                                        <span>@appointment.Email</span>
+                                    </div>
+                                }
+                            </div>
+
+                            <!-- Schedule -->
+                            <div class="info-group">
+                                <div class="info-title">Admission Schedule</div>
+                                <div class="info-row">
+                                    <i class="fas fa-calendar-day"></i>
+                                    <span>@appointment.AppointmentDate.ToString("dddd, MMM dd, yyyy")</span>
+                                </div>
+                                <div class="info-row">
+                                    <i class="fas fa-clock"></i>
+                                    <span>@appointment.AppointmentTime</span>
+                                </div>
+                                <div class="info-row">
+                                    <i class="fas fa-calendar-plus"></i>
+                                    <span>Booked: @appointment.BookedAt.ToString("dd/MM/yyyy hh:mm tt")</span>
+                                </div>
+                            </div>
+                        </div>
+
+                        @if (appointment.Status == "Pending")
+                        {
+                            <div class="card-footer-modern">
+                                <form asp-action="ApproveAppointment" method="post" style="display:inline;">
+                                    @Html.AntiForgeryToken()
+                                    <input type="hidden" name="id" value="@appointment.Id" />
+                                    <button type="submit" class="btn-approve"
+                                            @(appointment.Bed != null && appointment.Bed.AvailableBeds <= 0 ? "disabled" : "")>
+                                        <i class="fas fa-check-circle"></i> Approve
+                                    </button>
+                                </form>
+                                <form asp-action="RejectAppointment" method="post" style="display:inline;">
+                                    @Html.AntiForgeryToken()
+                                    <input type="hidden" name="id" value="@appointment.Id" />
+                                    <button type="submit" class="btn-reject">
+                                        <i class="fas fa-times-circle"></i> Reject
+                                    </button>
+                                </form>
+                            </div>
+                            @if (appointment.Bed != null && appointment.Bed.AvailableBeds <= 0)
+                            {
+                                <div class="alert-small warning">
+                                    <i class="fas fa-exclamation-triangle"></i> No beds available of this type
+                                </div>
+                            }
+                        }
+                        else
+                        {
+                            <div class="card-footer-modern processed">
+                                <i class="fas fa-check-double"></i> Processed on @DateTime.Now.ToString("dd/MM/yyyy")
+                            </div>
+                        }
+                    </div>
+                }
+            </div>
+        }
+    </div>
+</div>
+
+@section Scripts {
+    <script>
+        $(document).ready(function() {
+            $("#refreshBtn").on("click", function() {
+                location.reload();
+            });
+        });
+    </script>
+}
+
+<style>
+    /* ========== MODERN STYLES (same as All Appointments page) ========== */
+    /* Copy all the styles from the previously redesigned "All Appointments" page */
+    /* For brevity, I'm including the essential styles; but you can copy the exact same <style> block from the All Appointments page */
+    .dashboard-wrapper {
+        background: #f5f7fb;
+        min-height: 100vh;
+    }
+    .hero-section {
+        background: linear-gradient(125deg, #ffffff 0%, #f8fafc 100%);
+        padding: 60px 5% 80px;
+        position: relative;
+        overflow: hidden;
+    }
+    .hero-bg-shapes { position: absolute; top: 0; left: 0; width: 100%; height: 100%; pointer-events: none; }
+    .shape { position: absolute; border-radius: 50%; background: rgba(22, 163, 74, 0.03); }
+    .shape-1 { width: 400px; height: 400px; top: -150px; right: -100px; }
+    .shape-2 { width: 250px; height: 250px; bottom: -80px; left: 10%; background: rgba(22, 163, 74, 0.05); }
+    .shape-3 { width: 180px; height: 180px; top: 30%; left: -60px; background: rgba(22, 163, 74, 0.04); }
+    .hero-content { max-width: 1100px; margin: 0 auto; position: relative; z-index: 2; text-align: center; }
+    .hero-tag { display: inline-flex; align-items: center; gap: 8px; background: rgba(22, 163, 74, 0.1); padding: 6px 18px; border-radius: 40px; font-size: 0.8rem; font-weight: 500; color: #16a34a; margin-bottom: 24px; }
+    .pulse-dot { width: 8px; height: 8px; background: #16a34a; border-radius: 50%; display: inline-block; animation: pulse 1.5s infinite; }
+    @@keyframes pulse { 0%, 100% { opacity: 1; transform: scale(1); } 50% { opacity: 0.5; transform: scale(1.2); } }
+    .hero-heading { font-size: 3.5rem; font-weight: 800; color: #0f172a; margin-bottom: 16px; line-height: 1.2; }
+    .gradient-text { background: linear-gradient(135deg, #16a34a, #15803d); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text; }
+    .hero-subheading { font-size: 1.1rem; color: #5a6e8a; max-width: 550px; margin: 0 auto; }
+    .dashboard-main { max-width: 1300px; margin: 0 auto; padding: 40px 24px 60px; }
+    .alert-modern { display: flex; align-items: center; gap: 12px; padding: 14px 20px; border-radius: 16px; margin-bottom: 24px; animation: slideIn 0.3s ease; }
+    @@keyframes slideIn { from { transform: translateY(-10px); opacity: 0; } to { transform: translateY(0); opacity: 1; } }
+    .alert-modern.success { background: #e8f5e9; border-left: 4px solid #16a34a; color: #1e7b3a; }
+    .alert-modern.error { background: #ffebee; border-left: 4px solid #ef4444; color: #b91c1c; }
+    .alert-close { margin-left: auto; background: none; border: none; font-size: 1.2rem; cursor: pointer; color: inherit; opacity: 0.6; }
+    .stats-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 24px; margin-bottom: 40px; }
+    .stat-card-modern { background: white; border-radius: 24px; padding: 20px; transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1); box-shadow: 0 2px 8px rgba(0, 0, 0, 0.02); border: 1px solid #eef2f6; display: flex; align-items: center; gap: 16px; }
+    .stat-card-modern:hover { transform: translateY(-4px); box-shadow: 0 20px 35px -12px rgba(0, 0, 0, 0.12); border-color: rgba(22, 163, 74, 0.2); }
+    .stat-icon-bg { width: 56px; height: 56px; background: #e8f5e9; border-radius: 18px; display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
+    .stat-icon-bg i { font-size: 28px; color: #16a34a; }
+    .stat-content { flex: 1; }
+    .stat-number { font-size: 2rem; font-weight: 800; color: #0f172a; margin-bottom: 4px; }
+    .stat-label { font-size: 0.85rem; color: #64748b; margin-bottom: 6px; }
+    .stat-trend { font-size: 0.7rem; display: inline-flex; align-items: center; gap: 4px; padding: 2px 8px; border-radius: 20px; background: #f1f5f9; }
+    .stat-trend.warning { color: #d97706; background: #fef3c7; }
+    .stat-trend.success { color: #16a34a; background: #e8f5e9; }
+    .stat-trend.danger { color: #dc2626; background: #fee2e2; }
+    .filter-tabs { display: flex; flex-wrap: wrap; gap: 12px; align-items: center; margin-bottom: 32px; padding-bottom: 12px; border-bottom: 1px solid #e2e8f0; }
+    .filter-tab { display: inline-flex; align-items: center; gap: 8px; padding: 8px 20px; border-radius: 40px; font-size: 0.85rem; font-weight: 500; color: #475569; text-decoration: none; transition: all 0.2s; background: white; border: 1px solid #e2e8f0; }
+    .filter-tab i { font-size: 0.9rem; }
+    .filter-tab:hover, .filter-tab.active { background: #16a34a; border-color: #16a34a; color: white; }
+    .refresh-modern { background: transparent; border: 1px solid #e2e8f0; padding: 8px 20px; border-radius: 40px; font-size: 0.8rem; font-weight: 500; cursor: pointer; transition: all 0.2s; display: inline-flex; align-items: center; gap: 8px; color: #475569; }
+    .refresh-modern:hover { border-color: #16a34a; color: #16a34a; background: #f0fdf4; }
+    .doctors-grid-modern { display: grid; grid-template-columns: repeat(3, 1fr); gap: 32px; align-items: stretch; }
+    .appointment-card-modern { background: white; border-radius: 28px; box-shadow: 0 2px 8px rgba(0, 0, 0, 0.02); border: 1px solid #eef2f6; display: flex; flex-direction: column; height: 100%; transition: all 0.3s ease; }
+    .appointment-card-modern:hover { transform: translateY(-4px); box-shadow: 0 20px 35px -12px rgba(0, 0, 0, 0.12); border-color: rgba(22, 163, 74, 0.2); }
+    .appointment-card-modern.pending { border-left: 4px solid #f59e0b; }
+    .appointment-card-modern.approved { border-left: 4px solid #16a34a; }
+    .appointment-card-modern.rejected { border-left: 4px solid #ef4444; }
+    .card-header-modern { display: flex; justify-content: space-between; align-items: center; padding: 16px 20px; border-bottom: 1px solid #eef2f0; }
+    .service-badge { display: inline-flex; align-items: center; gap: 6px; background: #e6f7ec; padding: 4px 12px; border-radius: 20px; font-size: 0.7rem; font-weight: 600; color: #16a34a; }
+    .status-badge { display: inline-flex; align-items: center; gap: 6px; padding: 4px 12px; border-radius: 20px; font-size: 0.7rem; font-weight: 600; }
+    .status-badge.approved { background: #e6f7ec; color: #16a34a; }
+    .status-badge.pending { background: #fef3c7; color: #d97706; }
+    .status-badge.rejected { background: #fee2e2; color: #dc2626; }
+    .card-body-modern { padding: 20px; flex: 1; }
+    .info-group { margin-bottom: 20px; }
+    .info-group:last-child { margin-bottom: 0; }
+    .info-title { font-size: 0.75rem; font-weight: 600; text-transform: uppercase; letter-spacing: 0.5px; color: #94a3b8; margin-bottom: 10px; }
+    .info-row { display: flex; align-items: center; gap: 10px; font-size: 0.85rem; color: #1e293b; margin-bottom: 8px; }
+    .info-row i { width: 20px; color: #16a34a; font-size: 0.8rem; }
+    .card-footer-modern { padding: 16px 20px 20px; border-top: 1px solid #eef2f0; display: flex; gap: 12px; }
+    .card-footer-modern.processed { background: #f8fafc; font-size: 0.75rem; color: #64748b; justify-content: center; gap: 6px; }
+    .btn-approve, .btn-reject { flex: 1; padding: 10px; border-radius: 12px; font-size: 0.8rem; font-weight: 600; cursor: pointer; transition: all 0.2s; border: none; display: inline-flex; align-items: center; justify-content: center; gap: 8px; }
+    .btn-approve { background: #e6f7ec; color: #16a34a; border: 1px solid #16a34a; }
+    .btn-approve:hover:not(:disabled) { background: #16a34a; color: white; transform: translateY(-2px); }
+    .btn-approve:disabled { opacity: 0.5; cursor: not-allowed; }
+    .btn-reject { background: #fee2e2; color: #dc2626; border: 1px solid #dc2626; }
+    .btn-reject:hover { background: #dc2626; color: white; transform: translateY(-2px); }
+    .alert-small { padding: 8px 12px; margin: 8px 20px 16px; border-radius: 10px; font-size: 0.75rem; display: flex; align-items: center; gap: 6px; }
+    .alert-small.warning { background: #fef3c7; color: #d97706; }
+    .empty-modern { text-align: center; padding: 80px 20px; background: white; border-radius: 32px; margin-top: 40px; }
+    .empty-icon { width: 80px; height: 80px; background: #f1f5f9; border-radius: 50%; display: flex; align-items: center; justify-content: center; margin: 0 auto 20px; font-size: 2.5rem; color: #94a3b8; }
+    .empty-modern h3 { font-size: 1.3rem; color: #334155; margin-bottom: 8px; }
+    .empty-modern p { color: #64748b; }
+    @@media (max-width: 1100px) { .stats-grid { grid-template-columns: repeat(2, 1fr); } .doctors-grid-modern { grid-template-columns: repeat(2, 1fr); } }
+    @@media (max-width: 768px) { .hero-heading { font-size: 2rem; } .stats-grid { grid-template-columns: 1fr; } .doctors-grid-modern { grid-template-columns: 1fr; } .filter-tabs { justify-content: center; } .refresh-modern { margin-left: 0 !important; width: 100%; justify-content: center; } }
+</style>

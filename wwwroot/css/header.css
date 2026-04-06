@@ -1,0 +1,301 @@
+﻿/* ================= TOPBAR ================= */
+.topbar {
+    background: #023880;
+    color: white;
+    padding: 8px 0;
+    font-size: 14px;
+    margin: 0;
+    width: 100%;
+}
+
+.topbar-left span {
+    margin-right: 15px;
+}
+
+.topbar-right a {
+    color: white;
+    margin-left: 12px;
+    transition: 0.3s;
+}
+
+    .topbar-right a:hover {
+        color: #b9cee3;
+    }
+
+/* ================= NAVBAR ================= */
+.main-navbar {
+    background: white;
+    padding: 16px 0;
+    box-shadow: 0 5px 20px rgba(0,0,0,0.08);
+    position: sticky;
+    top: 0;
+    z-index: 999;
+    margin: 0;
+    width: 100%;
+}
+
+/* Logo */
+.logo {
+    font-size: 22px;
+    font-weight: bold;
+    color: #023880 !important;
+    display: flex;
+    align-items: center;
+}
+
+    .logo img {
+        width: 42px;
+        margin-right: 10px;
+    }
+
+/* Nav Links */
+.navbar-nav .nav-link {
+    margin: 0 10px;
+    font-weight: 500;
+    color: #222 !important;
+    transition: 0.3s;
+}
+
+    .navbar-nav .nav-link:hover {
+        color: #023880 !important;
+    }
+
+/* User Email Display */
+.navbar-nav .user-email {
+    background: rgba(2,56,128,0.1);
+    color: #023880 !important;
+    font-weight: 600;
+    border-radius: 30px;
+    padding: 6px 18px !important;
+    margin: 0 5px;
+}
+
+/* Role-based Button Styles */
+.appointment-btn, .dashboard-btn, .super-dashboard-btn {
+    background: #023880;
+    color: white !important;
+    border-radius: 30px;
+    padding: 6px 20px !important;
+    margin: 0 5px;
+}
+
+    .appointment-btn:hover, .dashboard-btn:hover, .super-dashboard-btn:hover {
+        background: #034a9c;
+        color: white !important;
+    }
+
+.super-dashboard-btn {
+    background: #8e44ad;
+}
+
+    .super-dashboard-btn:hover {
+        background: #9b59b6;
+    }
+
+/* Login/Register Buttons - FIXED */
+.login-btn, .register-btn {
+    border: 2px solid #023880;
+    border-radius: 30px;
+    padding: 6px 20px !important;
+    text-decoration: none;
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    transition: all 0.3s ease;
+}
+
+.login-btn {
+    color: #023880 !important;
+    background: transparent;
+}
+
+    .login-btn:hover {
+        background: #023880;
+        color: white !important;
+    }
+
+.register-btn {
+    background: #023880;
+    color: white !important;
+}
+
+    .register-btn:hover {
+        background: #034a9c;
+        border-color: #034a9c;
+        transform: translateY(-2px);
+        box-shadow: 0 5px 15px rgba(2,56,128,0.3);
+    }
+
+/* Logout Button */
+.logout-btn {
+    color: #dc3545 !important;
+    background: rgba(220,53,69,0.1);
+    border-radius: 30px;
+    padding: 6px 20px !important;
+    border: none !important;
+}
+
+    .logout-btn:hover {
+        background: #dc3545 !important;
+        color: white !important;
+    }
+
+/* Dropdown */
+.dropdown-menu {
+    border-radius: 12px;
+    border: none;
+    box-shadow: 0 8px 20px rgba(0,0,0,0.12);
+    padding: 10px;
+}
+
+.dropdown-item {
+    padding: 10px;
+    border-radius: 8px;
+    transition: 0.2s;
+}
+
+    .dropdown-item:hover {
+        background: #023880;
+        color: white;
+    }
+
+/* ================= SEARCH ICON ================= */
+.search-icon-btn {
+    border: none;
+    background: transparent;
+    font-size: 18px;
+    color: #023880;
+    cursor: pointer;
+    padding: 6px 10px;
+    border-radius: 8px;
+    transition: 0.3s;
+}
+
+    .search-icon-btn:hover {
+        background: rgba(2,56,128,0.1);
+    }
+
+/* ================= SEARCH OVERLAY ================= */
+.search-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0,0,0,0.6);
+    display: none;
+    justify-content: center;
+    align-items: center;
+    z-index: 2000;
+}
+
+    .search-overlay.active {
+        display: flex;
+    }
+
+.search-popup {
+    background: white;
+    padding: 25px;
+    border-radius: 18px;
+    width: 420px;
+    max-width: 90%;
+    box-shadow: 0 10px 30px rgba(0,0,0,0.25);
+    position: relative;
+}
+
+    .search-popup input {
+        width: 100%;
+        padding: 12px 15px 12px 45px;
+        border-radius: 12px;
+        border: 1px solid #ddd;
+        font-size: 15px;
+    }
+
+        .search-popup input:focus {
+            outline: none;
+            border-color: #023880;
+            box-shadow: 0 0 8px rgba(2,56,128,0.25);
+        }
+
+    .search-popup .search-icon {
+        position: absolute;
+        left: 40px;
+        top: 53px;
+        color: #7f8c8d;
+    }
+
+/* Search Results */
+.search-results-list {
+    max-height: 300px;
+    overflow-y: auto;
+}
+
+    .search-results-list h6 {
+        color: #023880;
+        font-size: 14px;
+        font-weight: 600;
+        margin-bottom: 10px;
+        padding-left: 5px;
+    }
+
+.result-item {
+    display: block;
+    padding: 10px 15px;
+    border-radius: 8px;
+    transition: all 0.2s ease;
+    text-decoration: none;
+    border-left: 3px solid transparent;
+}
+
+    .result-item:hover {
+        background: #f8fbff;
+        border-left-color: #023880;
+        text-decoration: none;
+    }
+
+.result-title {
+    display: block;
+    font-weight: 600;
+    color: #2c3e50;
+    margin-bottom: 3px;
+}
+
+.result-subtitle {
+    display: block;
+    font-size: 12px;
+    color: #7f8c8d;
+}
+
+/* ================= RESPONSIVE ================= */
+@media (max-width: 991px) {
+    .navbar-nav .nav-link {
+        margin: 5px 0;
+        text-align: center;
+    }
+
+    .navbar-nav .user-email,
+    .appointment-btn,
+    .dashboard-btn,
+    .super-dashboard-btn,
+    .logout-btn,
+    .login-btn,
+    .register-btn {
+        margin: 5px auto;
+        width: fit-content;
+    }
+}
+
+@media (max-width: 768px) {
+    .topbar-left span {
+        display: block;
+        margin-bottom: 5px;
+    }
+
+    .topbar {
+        text-align: center;
+    }
+
+    .topbar-right {
+        margin-top: 8px;
+    }
+}

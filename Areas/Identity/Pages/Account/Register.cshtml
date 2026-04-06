@@ -1,0 +1,221 @@
+﻿@page
+@model RegisterModel
+@{
+    ViewData["Title"] = "Register";
+}
+
+<div class="container py-5">
+
+    <div class="row justify-content-center">
+        <div class="col-md-7">
+
+            <div class="card shadow-lg border-0 rounded-4 p-5">
+
+                <h2 class="text-center fw-bold mb-2">
+                    Create Your EasySheba Account
+                </h2>
+
+                <p class="text-center text-muted mb-4">
+                    Select your role and complete registration
+                </p>
+
+                <form method="post" enctype="multipart/form-data">
+
+                    <!-- Validation -->
+                    <div asp-validation-summary="ModelOnly"
+                         class="text-danger mb-3"></div>
+
+                    <!-- ========================= -->
+                    <!-- Role Dropdown -->
+                    <!-- ========================= -->
+                    <div class="mb-4">
+                        <label class="form-label fw-semibold">
+                            Register As
+                        </label>
+
+                        <select class="form-select form-select-lg"
+                                id="roleSelect"
+                                name="Input.Role"
+                                onchange="toggleForms()"
+                                required>
+
+                            <option value="">-- Select Role --</option>
+                            <option value="Patient">Patient</option>
+                            <option value="HospitalAdmin">Hospital Admin</option>
+
+                        </select>
+                    </div>
+
+                    <!-- ========================= -->
+                    <!-- PATIENT FORM -->
+                    <!-- ========================= -->
+                    <div id="patientForm" style="display:none;">
+
+                        <h5 class="fw-bold mt-4 mb-3">
+                            Patient Registration
+                        </h5>
+
+                        <!-- Full Name -->
+                        <div class="mb-3">
+                            <label class="form-label">Full Name</label>
+                            <input name="Input.FullName"
+                                   class="form-control form-control-lg"
+                                   placeholder="Enter your full name"
+                                   required />
+                        </div>
+
+                        <!-- Email -->
+                        <div class="mb-3">
+                            <label class="form-label">Email Address</label>
+                            <input asp-for="Input.Email"
+                                   class="form-control form-control-lg"
+                                   placeholder="Enter your email"
+                                   required />
+                        </div>
+
+                        <!-- Password -->
+                        <div class="mb-3">
+                            <label class="form-label">Password</label>
+                            <input asp-for="Input.Password"
+                                   class="form-control form-control-lg"
+                                   placeholder="Enter password"
+                                   required />
+                        </div>
+
+                        <!-- Confirm Password -->
+                        <div class="mb-3">
+                            <label class="form-label">Confirm Password</label>
+                            <input asp-for="Input.ConfirmPassword"
+                                   class="form-control form-control-lg"
+                                   placeholder="Confirm password"
+                                   required />
+                        </div>
+
+                    </div>
+
+                    <!-- ========================= -->
+                    <!-- HOSPITAL ADMIN FORM -->
+                    <!-- ========================= -->
+                    <div id="adminForm" style="display:none;">
+
+                        <h5 class="fw-bold mt-4 mb-3">
+                            Hospital Admin Registration
+                        </h5>
+
+                        <!-- Hospital Name -->
+                        <div class="mb-3">
+                            <label class="form-label">Hospital Name</label>
+                            <input name="Input.HospitalName"
+                                   class="form-control form-control-lg"
+                                   placeholder="Enter hospital name"
+                                   required />
+                        </div>
+
+                        <!-- Email -->
+                        <div class="mb-3">
+                            <label class="form-label">Official Email</label>
+                            <input name="Input.AdminEmail"
+                                   class="form-control form-control-lg"
+                                   placeholder="Enter hospital email"
+                                   required />
+                        </div>
+
+                        <!-- Contact -->
+                        <div class="mb-3">
+                            <label class="form-label">Contact Number</label>
+                            <input name="Input.ContactNumber"
+                                   class="form-control form-control-lg"
+                                   placeholder="Enter contact number"
+                                   required />
+                        </div>
+
+                        <!-- Password -->
+                        <div class="mb-3">
+                            <label class="form-label">Password</label>
+                            <input name="Input.AdminPassword"
+                                   type="password"
+                                   class="form-control form-control-lg"
+                                   placeholder="Create password"
+                                   required />
+                        </div>
+
+                        <!-- Confirm Password -->
+                        <div class="mb-3">
+                            <label class="form-label">Confirm Password</label>
+                            <input name="Input.AdminConfirmPassword"
+                                   type="password"
+                                   class="form-control form-control-lg"
+                                   placeholder="Confirm password"
+                                   required />
+                        </div>
+
+                        <!-- Upload Documents -->
+                        <div class="mb-3">
+                            <label class="form-label">
+                                Upload Hospital Documents
+                            </label>
+
+                            <input type="file"
+                                   name="Input.Documents"
+                                   class="form-control form-control-lg"
+                                   multiple
+                                   required />
+
+                            <small class="text-muted">
+                                Upload license, approval papers, authenticity proof.
+                            </small>
+                        </div>
+
+                    </div>
+
+                    <!-- ========================= -->
+                    <!-- Submit Button -->
+                    <!-- ========================= -->
+                    <button type="submit"
+                            class="btn btn-primary btn-lg w-100 mt-4 rounded-3">
+                        Register Now
+                    </button>
+
+                    <!-- Login Link -->
+                    <div class="text-center mt-3">
+                        Already have an account?
+                        <a asp-page="./Login"
+                           class="fw-bold text-decoration-none">
+                            Login Here
+                        </a>
+                    </div>
+
+                </form>
+
+            </div>
+
+        </div>
+    </div>
+
+</div>
+
+
+<!-- ========================= -->
+<!-- JavaScript Toggle -->
+<!-- ========================= -->
+<script>
+    function toggleForms() {
+
+        var role = document.getElementById("roleSelect").value;
+
+        document.getElementById("patientForm").style.display = "none";
+        document.getElementById("adminForm").style.display = "none";
+
+        if (role === "Patient") {
+            document.getElementById("patientForm").style.display = "block";
+        }
+
+        if (role === "HospitalAdmin") {
+            document.getElementById("adminForm").style.display = "block";
+        }
+    }
+</script>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+}

@@ -1,0 +1,857 @@
+﻿@{
+    ViewData["Title"] = "Home | EasySheba";
+}
+
+<!-- ================= HERO SECTION ================= -->
+<section class="hero-section">
+    <!-- Animated Icons Background -->
+    <div class="hero-bg">
+        <i class="fas fa-heart"></i>
+        <i class="fas fa-stethoscope"></i>
+        <i class="fas fa-pills"></i>
+        <i class="fas fa-notes-medical"></i>
+        <i class="fas fa-first-aid"></i>
+        <i class="fas fa-heartbeat"></i>
+        <i class="fas fa-hospital-user"></i>
+        <i class="fas fa-lungs"></i>
+        <i class="fas fa-brain"></i>
+        <i class="fas fa-bone"></i>
+    </div>
+
+    <div class="hero-container">
+        <!-- LEFT CONTENT -->
+        <div class="hero-left">
+            <div class="hero-badge">
+                <i class="fas fa-shield-heart"></i> Trusted Healthcare Platform
+            </div>
+
+            <h1 class="hero-title">
+                Welcome to <span class="brand-highlight">EasySheba</span>
+            </h1>
+
+            <p class="hero-description">
+                EasySheba connects you to top hospitals across Bangladesh for doctor appointments,
+                medical tests, and emergency bed bookings — all with speed and care.
+            </p>
+
+            <div class="hero-buttons">
+                <a href="/Doctor" class="btn-primary">
+                    <i class="fas fa-calendar-check"></i> Get Appointment
+                </a>
+                <a href="/Blog" class="btn-secondary">
+                    <i class="fas fa-play-circle"></i> Watch Video
+                </a>
+            </div>
+
+            <div class="hero-stats">
+                <div class="stat-item">
+                    <div class="stat-number">150+</div>
+                    <div class="stat-label">Specialist Doctors</div>
+                </div>
+                <div class="stat-item">
+                    <div class="stat-number">50+</div>
+                    <div class="stat-label">Partner Hospitals</div>
+                </div>
+                <div class="stat-item">
+                    <div class="stat-number">5000+</div>
+                    <div class="stat-label">Happy Patients</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- RIGHT CONTENT -->
+        <div class="hero-right">
+            <div class="clock-card">
+                <div class="clock-icon">
+                    <i class="fas fa-clock"></i>
+                </div>
+                <div class="clock-time" id="clock">--:--:--</div>
+                <div class="clock-date" id="date">Loading...</div>
+                <div class="greeting-text" id="greeting"></div>
+            </div>
+
+            <div class="feature-badges">
+                <div class="badge-item"><i class="fas fa-shield-alt"></i><span>Secure</span></div>
+                <div class="badge-item"><i class="fas fa-bolt"></i><span>Instant</span></div>
+                <div class="badge-item"><i class="fas fa-headset"></i><span>24/7</span></div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- ================= SERVICES SECTION ================= -->
+<section class="services-section">
+    <div class="container">
+        <div class="section-header">
+            <div class="section-subtitle">What We Offer</div>
+            <h2 class="section-title">Our <span class="gradient-text">Services</span></h2>
+            <p class="section-description">Reliable healthcare services designed for you</p>
+        </div>
+
+        <!-- Service Card 1 -->
+        <div class="service-card">
+            <div class="service-image">
+                <img src="~/images/doctorappointment.jpg" alt="Doctor Appointment">
+            </div>
+            <div class="service-content">
+                <div class="service-tag popular">Popular</div>
+                <h3>Doctor Appointment</h3>
+                <p>Book your doctor appointment easily and securely. Get reminders and manage schedules effortlessly.</p>
+                <ul class="service-features">
+                    <li><i class="fas fa-check-circle"></i> 150+ Specialist Doctors</li>
+                    <li><i class="fas fa-check-circle"></i> Instant Booking System</li>
+                    <li><i class="fas fa-check-circle"></i> No Waiting Hassle</li>
+                </ul>
+                <a href="/Doctor" class="btn-primary">Book Appointment <i class="fas fa-arrow-right"></i></a>
+            </div>
+        </div>
+
+        <!-- Service Card 2 -->
+        <div class="service-card reverse">
+            <div class="service-image">
+                <img src="~/images/medicaltest.jpg" alt="Medical Test">
+            </div>
+            <div class="service-content">
+                <div class="service-tag diagnostic">Diagnostic</div>
+                <h3>Medical Test Booking</h3>
+                <p>Schedule tests at trusted labs or hospitals. Fast reports and home sample collection available.</p>
+                <ul class="service-features">
+                    <li><i class="fas fa-check-circle"></i> Trusted Hospitals & Labs</li>
+                    <li><i class="fas fa-check-circle"></i> Fast Report Delivery</li>
+                    <li><i class="fas fa-check-circle"></i> Home Sample Available</li>
+                </ul>
+                <a href="/MedicalTest" class="btn-primary">Schedule Test <i class="fas fa-arrow-right"></i></a>
+            </div>
+        </div>
+
+        <!-- Service Card 3 -->
+        <div class="service-card">
+            <div class="service-image">
+                <img src="~/images/bedappointment.jpg" alt="Bed Booking">
+            </div>
+            <div class="service-content">
+                <div class="service-tag emergency">Emergency</div>
+                <h3>Bed Booking</h3>
+                <p>Book emergency beds in real-time. ICU and CCU availability at your fingertips.</p>
+                <ul class="service-features">
+                    <li><i class="fas fa-check-circle"></i> Real-time Availability</li>
+                    <li><i class="fas fa-check-circle"></i> ICU / CCU Support</li>
+                    <li><i class="fas fa-check-circle"></i> Quick Confirmation</li>
+                </ul>
+                <a href="/Bed" class="btn-primary">Book Bed <i class="fas fa-arrow-right"></i></a>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- ================= WHY CHOOSE US ================= -->
+<section class="why-section">
+    <div class="container">
+        <div class="section-header text-center">
+            <h2 class="section-title">Why Choose <span class="gradient-text">EasySheba</span></h2>
+        </div>
+
+        <div class="features-grid">
+            <div class="feature-card">
+                <div class="feature-icon"><i class="fas fa-bolt"></i></div>
+                <h4>Fast</h4>
+                <p>Instant booking at your fingertips</p>
+            </div>
+            <div class="feature-card">
+                <div class="feature-icon"><i class="fas fa-shield-alt"></i></div>
+                <h4>Secure</h4>
+                <p>Protected personal and medical data</p>
+            </div>
+            <div class="feature-card">
+                <div class="feature-icon"><i class="fas fa-clock"></i></div>
+                <h4>24/7</h4>
+                <p>Always active and responsive</p>
+            </div>
+            <div class="feature-card">
+                <div class="feature-icon"><i class="fas fa-hand-holding-usd"></i></div>
+                <h4>Affordable</h4>
+                <p>No hidden costs, transparent pricing</p>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- ================= TESTIMONIALS ================= -->
+<section class="testimonials-section">
+    <div class="container">
+        <div class="section-header text-center">
+            <h2 class="section-title">What Our <span class="gradient-text">Patients Say</span></h2>
+        </div>
+
+        <div class="testimonials-grid">
+            <div class="testimonial-card">
+                <i class="fas fa-quote-left quote-icon"></i>
+                <p>"Very easy to book doctor!"</p>
+                <div class="testimonial-author">
+                    <strong>Rahima Begum</strong>
+                </div>
+            </div>
+            <div class="testimonial-card">
+                <i class="fas fa-quote-left quote-icon"></i>
+                <p>"Got ICU bed fast!"</p>
+                <div class="testimonial-author">
+                    <strong>Kamal Hossain</strong>
+                </div>
+            </div>
+            <div class="testimonial-card">
+                <i class="fas fa-quote-left quote-icon"></i>
+                <p>"Test booking is smooth!"</p>
+                <div class="testimonial-author">
+                    <strong>Nusrat Jahan</strong>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+@section Scripts {
+    <script>
+        function updateClock() {
+            const now = new Date();
+            document.getElementById('clock').innerHTML = now.toLocaleTimeString();
+            document.getElementById('date').innerHTML = now.toDateString();
+            
+            const hour = now.getHours();
+            let greeting = '';
+            if (hour < 12) greeting = 'Good Morning 🌅';
+            else if (hour < 17) greeting = 'Good Afternoon ☀️';
+            else greeting = 'Good Evening 🌙';
+            document.getElementById('greeting').innerHTML = greeting;
+        }
+        updateClock();
+        setInterval(updateClock, 1000);
+    </script>
+}
+
+<style>
+    /* Reset & Base */
+    * {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+    }
+
+    body {
+        font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', sans-serif;
+        color: #1e293b;
+        line-height: 1.5;
+        overflow-x: hidden;
+    }
+
+    .container {
+        max-width: 1200px;
+        margin: 0 auto;
+        padding: 0 24px;
+    }
+
+    /* Hero Section */
+    .hero-section {
+        background: linear-gradient(135deg, #f8fafc 0%, #f1f5f9 100%);
+        padding: 80px 5%;
+        position: relative;
+        overflow: hidden;
+        min-height: 100vh;
+        display: flex;
+        align-items: center;
+    }
+
+    /* Animated Background Icons */
+    .hero-bg {
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        pointer-events: none;
+        z-index: 0;
+    }
+
+    .hero-bg i {
+        position: absolute;
+        font-size: 35px;
+        color: rgba(22, 163, 74, 0.12);
+        animation: floatIcon 20s ease-in-out infinite;
+    }
+
+    /* Individual icon positions and animation delays */
+    .hero-bg i:nth-child(1) { top: 15%; left: 5%; animation-duration: 18s; animation-delay: 0s; font-size: 40px; }
+    .hero-bg i:nth-child(2) { top: 25%; left: 85%; animation-duration: 22s; animation-delay: 2s; font-size: 45px; }
+    .hero-bg i:nth-child(3) { top: 70%; left: 12%; animation-duration: 20s; animation-delay: 1s; font-size: 38px; }
+    .hero-bg i:nth-child(4) { top: 55%; left: 78%; animation-duration: 24s; animation-delay: 3s; font-size: 42px; }
+    .hero-bg i:nth-child(5) { top: 85%; left: 45%; animation-duration: 16s; animation-delay: 0.5s; font-size: 35px; }
+    .hero-bg i:nth-child(6) { top: 40%; left: 65%; animation-duration: 19s; animation-delay: 1.5s; font-size: 44px; }
+    .hero-bg i:nth-child(7) { top: 10%; left: 35%; animation-duration: 21s; animation-delay: 2.5s; font-size: 32px; }
+    .hero-bg i:nth-child(8) { top: 60%; left: 92%; animation-duration: 17s; animation-delay: 1s; font-size: 38px; }
+    .hero-bg i:nth-child(9) { top: 45%; left: 18%; animation-duration: 23s; animation-delay: 3.5s; font-size: 36px; }
+    .hero-bg i:nth-child(10) { top: 80%; left: 72%; animation-duration: 15s; animation-delay: 2s; font-size: 41px; }
+
+    @@keyframes floatIcon {
+        0% {
+            transform: translateY(0px) translateX(0px) rotate(0deg);
+            opacity: 0.12;
+        }
+        25% {
+            transform: translateY(-30px) translateX(15px) rotate(5deg);
+            opacity: 0.2;
+        }
+        50% {
+            transform: translateY(-15px) translateX(-10px) rotate(10deg);
+            opacity: 0.18;
+        }
+        75% {
+            transform: translateY(20px) translateX(5px) rotate(5deg);
+            opacity: 0.15;
+        }
+        100% {
+            transform: translateY(0px) translateX(0px) rotate(0deg);
+            opacity: 0.12;
+        }
+    }
+
+    .hero-container {
+        max-width: 1280px;
+        margin: 0 auto;
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 60px;
+        position: relative;
+        z-index: 1;
+        width: 100%;
+    }
+
+    .hero-left {
+        flex: 1;
+    }
+
+    .hero-badge {
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+        background: rgba(22, 163, 74, 0.1);
+        color: #16a34a;
+        padding: 8px 20px;
+        border-radius: 50px;
+        font-size: 0.85rem;
+        font-weight: 600;
+        margin-bottom: 28px;
+        backdrop-filter: blur(4px);
+    }
+
+    .hero-title {
+        font-size: 3.2rem;
+        font-weight: 800;
+        margin-bottom: 24px;
+        line-height: 1.2;
+        color: #0f172a;
+    }
+
+    .brand-highlight {
+        background: linear-gradient(135deg, #16a34a, #15803d);
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+        background-clip: text;
+    }
+
+    .hero-description {
+        font-size: 1.1rem;
+        color: #475569;
+        margin-bottom: 36px;
+        max-width: 550px;
+        line-height: 1.6;
+    }
+
+    .hero-buttons {
+        display: flex;
+        gap: 16px;
+        margin-bottom: 56px;
+        flex-wrap: wrap;
+    }
+
+    .btn-primary {
+        display: inline-flex;
+        align-items: center;
+        gap: 10px;
+        background: #16a34a;
+        color: white;
+        padding: 14px 32px;
+        border-radius: 12px;
+        font-weight: 600;
+        text-decoration: none;
+        transition: all 0.3s ease;
+        border: none;
+        cursor: pointer;
+        font-size: 1rem;
+    }
+
+    .btn-primary:hover {
+        background: #15803d;
+        transform: translateY(-2px);
+        box-shadow: 0 8px 20px rgba(22, 163, 74, 0.3);
+    }
+
+    .btn-secondary {
+        display: inline-flex;
+        align-items: center;
+        gap: 10px;
+        background: white;
+        color: #16a34a;
+        padding: 14px 32px;
+        border-radius: 12px;
+        font-weight: 600;
+        text-decoration: none;
+        border: 2px solid #16a34a;
+        transition: all 0.3s ease;
+        font-size: 1rem;
+    }
+
+    .btn-secondary:hover {
+        background: #16a34a;
+        color: white;
+        transform: translateY(-2px);
+    }
+
+    .hero-stats {
+        display: flex;
+        gap: 56px;
+        flex-wrap: wrap;
+    }
+
+    .stat-item {
+        text-align: left;
+    }
+
+    .stat-number {
+        font-size: 2rem;
+        font-weight: 800;
+        color: #16a34a;
+        line-height: 1.2;
+        margin-bottom: 4px;
+    }
+
+    .stat-label {
+        font-size: 0.85rem;
+        color: #64748b;
+        font-weight: 500;
+    }
+
+    .hero-right {
+        flex: 0.6;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        gap: 28px;
+    }
+
+    .clock-card {
+        background: white;
+        padding: 32px 28px;
+        border-radius: 28px;
+        text-align: center;
+        width: 100%;
+        max-width: 280px;
+        box-shadow: 0 15px 35px rgba(0, 0, 0, 0.08);
+        border: 1px solid #e2e8f0;
+        transition: transform 0.3s ease;
+    }
+
+    .clock-card:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 20px 40px rgba(0, 0, 0, 0.12);
+    }
+
+    .clock-icon {
+        font-size: 36px;
+        color: #16a34a;
+        margin-bottom: 16px;
+    }
+
+    .clock-time {
+        font-size: 1.6rem;
+        font-weight: 700;
+        color: #0f172a;
+        margin-bottom: 8px;
+    }
+
+    .clock-date {
+        font-size: 0.8rem;
+        color: #64748b;
+        margin-bottom: 16px;
+    }
+
+    .greeting-text {
+        font-size: 0.9rem;
+        font-weight: 600;
+        color: #16a34a;
+        background: #f0fdf4;
+        display: inline-block;
+        padding: 6px 16px;
+        border-radius: 30px;
+    }
+
+    .feature-badges {
+        display: flex;
+        gap: 16px;
+    }
+
+    .badge-item {
+        background: white;
+        padding: 8px 18px;
+        border-radius: 40px;
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        font-size: 0.85rem;
+        font-weight: 600;
+        color: #16a34a;
+        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+        border: 1px solid #e2e8f0;
+        transition: all 0.3s ease;
+    }
+
+    .badge-item:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 4px 12px rgba(22, 163, 74, 0.15);
+        border-color: #16a34a;
+    }
+
+    /* Services Section */
+    .services-section {
+        padding: 90px 0;
+        background: #ffffff;
+    }
+
+    .section-header {
+        text-align: center;
+        margin-bottom: 64px;
+    }
+
+    .section-subtitle {
+        color: #16a34a;
+        font-weight: 600;
+        text-transform: uppercase;
+        letter-spacing: 1px;
+        font-size: 0.85rem;
+        margin-bottom: 12px;
+    }
+
+    .section-title {
+        font-size: 2.5rem;
+        font-weight: 800;
+        margin-bottom: 12px;
+        color: #0f172a;
+    }
+
+    .section-description {
+        color: #64748b;
+        max-width: 600px;
+        margin: 0 auto;
+    }
+
+    .gradient-text {
+        background: linear-gradient(135deg, #16a34a, #15803d);
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+        background-clip: text;
+    }
+
+    .text-center {
+        text-align: center;
+    }
+
+    .service-card {
+        display: flex;
+        gap: 56px;
+        margin-bottom: 72px;
+        align-items: center;
+        background: #f8fafc;
+        border-radius: 28px;
+        padding: 40px;
+        transition: all 0.3s ease;
+    }
+
+    .service-card:hover {
+        transform: translateY(-6px);
+        box-shadow: 0 20px 40px rgba(0, 0, 0, 0.08);
+    }
+
+    .service-card.reverse {
+        flex-direction: row-reverse;
+    }
+
+    .service-image {
+        flex: 1;
+        border-radius: 24px;
+        overflow: hidden;
+    }
+
+    .service-image img {
+        width: 100%;
+        height: auto;
+        display: block;
+        transition: transform 0.5s ease;
+    }
+
+    .service-card:hover .service-image img {
+        transform: scale(1.03);
+    }
+
+    .service-content {
+        flex: 1;
+    }
+
+    .service-tag {
+        display: inline-block;
+        padding: 6px 14px;
+        border-radius: 20px;
+        font-size: 0.75rem;
+        font-weight: 700;
+        margin-bottom: 20px;
+    }
+
+    .service-tag.popular {
+        background: #dcfce7;
+        color: #16a34a;
+    }
+
+    .service-tag.diagnostic {
+        background: #dbeafe;
+        color: #2563eb;
+    }
+
+    .service-tag.emergency {
+        background: #fee2e2;
+        color: #dc2626;
+    }
+
+    .service-content h3 {
+        font-size: 1.8rem;
+        font-weight: 700;
+        margin-bottom: 16px;
+        color: #0f172a;
+    }
+
+    .service-content p {
+        color: #475569;
+        margin-bottom: 24px;
+        line-height: 1.6;
+    }
+
+    .service-features {
+        list-style: none;
+        margin-bottom: 28px;
+    }
+
+    .service-features li {
+        margin-bottom: 10px;
+        display: flex;
+        align-items: center;
+        gap: 12px;
+        color: #334155;
+    }
+
+    .service-features li i {
+        color: #16a34a;
+        font-size: 0.9rem;
+    }
+
+    /* Why Choose Section */
+    .why-section {
+        padding: 90px 0;
+        background: #f8fafc;
+    }
+
+    .features-grid {
+        display: grid;
+        grid-template-columns: repeat(4, 1fr);
+        gap: 30px;
+        margin-top: 48px;
+    }
+
+    .feature-card {
+        background: white;
+        padding: 36px 24px;
+        border-radius: 24px;
+        text-align: center;
+        transition: all 0.3s ease;
+        border: 1px solid #e2e8f0;
+    }
+
+    .feature-card:hover {
+        transform: translateY(-6px);
+        box-shadow: 0 15px 35px rgba(0, 0, 0, 0.08);
+        border-color: #16a34a;
+    }
+
+    .feature-icon {
+        width: 75px;
+        height: 75px;
+        background: #e6f7ec;
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        margin: 0 auto 24px;
+        transition: all 0.3s ease;
+    }
+
+    .feature-card:hover .feature-icon {
+        transform: scale(1.05);
+        background: #16a34a;
+    }
+
+    .feature-card:hover .feature-icon i {
+        color: white;
+    }
+
+    .feature-icon i {
+        font-size: 34px;
+        color: #16a34a;
+        transition: all 0.3s ease;
+    }
+
+    .feature-card h4 {
+        font-size: 1.3rem;
+        font-weight: 700;
+        margin-bottom: 12px;
+        color: #0f172a;
+    }
+
+    .feature-card p {
+        color: #64748b;
+        font-size: 0.9rem;
+    }
+
+    /* Testimonials Section */
+    .testimonials-section {
+        padding: 90px 0;
+        background: #ffffff;
+    }
+
+    .testimonials-grid {
+        display: grid;
+        grid-template-columns: repeat(3, 1fr);
+        gap: 30px;
+        margin-top: 48px;
+    }
+
+    .testimonial-card {
+        background: #f8fafc;
+        padding: 32px;
+        border-radius: 24px;
+        transition: all 0.3s ease;
+        border: 1px solid #e2e8f0;
+    }
+
+    .testimonial-card:hover {
+        transform: translateY(-6px);
+        box-shadow: 0 15px 35px rgba(0, 0, 0, 0.08);
+        border-color: #16a34a;
+    }
+
+    .quote-icon {
+        font-size: 32px;
+        color: #16a34a;
+        opacity: 0.4;
+        margin-bottom: 20px;
+    }
+
+    .testimonial-card p {
+        font-size: 1rem;
+        line-height: 1.6;
+        color: #334155;
+        margin-bottom: 24px;
+        font-style: italic;
+    }
+
+    .testimonial-author strong {
+        color: #0f172a;
+        font-size: 0.95rem;
+        font-weight: 700;
+    }
+
+    /* Responsive Design */
+    @@media (max-width: 1024px) {
+        .hero-container {
+            flex-direction: column;
+            gap: 50px;
+        }
+        .hero-right {
+            flex: 1;
+            width: 100%;
+        }
+        .service-card,
+        .service-card.reverse {
+            flex-direction: column;
+            padding: 32px;
+        }
+        .hero-title {
+            font-size: 2.8rem;
+        }
+        .features-grid,
+        .testimonials-grid {
+            grid-template-columns: repeat(2, 1fr);
+        }
+    }
+
+    @@media (max-width: 768px) {
+        .hero-section {
+            padding: 60px 5%;
+            min-height: auto;
+        }
+        .hero-title {
+            font-size: 2.2rem;
+        }
+        .hero-stats {
+            gap: 32px;
+        }
+        .stat-number {
+            font-size: 1.6rem;
+        }
+        .service-card {
+            padding: 24px;
+        }
+        .service-content h3 {
+            font-size: 1.5rem;
+        }
+        .features-grid,
+        .testimonials-grid {
+            grid-template-columns: 1fr;
+        }
+        .section-title {
+            font-size: 2rem;
+        }
+    }
+
+    @@media (max-width: 480px) {
+        .hero-buttons {
+            flex-direction: column;
+        }
+        .btn-primary,
+        .btn-secondary {
+            width: 100%;
+            justify-content: center;
+        }
+        .hero-stats {
+            flex-direction: column;
+            gap: 20px;
+            align-items: center;
+            text-align: center;
+        }
+        .stat-item {
+            text-align: center;
+        }
+        .clock-card {
+            max-width: 100%;
+        }
+        .feature-badges {
+            flex-wrap: wrap;
+            justify-content: center;
+        }
+    }
+</style>

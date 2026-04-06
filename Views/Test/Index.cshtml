@@ -1,0 +1,152 @@
+﻿@{
+    ViewData["Title"] = "Medical Test Booking";
+}
+
+<link rel="stylesheet" href="~/css/test.css" />
+
+<!-- ================= MEDICAL TEST PAGE ================= -->
+<section class="test-page">
+
+    <div class="container">
+
+        <!-- Page Header -->
+        <div class="page-header">
+            <h1>Medical Test Booking</h1>
+            <p>Book diagnostic tests easily from trusted hospitals.</p>
+        </div>
+
+        <!-- ================= FILTER CARD ================= -->
+        <div class="filter-card">
+
+            <input type="text" placeholder="Test Name (e.g. Blood Test)" />
+
+            <select>
+                <option value="">Select Hospital</option>
+                <option>Square Hospital</option>
+                <option>United Hospital</option>
+                <option>Popular Diagnostic</option>
+            </select>
+
+            <button class="btn-search">Search</button>
+
+        </div>
+
+
+        <!-- ================= TEST CARDS GRID ================= -->
+        <div class="test-grid">
+
+            <!-- Test Card 1 -->
+            <div class="test-card">
+                <img src="~/images/test1.jpg" alt="Blood Test" />
+
+                <h3>Blood Test</h3>
+                <p><b>Hospital:</b> Square Hospital</p>
+                <p><b>Available:</b> Sat - Thu</p>
+                <p><b>Time:</b> 9 AM - 5 PM</p>
+                <p><b>Price:</b> 500 BDT</p>
+
+                <button class="btn-book" onclick="openPopup()">
+                    Book Test
+                </button>
+            </div>
+
+            <!-- Test Card 2 -->
+            <div class="test-card">
+                <img src="~/images/test2.jpg" alt="X-Ray" />
+
+                <h3>X-Ray</h3>
+                <p><b>Hospital:</b> United Hospital</p>
+                <p><b>Available:</b> Sun - Fri</p>
+                <p><b>Time:</b> 10 AM - 6 PM</p>
+                <p><b>Price:</b> 1200 BDT</p>
+
+                <button class="btn-book" onclick="openPopup()">
+                    Book Test
+                </button>
+            </div>
+
+            <!-- Test Card 3 -->
+            <div class="test-card">
+                <img src="~/images/test3.jpg" alt="MRI Scan" />
+
+                <h3>MRI Scan</h3>
+                <p><b>Hospital:</b> Popular Diagnostic</p>
+                <p><b>Available:</b> Mon - Fri</p>
+                <p><b>Time:</b> 11 AM - 4 PM</p>
+                <p><b>Price:</b> 5000 BDT</p>
+
+                <button class="btn-book" onclick="openPopup()">
+                    Book Test
+                </button>
+            </div>
+
+            <!-- Test Card 4 -->
+            <div class="test-card">
+                <img src="~/images/test4.jpg" alt="ECG Test" />
+
+                <h3>ECG Test</h3>
+                <p><b>Hospital:</b> Square Hospital</p>
+                <p><b>Available:</b> Sat - Thu</p>
+                <p><b>Time:</b> 2 PM - 7 PM</p>
+                <p><b>Price:</b> 800 BDT</p>
+
+                <button class="btn-book" onclick="openPopup()">
+                    Book Test
+                </button>
+            </div>
+
+        </div>
+    </div>
+</section>
+
+
+<!-- ================= POPUP BOOKING FORM ================= -->
+<div class="popup-overlay" id="popupForm">
+
+    <div class="popup-box">
+
+        <div class="popup-header">
+            <h2>Book Medical Test</h2>
+            <span class="close-btn" onclick="closePopup()">✖</span>
+        </div>
+
+        <div class="popup-body">
+
+            <label>Full Name</label>
+            <input type="text" placeholder="Enter your name" />
+
+            <label>Phone Number</label>
+            <input type="text" placeholder="Enter phone number" />
+
+            <label>Preferred Date</label>
+            <input type="date" />
+
+            <label>Preferred Time</label>
+            <input type="time" />
+
+        </div>
+
+        <div class="popup-footer">
+            <button class="btn-cancel" onclick="closePopup()">Cancel</button>
+            <button class="btn-confirm" onclick="confirmBooking()">Confirm</button>
+        </div>
+
+    </div>
+
+</div>
+
+
+<script>
+    function openPopup() {
+        document.getElementById("popupForm").classList.add("active");
+    }
+
+    function closePopup() {
+        document.getElementById("popupForm").classList.remove("active");
+    }
+
+    function confirmBooking() {
+        alert("✅ Medical Test Booking Confirmed Successfully!");
+        closePopup();
+    }
+</script>

@@ -1,0 +1,721 @@
+﻿@model EasySheba.Models.Blog
+
+@{
+    ViewData["Title"] = "Create Blog Post | EasySheba";
+}
+
+<div class="dashboard-wrapper">
+    <!-- Hero Section (same as doctor pages) -->
+    <div class="hero-section">
+        <div class="hero-bg-shapes">
+            <div class="shape shape-1"></div>
+            <div class="shape shape-2"></div>
+            <div class="shape shape-3"></div>
+        </div>
+        <div class="hero-content">
+            <div class="hero-tag">
+                <span class="pulse-dot"></span> Content Creator
+            </div>
+            <h1 class="hero-heading">
+                Create New <span class="gradient-text">Blog Post</span>
+            </h1>
+            <p class="hero-subheading">
+                Share your insights, health tips, and medical knowledge with our community.
+            </p>
+        </div>
+    </div>
+
+    <!-- Main Form -->
+    <div class="form-container">
+        <div class="form-card">
+            <div class="form-card-header">
+                <div class="header-icon">
+                    <i class="fas fa-pen-nib"></i>
+                </div>
+                <div class="header-text">
+                    <h3>Blog Post</h3>
+                    <p>Write something amazing</p>
+                </div>
+            </div>
+
+            <div class="form-card-body">
+                <form asp-action="AddBlog" method="post" enctype="multipart/form-data" id="blogForm">
+                    @Html.AntiForgeryToken()
+
+                    <!-- Blog Details Section -->
+                    <div class="form-section">
+                        <div class="section-title">
+                            <i class="fas fa-newspaper"></i>
+                            <h5>Blog Details</h5>
+                        </div>
+                        <div class="row">
+                            <div class="col-12 mb-4">
+                                <label asp-for="Headline" class="form-label">Blog Headline <span class="required">*</span></label>
+                                <div class="input-group">
+                                    <span class="input-icon"><i class="fas fa-heading"></i></span>
+                                    <input asp-for="Headline" class="form-control" placeholder="Enter an attention-grabbing headline..." />
+                                </div>
+                                <span asp-validation-for="Headline" class="validation-error"></span>
+                            </div>
+                            <div class="col-12 mb-4">
+                                <label asp-for="Description" class="form-label">Blog Description <span class="required">*</span></label>
+                                <div class="input-group">
+                                    <span class="input-icon"><i class="fas fa-align-left"></i></span>
+                                    <textarea asp-for="Description" class="form-control" rows="8" placeholder="Write your blog content here..."></textarea>
+                                </div>
+                                <span asp-validation-for="Description" class="validation-error"></span>
+                                <div class="field-hint">You can write multiple paragraphs, include health tips, medical information, etc.</div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Cover Image Section -->
+                    <div class="form-section">
+                        <div class="section-title">
+                            <i class="fas fa-image"></i>
+                            <h5>Cover Image</h5>
+                        </div>
+                        <div class="row">
+                            <div class="col-12 mb-3">
+                                <label asp-for="CoverImageFile" class="form-label">Cover Image</label>
+                                <div class="file-upload-area" id="coverUploadArea">
+                                    <input type="file" name="CoverImageFile" id="CoverImageFile" accept="image/*" style="display: none;" />
+                                    <div class="upload-preview" id="coverUploadPreview">
+                                        <i class="fas fa-cloud-upload-alt"></i>
+                                        <p>Click or drag image to upload</p>
+                                        <span class="file-info">PNG, JPG, JPEG up to 5MB</span>
+                                    </div>
+                                    <div class="preview-image" id="coverPreviewImage" style="display: none;">
+                                        <img id="coverImagePreview" src="#" alt="Cover Preview" />
+                                        <button type="button" class="remove-image"><i class="fas fa-times"></i></button>
+                                    </div>
+                                </div>
+                                <div class="field-hint">Recommended size: 1200x630px. This image will be displayed as the blog cover.</div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Additional Media Section -->
+                    <div class="form-section">
+                        <div class="section-title">
+                            <i class="fas fa-photo-video"></i>
+                            <h5>Additional Images & Videos</h5>
+                        </div>
+                        <div class="row">
+                            <div class="col-12 mb-3">
+                                <label asp-for="MediaFiles" class="form-label">Media Files</label>
+                                <div class="file-upload-area" id="mediaUploadArea">
+                                    <input type="file" name="MediaFiles" id="MediaFiles" accept="image/*,video/*" multiple style="display: none;" />
+                                    <div class="upload-preview" id="mediaUploadPreview">
+                                        <i class="fas fa-cloud-upload-alt"></i>
+                                        <p>Click or drag files to upload</p>
+                                        <span class="file-info">Multiple files allowed (JPG, PNG, GIF, MP4) up to 10MB each</span>
+                                    </div>
+                                    <div id="mediaPreviews" class="media-previews" style="display: none;"></div>
+                                </div>
+                                <div class="field-hint">These will appear below the blog description. You can select multiple files.</div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Info Alert -->
+                    <div class="alert-modern info">
+                        <i class="fas fa-info-circle"></i>
+                        <span>Your blog post will be published immediately after saving.</span>
+                    </div>
+
+                    <div class="form-actions">
+                        <a asp-action="Blogs" class="btn-secondary">
+                            <i class="fas fa-arrow-left"></i> Back to List
+                        </a>
+                        <button type="submit" class="btn-primary">
+                            <i class="fas fa-paper-plane"></i> Publish Blog
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+    <script>
+        $(document).ready(function() {
+            // Cover image upload functionality
+            setupFileUpload('coverUploadArea', 'CoverImageFile', 'coverPreviewImage', 'coverImagePreview');
+
+            // Additional media upload functionality (multiple files)
+            setupMediaUpload();
+
+            function setupFileUpload(uploadAreaId, fileInputId, previewContainerId, previewImgId) {
+                const uploadArea = $('#' + uploadAreaId);
+                const fileInput = $('#' + fileInputId);
+                const previewContainer = $('#' + previewContainerId);
+                const previewImg = $('#' + previewImgId);
+
+                uploadArea.on('click', function() {
+                    fileInput.click();
+                });
+
+                fileInput.on('change', function(event) {
+                    const file = event.target.files[0];
+                    if (file) {
+                        const reader = new FileReader();
+                        reader.onload = function(e) {
+                            uploadArea.find('.upload-preview').hide();
+                            previewContainer.show();
+                            previewImg.attr('src', e.target.result);
+                        };
+                        reader.readAsDataURL(file);
+                    }
+                });
+
+                // Remove image
+                previewContainer.find('.remove-image').on('click', function() {
+                    fileInput.val('');
+                    previewContainer.hide();
+                    uploadArea.find('.upload-preview').show();
+                });
+
+                // Drag and drop
+                uploadArea.on('dragover', function(e) {
+                    e.preventDefault();
+                    $(this).addClass('dragover');
+                });
+                uploadArea.on('dragleave', function(e) {
+                    $(this).removeClass('dragover');
+                });
+                uploadArea.on('drop', function(e) {
+                    e.preventDefault();
+                    $(this).removeClass('dragover');
+                    const files = e.originalEvent.dataTransfer.files;
+                    if (files.length > 0) {
+                        fileInput.prop('files', files);
+                        fileInput.trigger('change');
+                    }
+                });
+            }
+
+            function setupMediaUpload() {
+                const mediaArea = $('#mediaUploadArea');
+                const mediaInput = $('#MediaFiles');
+                const mediaPreviews = $('#mediaPreviews');
+
+                mediaArea.on('click', function() {
+                    mediaInput.click();
+                });
+
+                mediaInput.on('change', function(event) {
+                    const files = event.target.files;
+                    if (files.length > 0) {
+                        mediaArea.find('.upload-preview').hide();
+                        mediaPreviews.show().empty();
+                        for (let i = 0; i < files.length; i++) {
+                            const file = files[i];
+                            const reader = new FileReader();
+                            reader.onload = (function(f) {
+                                return function(e) {
+                                    const previewItem = $('<div class="media-preview-item"></div>');
+                                    if (f.type.startsWith('image/')) {
+                                        previewItem.html(`<img src="${e.target.result}" alt="${f.name}"><span class="filename">${f.name}</span><button type="button" class="remove-media" data-index="${i}"><i class="fas fa-times"></i></button>`);
+                                    } else if (f.type.startsWith('video/')) {
+                                        previewItem.html(`<video controls><source src="${e.target.result}" type="${f.type}"></video><span class="filename">${f.name}</span><button type="button" class="remove-media" data-index="${i}"><i class="fas fa-times"></i></button>`);
+                                    }
+                                    mediaPreviews.append(previewItem);
+                                };
+                            })(file);
+                            reader.readAsDataURL(file);
+                        }
+                    } else {
+                        mediaPreviews.hide().empty();
+                        mediaArea.find('.upload-preview').show();
+                    }
+                });
+
+                // Remove media item (this is more complex because we need to remove the file from the input's FileList)
+                // For simplicity, we'll just reload the input if user wants to remove all. But we can implement better.
+                $(document).on('click', '.remove-media', function() {
+                    // For this demo, we'll just reset the input and clear previews
+                    mediaInput.val('');
+                    mediaPreviews.hide().empty();
+                    mediaArea.find('.upload-preview').show();
+                });
+
+                // Drag and drop for media
+                mediaArea.on('dragover', function(e) {
+                    e.preventDefault();
+                    $(this).addClass('dragover');
+                });
+                mediaArea.on('dragleave', function(e) {
+                    $(this).removeClass('dragover');
+                });
+                mediaArea.on('drop', function(e) {
+                    e.preventDefault();
+                    $(this).removeClass('dragover');
+                    const files = e.originalEvent.dataTransfer.files;
+                    if (files.length > 0) {
+                        mediaInput.prop('files', files);
+                        mediaInput.trigger('change');
+                    }
+                });
+            }
+        });
+    </script>
+}
+
+<style>
+    /* ========== GLOBAL STYLES (matching doctor pages) ========== */
+    .dashboard-wrapper {
+        background: #f5f7fb;
+        min-height: 100vh;
+    }
+
+    /* Hero Section */
+    .hero-section {
+        background: linear-gradient(125deg, #ffffff 0%, #f8fafc 100%);
+        padding: 60px 5% 80px;
+        position: relative;
+        overflow: hidden;
+    }
+
+    .hero-bg-shapes {
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        pointer-events: none;
+    }
+
+    .shape {
+        position: absolute;
+        border-radius: 50%;
+        background: rgba(22, 163, 74, 0.03);
+    }
+    .shape-1 { width: 400px; height: 400px; top: -150px; right: -100px; }
+    .shape-2 { width: 250px; height: 250px; bottom: -80px; left: 10%; background: rgba(22, 163, 74, 0.05); }
+    .shape-3 { width: 180px; height: 180px; top: 30%; left: -60px; background: rgba(22, 163, 74, 0.04); }
+
+    .hero-content {
+        max-width: 1100px;
+        margin: 0 auto;
+        position: relative;
+        z-index: 2;
+        text-align: center;
+    }
+
+    .hero-tag {
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+        background: rgba(22, 163, 74, 0.1);
+        padding: 6px 18px;
+        border-radius: 40px;
+        font-size: 0.8rem;
+        font-weight: 500;
+        color: #16a34a;
+        margin-bottom: 24px;
+    }
+
+    .pulse-dot {
+        width: 8px;
+        height: 8px;
+        background: #16a34a;
+        border-radius: 50%;
+        display: inline-block;
+        animation: pulse 1.5s infinite;
+    }
+
+    @@keyframes pulse {
+        0%, 100% { opacity: 1; transform: scale(1); }
+        50% { opacity: 0.5; transform: scale(1.2); }
+    }
+
+    .hero-heading {
+        font-size: 3.5rem;
+        font-weight: 800;
+        color: #0f172a;
+        margin-bottom: 16px;
+        line-height: 1.2;
+    }
+
+    .gradient-text {
+        background: linear-gradient(135deg, #16a34a, #15803d);
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+        background-clip: text;
+    }
+
+    .hero-subheading {
+        font-size: 1.1rem;
+        color: #5a6e8a;
+        max-width: 550px;
+        margin: 0 auto;
+    }
+
+    /* Form Container */
+    .form-container {
+        max-width: 900px;
+        margin: -40px auto 60px;
+        padding: 0 24px;
+        position: relative;
+        z-index: 2;
+    }
+
+    .form-card {
+        background: white;
+        border-radius: 32px;
+        box-shadow: 0 20px 35px -10px rgba(0, 0, 0, 0.08);
+        border: 1px solid #eef2f6;
+        overflow: hidden;
+        transition: all 0.3s ease;
+    }
+
+    .form-card-header {
+        background: linear-gradient(135deg, #fafef7, #ffffff);
+        padding: 28px 32px;
+        display: flex;
+        align-items: center;
+        gap: 16px;
+        border-bottom: 1px solid #eef2f0;
+    }
+
+    .header-icon {
+        width: 48px;
+        height: 48px;
+        background: #e6f7ec;
+        border-radius: 24px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+    }
+    .header-icon i {
+        font-size: 24px;
+        color: #16a34a;
+    }
+
+    .header-text h3 {
+        font-size: 1.3rem;
+        font-weight: 700;
+        color: #0a2f1f;
+        margin: 0 0 4px 0;
+    }
+    .header-text p {
+        font-size: 0.85rem;
+        color: #64748b;
+        margin: 0;
+    }
+
+    .form-card-body {
+        padding: 32px;
+    }
+
+    /* Form Sections */
+    .form-section {
+        margin-bottom: 36px;
+        padding-bottom: 24px;
+        border-bottom: 1px solid #eef2f0;
+    }
+    .form-section:last-child {
+        border-bottom: none;
+        margin-bottom: 0;
+        padding-bottom: 0;
+    }
+
+    .section-title {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+        margin-bottom: 24px;
+    }
+    .section-title i {
+        width: 32px;
+        height: 32px;
+        background: #e6f7ec;
+        border-radius: 10px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        color: #16a34a;
+        font-size: 1rem;
+    }
+    .section-title h5 {
+        font-size: 1rem;
+        font-weight: 700;
+        color: #0a2f1f;
+        margin: 0;
+    }
+
+    /* Form Elements */
+    .form-label {
+        display: block;
+        font-size: 0.85rem;
+        font-weight: 600;
+        color: #0a2f1f;
+        margin-bottom: 8px;
+    }
+    .required {
+        color: #dc2626;
+    }
+    .input-group {
+        display: flex;
+        align-items: flex-start;
+        border: 1px solid #e2e8f0;
+        border-radius: 12px;
+        background: #fafef7;
+        transition: all 0.2s;
+    }
+    .input-group:focus-within {
+        border-color: #16a34a;
+        box-shadow: 0 0 0 3px rgba(22, 163, 74, 0.1);
+    }
+    .input-icon {
+        padding: 12px 14px;
+        color: #94a3b8;
+    }
+    .form-control {
+        flex: 1;
+        padding: 12px 0;
+        border: none;
+        background: transparent;
+        font-size: 0.95rem;
+        outline: none;
+    }
+    textarea.form-control {
+        resize: vertical;
+        min-height: 120px;
+    }
+    .validation-error {
+        font-size: 0.75rem;
+        color: #dc2626;
+        margin-top: 4px;
+        display: block;
+    }
+    .field-hint {
+        font-size: 0.7rem;
+        color: #94a3b8;
+        margin-top: 6px;
+        display: flex;
+        align-items: center;
+        gap: 4px;
+    }
+
+    /* File Upload Areas */
+    .file-upload-area {
+        border: 2px dashed #e2e8f0;
+        border-radius: 16px;
+        background: #fafef7;
+        cursor: pointer;
+        transition: all 0.2s;
+        min-height: 160px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        position: relative;
+        overflow: hidden;
+    }
+    .file-upload-area.dragover {
+        border-color: #16a34a;
+        background: #e6f7ec;
+    }
+    .upload-preview {
+        text-align: center;
+        padding: 32px;
+    }
+    .upload-preview i {
+        font-size: 48px;
+        color: #94a3b8;
+        margin-bottom: 12px;
+        display: block;
+    }
+    .upload-preview p {
+        font-size: 0.85rem;
+        color: #475569;
+        margin: 0;
+    }
+    .file-info {
+        font-size: 0.7rem;
+        color: #94a3b8;
+        display: block;
+        margin-top: 8px;
+    }
+    .preview-image {
+        position: relative;
+        width: 100%;
+        max-height: 200px;
+        overflow: hidden;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        background: #f8fafc;
+    }
+    .preview-image img {
+        max-width: 100%;
+        max-height: 180px;
+        object-fit: contain;
+    }
+    .remove-image {
+        position: absolute;
+        top: 8px;
+        right: 8px;
+        background: rgba(0,0,0,0.6);
+        border: none;
+        border-radius: 50%;
+        width: 28px;
+        height: 28px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        color: white;
+        cursor: pointer;
+        transition: all 0.2s;
+    }
+    .remove-image:hover {
+        background: #dc2626;
+    }
+
+    /* Media Previews (multiple files) */
+    .media-previews {
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+        gap: 12px;
+        padding: 16px;
+        background: #f8fafc;
+        width: 100%;
+    }
+    .media-preview-item {
+        position: relative;
+        background: white;
+        border-radius: 12px;
+        overflow: hidden;
+        border: 1px solid #e2e8f0;
+        box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+    }
+    .media-preview-item img, .media-preview-item video {
+        width: 100%;
+        height: 120px;
+        object-fit: cover;
+        display: block;
+    }
+    .media-preview-item .filename {
+        display: block;
+        padding: 8px;
+        font-size: 0.7rem;
+        color: #475569;
+        text-align: center;
+        background: #fff;
+        border-top: 1px solid #eef2f0;
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+    }
+    .remove-media {
+        position: absolute;
+        top: 4px;
+        right: 4px;
+        background: rgba(0,0,0,0.6);
+        border: none;
+        border-radius: 50%;
+        width: 24px;
+        height: 24px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        color: white;
+        cursor: pointer;
+        transition: all 0.2s;
+    }
+    .remove-media:hover {
+        background: #dc2626;
+    }
+
+    /* Alert */
+    .alert-modern {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+        padding: 14px 20px;
+        border-radius: 16px;
+        margin-bottom: 24px;
+        background: #eff6ff;
+        border-left: 4px solid #3b82f6;
+        color: #1e40af;
+    }
+    .alert-modern.info {
+        background: #eff6ff;
+        border-left-color: #3b82f6;
+    }
+
+    /* Buttons */
+    .form-actions {
+        display: flex;
+        justify-content: flex-end;
+        gap: 16px;
+        margin-top: 32px;
+        padding-top: 24px;
+        border-top: 1px solid #eef2f0;
+    }
+    .btn-primary, .btn-secondary {
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+        padding: 12px 28px;
+        border-radius: 12px;
+        font-weight: 600;
+        font-size: 0.9rem;
+        transition: all 0.3s ease;
+        text-decoration: none;
+        cursor: pointer;
+        border: none;
+    }
+    .btn-primary {
+        background: #16a34a;
+        color: white;
+        box-shadow: 0 4px 8px rgba(22, 163, 74, 0.2);
+    }
+    .btn-primary:hover {
+        background: #15803d;
+        transform: translateY(-2px);
+        box-shadow: 0 8px 16px rgba(22, 163, 74, 0.3);
+    }
+    .btn-secondary {
+        background: white;
+        border: 1px solid #e2e8f0;
+        color: #475569;
+    }
+    .btn-secondary:hover {
+        border-color: #16a34a;
+        color: #16a34a;
+        transform: translateY(-2px);
+    }
+
+    /* Responsive */
+    @@media (max-width: 768px) {
+        .hero-heading {
+            font-size: 2rem;
+        }
+        .form-container {
+            margin-top: -20px;
+            padding: 0 16px;
+        }
+        .form-card-header {
+            padding: 20px 24px;
+            flex-direction: column;
+            text-align: center;
+        }
+        .form-card-body {
+            padding: 24px;
+        }
+        .form-actions {
+            flex-direction: column;
+        }
+        .btn-primary, .btn-secondary {
+            justify-content: center;
+            width: 100%;
+        }
+        .media-previews {
+            grid-template-columns: repeat(auto-fill, minmax(120px, 1fr));
+        }
+    }
+</style>

@@ -1,0 +1,586 @@
+﻿@model EasySheba.Models.Bed
+
+@{
+    ViewData["Title"] = "Edit Bed | EasySheba";
+}
+
+<div class="dashboard-wrapper">
+    <!-- Hero Section -->
+    <div class="hero-section">
+        <div class="hero-bg-shapes">
+            <div class="shape shape-1"></div>
+            <div class="shape shape-2"></div>
+            <div class="shape shape-3"></div>
+        </div>
+        <div class="hero-content">
+            <div class="hero-tag">
+                <span class="pulse-dot"></span> Hospital Admin
+            </div>
+            <h1 class="hero-heading">
+                Edit <span class="gradient-text">Bed</span>
+            </h1>
+            <p class="hero-subheading">
+                Update bed information.
+            </p>
+        </div>
+    </div>
+
+    <!-- Main Form -->
+    <div class="form-container">
+        <div class="form-card">
+            <div class="form-card-header">
+                <div class="header-icon">
+                    <i class="fas fa-bed"></i>
+                </div>
+                <div class="header-text">
+                    <h3>Edit Bed</h3>
+                    <p>Update the details below</p>
+                </div>
+            </div>
+
+            <div class="form-card-body">
+                <form asp-action="EditBed" method="post" enctype="multipart/form-data" id="editBedForm">
+                    @Html.AntiForgeryToken()
+                    <input type="hidden" asp-for="Id" />
+                    <input type="hidden" asp-for="ImagePath" />
+                    <input type="hidden" asp-for="AvailableBeds" />
+
+                    <!-- Current Image Preview (if exists) -->
+                    @if (!string.IsNullOrEmpty(Model.ImagePath))
+                    {
+                        <div class="form-section">
+                            <div class="section-title">
+                                <i class="fas fa-image"></i>
+                                <h5>Current Image</h5>
+                            </div>
+                            <div class="current-image-container">
+                                <img src="@Model.ImagePath" alt="Current Bed Image" class="current-image">
+                                <div class="form-check mt-2">
+                                    <input class="form-check-input" type="checkbox" name="removeImage" id="removeImage" value="true">
+                                    <label class="form-check-label text-danger" for="removeImage">
+                                        <i class="fas fa-trash"></i> Remove this image
+                                    </label>
+                                </div>
+                            </div>
+                        </div>
+                    }
+
+                    <!-- Hospital Information -->
+                    <div class="form-section">
+                        <div class="section-title">
+                            <i class="fas fa-hospital"></i>
+                            <h5>Hospital Information</h5>
+                        </div>
+                        <div class="row">
+                            <div class="col-md-6 mb-4">
+                                <label asp-for="HospitalName" class="form-label">Hospital/Clinic Name <span class="required">*</span></label>
+                                <div class="input-group">
+                                    <span class="input-icon"><i class="fas fa-building"></i></span>
+                                    <input asp-for="HospitalName" class="form-control" />
+                                </div>
+                                <span asp-validation-for="HospitalName" class="validation-error"></span>
+                            </div>
+                            <div class="col-md-6 mb-4">
+                                <label asp-for="HospitalLocation" class="form-label">Hospital Location <span class="required">*</span></label>
+                                <div class="input-group">
+                                    <span class="input-icon"><i class="fas fa-location-dot"></i></span>
+                                    <input asp-for="HospitalLocation" class="form-control" />
+                                </div>
+                                <span asp-validation-for="HospitalLocation" class="validation-error"></span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Bed Details -->
+                    <div class="form-section">
+                        <div class="section-title">
+                            <i class="fas fa-bed"></i>
+                            <h5>Bed Details</h5>
+                        </div>
+                        <div class="row">
+                            <div class="col-md-6 mb-4">
+                                <label asp-for="BedType" class="form-label">Bed Type <span class="required">*</span></label>
+                                <div class="input-group">
+                                    <span class="input-icon"><i class="fas fa-tag"></i></span>
+                                    <select asp-for="BedType" class="form-control">
+                                        <option value="">-- Select Bed Type --</option>
+                                        <option>General Ward</option>
+                                        <option>Duplex</option>
+                                        <option>Super Duplex</option>
+                                        <option>ICU</option>
+                                        <option>CCU</option>
+                                        <option>Emergency</option>
+                                        <option>Private</option>
+                                        <option>Deluxe</option>
+                                    </select>
+                                </div>
+                                <span asp-validation-for="BedType" class="validation-error"></span>
+                            </div>
+                            <div class="col-md-6 mb-4">
+                                <label asp-for="AcNonAc" class="form-label">AC/Non-AC</label>
+                                <div class="input-group">
+                                    <span class="input-icon"><i class="fas fa-thermometer-half"></i></span>
+                                    <select asp-for="AcNonAc" class="form-control">
+                                        <option value="">-- Select --</option>
+                                        <option>AC</option>
+                                        <option>Non-AC</option>
+                                        <option>Both Available</option>
+                                    </select>
+                                </div>
+                            </div>
+                            <div class="col-md-4 mb-4">
+                                <label asp-for="TotalBeds" class="form-label">Total Beds <span class="required">*</span></label>
+                                <div class="input-group">
+                                    <span class="input-icon"><i class="fas fa-calculator"></i></span>
+                                    <input asp-for="TotalBeds" class="form-control" type="number" min="1" />
+                                </div>
+                                <span asp-validation-for="TotalBeds" class="validation-error"></span>
+                                <div class="field-hint">Current Available: @Model.AvailableBeds</div>
+                            </div>
+                            <div class="col-md-4 mb-4">
+                                <label asp-for="PricePerDay" class="form-label">Price Per Day (৳) <span class="required">*</span></label>
+                                <div class="input-group">
+                                    <span class="input-icon"><i class="fas fa-taka-sign"></i></span>
+                                    <input asp-for="PricePerDay" class="form-control" type="number" min="0" />
+                                </div>
+                                <span asp-validation-for="PricePerDay" class="validation-error"></span>
+                            </div>
+                            <div class="col-md-4 mb-4">
+                                <label class="form-label">Amenities</label>
+                                <div class="amenities-group">
+                                    <div class="form-check">
+                                        <input asp-for="AttachedBathroom" class="form-check-input" id="attachedBathroom" />
+                                        <label class="form-check-label" for="attachedBathroom">Attached Bathroom</label>
+                                    </div>
+                                    <div class="form-check">
+                                        <input asp-for="TvAvailable" class="form-check-input" id="tvAvailable" />
+                                        <label class="form-check-label" for="tvAvailable">TV Available</label>
+                                    </div>
+                                    <div class="form-check">
+                                        <input asp-for="WifiAvailable" class="form-check-input" id="wifiAvailable" />
+                                        <label class="form-check-label" for="wifiAvailable">WiFi Available</label>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Image Upload (New Image) -->
+                    <div class="form-section">
+                        <div class="section-title">
+                            <i class="fas fa-cloud-upload-alt"></i>
+                            <h5>Change Image (Optional)</h5>
+                        </div>
+                        <div class="row">
+                            <div class="col-12 mb-3">
+                                <label asp-for="ImageFile" class="form-label">Upload New Image</label>
+                                <div class="file-upload-area" id="imageUploadArea">
+                                    <input type="file" name="ImageFile" id="ImageFile" accept="image/*" style="display: none;" />
+                                    <div class="upload-preview" id="uploadPreview">
+                                        <i class="fas fa-cloud-upload-alt"></i>
+                                        <p>Click or drag image to upload</p>
+                                        <span class="file-info">PNG, JPG, JPEG up to 2MB</span>
+                                    </div>
+                                    <div class="preview-image" id="previewImage" style="display: none;">
+                                        <img id="bedImagePreview" src="#" alt="Preview" />
+                                        <button type="button" class="remove-image"><i class="fas fa-times"></i></button>
+                                    </div>
+                                </div>
+                                <div class="field-hint">Leave empty to keep current image</div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="form-actions">
+                        <a asp-action="Beds" class="btn-secondary">
+                            <i class="fas fa-arrow-left"></i> Back to List
+                        </a>
+                        <button type="submit" class="btn-primary">
+                            <i class="fas fa-save"></i> Update Bed
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+    <script>
+        $(document).ready(function() {
+            // Remove any client-side required validation for ImageFile
+            $("#ImageFile").removeAttr("data-val-required");
+            $("#ImageFile").removeAttr("data-val");
+
+            // Image upload functionality
+            const uploadArea = $('#imageUploadArea');
+            const fileInput = $('#ImageFile');
+            const previewContainer = $('#previewImage');
+            const previewImg = $('#bedImagePreview');
+            const uploadPreview = $('#uploadPreview');
+
+            uploadArea.on('click', function() {
+                fileInput.click();
+            });
+
+            fileInput.on('change', function(event) {
+                const file = event.target.files[0];
+                if (file) {
+                    const reader = new FileReader();
+                    reader.onload = function(e) {
+                        uploadPreview.hide();
+                        previewContainer.show();
+                        previewImg.attr('src', e.target.result);
+                        // If a new image is selected, uncheck remove image checkbox
+                        $('#removeImage').prop('checked', false);
+                    };
+                    reader.readAsDataURL(file);
+                }
+            });
+
+            $('.remove-image').on('click', function() {
+                fileInput.val('');
+                previewContainer.hide();
+                uploadPreview.show();
+            });
+
+            // Drag and drop
+            uploadArea.on('dragover', function(e) {
+                e.preventDefault();
+                $(this).addClass('dragover');
+            });
+            uploadArea.on('dragleave', function(e) {
+                $(this).removeClass('dragover');
+            });
+            uploadArea.on('drop', function(e) {
+                e.preventDefault();
+                $(this).removeClass('dragover');
+                const files = e.originalEvent.dataTransfer.files;
+                if (files.length > 0) {
+                    fileInput.prop('files', files);
+                    fileInput.trigger('change');
+                }
+            });
+
+            // Handle remove image checkbox
+            $("#removeImage").on("change", function() {
+                if ($(this).is(":checked")) {
+                    if (!confirm("Are you sure you want to remove the bed image? This cannot be undone.")) {
+                        $(this).prop("checked", false);
+                    } else {
+                        // Clear any selected new file
+                        fileInput.val("");
+                        previewContainer.hide();
+                        uploadPreview.show();
+                    }
+                }
+            });
+
+            // If a new file is selected, uncheck remove image checkbox
+            fileInput.on("change", function() {
+                if ($(this).val() !== "") {
+                    $("#removeImage").prop("checked", false);
+                }
+            });
+        });
+    </script>
+}
+
+<style>
+    /* ========== MODERN STYLES (same as Add Bed page) ========== */
+    .dashboard-wrapper {
+        background: #f5f7fb;
+        min-height: 100vh;
+    }
+
+    /* Hero Section */
+    .hero-section {
+        background: linear-gradient(125deg, #ffffff 0%, #f8fafc 100%);
+        padding: 60px 5% 80px;
+        position: relative;
+        overflow: hidden;
+    }
+    .hero-bg-shapes { position: absolute; top: 0; left: 0; width: 100%; height: 100%; pointer-events: none; }
+    .shape { position: absolute; border-radius: 50%; background: rgba(22, 163, 74, 0.03); }
+    .shape-1 { width: 400px; height: 400px; top: -150px; right: -100px; }
+    .shape-2 { width: 250px; height: 250px; bottom: -80px; left: 10%; background: rgba(22, 163, 74, 0.05); }
+    .shape-3 { width: 180px; height: 180px; top: 30%; left: -60px; background: rgba(22, 163, 74, 0.04); }
+    .hero-content { max-width: 1100px; margin: 0 auto; position: relative; z-index: 2; text-align: center; }
+    .hero-tag { display: inline-flex; align-items: center; gap: 8px; background: rgba(22, 163, 74, 0.1); padding: 6px 18px; border-radius: 40px; font-size: 0.8rem; font-weight: 500; color: #16a34a; margin-bottom: 24px; }
+    .pulse-dot { width: 8px; height: 8px; background: #16a34a; border-radius: 50%; display: inline-block; animation: pulse 1.5s infinite; }
+    @@keyframes pulse { 0%, 100% { opacity: 1; transform: scale(1); } 50% { opacity: 0.5; transform: scale(1.2); } }
+    .hero-heading { font-size: 3.5rem; font-weight: 800; color: #0f172a; margin-bottom: 16px; line-height: 1.2; }
+    .gradient-text { background: linear-gradient(135deg, #16a34a, #15803d); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text; }
+    .hero-subheading { font-size: 1.1rem; color: #5a6e8a; max-width: 550px; margin: 0 auto; }
+
+    /* Form Container */
+    .form-container {
+        max-width: 900px;
+        margin: -40px auto 60px;
+        padding: 0 24px;
+        position: relative;
+        z-index: 2;
+    }
+    .form-card {
+        background: white;
+        border-radius: 32px;
+        box-shadow: 0 20px 35px -10px rgba(0, 0, 0, 0.08);
+        border: 1px solid #eef2f6;
+        overflow: hidden;
+        transition: all 0.3s ease;
+    }
+    .form-card-header {
+        background: linear-gradient(135deg, #fafef7, #ffffff);
+        padding: 28px 32px;
+        display: flex;
+        align-items: center;
+        gap: 16px;
+        border-bottom: 1px solid #eef2f0;
+    }
+    .header-icon {
+        width: 48px;
+        height: 48px;
+        background: #e6f7ec;
+        border-radius: 24px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+    }
+    .header-icon i { font-size: 24px; color: #16a34a; }
+    .header-text h3 { font-size: 1.3rem; font-weight: 700; color: #0a2f1f; margin: 0 0 4px 0; }
+    .header-text p { font-size: 0.85rem; color: #64748b; margin: 0; }
+    .form-card-body { padding: 32px; }
+
+    /* Form Sections */
+    .form-section {
+        margin-bottom: 36px;
+        padding-bottom: 24px;
+        border-bottom: 1px solid #eef2f0;
+    }
+    .form-section:last-child {
+        border-bottom: none;
+        margin-bottom: 0;
+        padding-bottom: 0;
+    }
+    .section-title {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+        margin-bottom: 24px;
+    }
+    .section-title i {
+        width: 32px;
+        height: 32px;
+        background: #e6f7ec;
+        border-radius: 10px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        color: #16a34a;
+        font-size: 1rem;
+    }
+    .section-title h5 { font-size: 1rem; font-weight: 700; color: #0a2f1f; margin: 0; }
+
+    /* Form Elements */
+    .form-label {
+        display: block;
+        font-size: 0.85rem;
+        font-weight: 600;
+        color: #0a2f1f;
+        margin-bottom: 8px;
+    }
+    .required { color: #dc2626; }
+    .input-group {
+        display: flex;
+        align-items: center;
+        border: 1px solid #e2e8f0;
+        border-radius: 12px;
+        background: #fafef7;
+        transition: all 0.2s;
+    }
+    .input-group:focus-within {
+        border-color: #16a34a;
+        box-shadow: 0 0 0 3px rgba(22, 163, 74, 0.1);
+    }
+    .input-icon { padding: 0 14px; color: #94a3b8; }
+    .form-control {
+        flex: 1;
+        padding: 12px 0;
+        border: none;
+        background: transparent;
+        font-size: 0.95rem;
+        outline: none;
+    }
+    select.form-control { padding: 12px 0; }
+    .validation-error { font-size: 0.75rem; color: #dc2626; margin-top: 4px; display: block; }
+    .field-hint { font-size: 0.7rem; color: #94a3b8; margin-top: 6px; display: flex; align-items: center; gap: 4px; }
+
+    /* Amenities */
+    .amenities-group {
+        background: #fafef7;
+        border-radius: 12px;
+        padding: 12px 16px;
+        border: 1px solid #eef2f0;
+    }
+    .form-check { margin-bottom: 8px; }
+    .form-check:last-child { margin-bottom: 0; }
+    .form-check-input {
+        width: 1em;
+        height: 1em;
+        margin-top: 0.25em;
+        background-color: #fff;
+        border: 1px solid #cbd5e1;
+        border-radius: 0.25rem;
+        cursor: pointer;
+    }
+    .form-check-input:checked {
+        background-color: #16a34a;
+        border-color: #16a34a;
+        background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 20 20'%3e%3cpath fill='none' stroke='%23fff' stroke-linecap='round' stroke-linejoin='round' stroke-width='3' d='M6 10l3 3l6-6'/%3e%3c/svg%3e");
+    }
+    .form-check-label {
+        font-size: 0.85rem;
+        color: #1e293b;
+        margin-left: 8px;
+        cursor: pointer;
+    }
+
+    /* Current Image */
+    .current-image-container {
+        text-align: center;
+    }
+    .current-image {
+        max-width: 200px;
+        max-height: 150px;
+        border-radius: 12px;
+        object-fit: cover;
+        border: 1px solid #eef2f0;
+        box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+    }
+
+    /* File Upload Area */
+    .file-upload-area {
+        border: 2px dashed #e2e8f0;
+        border-radius: 16px;
+        background: #fafef7;
+        cursor: pointer;
+        transition: all 0.2s;
+        min-height: 160px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        position: relative;
+        overflow: hidden;
+    }
+    .file-upload-area.dragover {
+        border-color: #16a34a;
+        background: #e6f7ec;
+    }
+    .upload-preview {
+        text-align: center;
+        padding: 32px;
+    }
+    .upload-preview i {
+        font-size: 48px;
+        color: #94a3b8;
+        margin-bottom: 12px;
+        display: block;
+    }
+    .upload-preview p {
+        font-size: 0.85rem;
+        color: #475569;
+        margin: 0;
+    }
+    .file-info {
+        font-size: 0.7rem;
+        color: #94a3b8;
+        display: block;
+        margin-top: 8px;
+    }
+    .preview-image {
+        position: relative;
+        width: 100%;
+        max-height: 200px;
+        overflow: hidden;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        background: #f8fafc;
+    }
+    .preview-image img {
+        max-width: 100%;
+        max-height: 180px;
+        object-fit: contain;
+    }
+    .remove-image {
+        position: absolute;
+        top: 8px;
+        right: 8px;
+        background: rgba(0,0,0,0.6);
+        border: none;
+        border-radius: 50%;
+        width: 28px;
+        height: 28px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        color: white;
+        cursor: pointer;
+        transition: all 0.2s;
+    }
+    .remove-image:hover { background: #dc2626; }
+
+    /* Buttons */
+    .form-actions {
+        display: flex;
+        justify-content: flex-end;
+        gap: 16px;
+        margin-top: 32px;
+        padding-top: 24px;
+        border-top: 1px solid #eef2f0;
+    }
+    .btn-primary, .btn-secondary {
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+        padding: 12px 28px;
+        border-radius: 12px;
+        font-weight: 600;
+        font-size: 0.9rem;
+        transition: all 0.3s ease;
+        text-decoration: none;
+        cursor: pointer;
+        border: none;
+    }
+    .btn-primary {
+        background: #16a34a;
+        color: white;
+        box-shadow: 0 4px 8px rgba(22, 163, 74, 0.2);
+    }
+    .btn-primary:hover {
+        background: #15803d;
+        transform: translateY(-2px);
+        box-shadow: 0 8px 16px rgba(22, 163, 74, 0.3);
+    }
+    .btn-secondary {
+        background: white;
+        border: 1px solid #e2e8f0;
+        color: #475569;
+    }
+    .btn-secondary:hover {
+        border-color: #16a34a;
+        color: #16a34a;
+        transform: translateY(-2px);
+    }
+
+    /* Responsive */
+    @@media (max-width: 768px) {
+        .hero-heading { font-size: 2rem; }
+        .form-container { margin-top: -20px; padding: 0 16px; }
+        .form-card-header { padding: 20px 24px; flex-direction: column; text-align: center; }
+        .form-card-body { padding: 24px; }
+        .form-actions { flex-direction: column; }
+        .btn-primary, .btn-secondary { justify-content: center; width: 100%; }
+    }
+</style>

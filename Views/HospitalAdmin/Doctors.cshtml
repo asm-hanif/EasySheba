@@ -1,0 +1,503 @@
+﻿@model IEnumerable<EasySheba.Models.Doctor>
+
+@{
+    ViewData["Title"] = "Manage Doctors | EasySheba";
+    var totalDoctors = Model.Count();
+    var specialties = Model.Select(d => d.Specialist).Distinct().Count();
+    var activeDoctors = totalDoctors; // you can add logic if needed
+}
+
+<div class="dashboard-wrapper">
+    <!-- Hero Section -->
+    <div class="hero-section">
+        <div class="hero-bg-shapes">
+            <div class="shape shape-1"></div>
+            <div class="shape shape-2"></div>
+            <div class="shape shape-3"></div>
+        </div>
+        <div class="hero-content">
+            <div class="hero-tag">
+                <span class="pulse-dot"></span> Hospital Admin
+            </div>
+            <h1 class="hero-heading">
+                Manage <span class="gradient-text">Doctors</span>
+            </h1>
+            <p class="hero-subheading">
+                Add, edit, or remove doctors from your hospital.
+            </p>
+        </div>
+    </div>
+
+    <!-- Main Content -->
+    <div class="dashboard-main">
+        <!-- Alerts -->
+        @if (TempData["success"] != null)
+        {
+            <div class="alert-modern success">
+                <i class="fas fa-check-circle"></i>
+                <span>@TempData["success"]</span>
+                <button class="alert-close" onclick="this.parentElement.remove()">×</button>
+            </div>
+        }
+        @if (TempData["error"] != null)
+        {
+            <div class="alert-modern error">
+                <i class="fas fa-exclamation-circle"></i>
+                <span>@TempData["error"]</span>
+                <button class="alert-close" onclick="this.parentElement.remove()">×</button>
+            </div>
+        }
+
+        <!-- Stats Cards -->
+        <div class="stats-grid">
+            <div class="stat-card-modern">
+                <div class="stat-icon-bg">
+                    <i class="fas fa-user-md"></i>
+                </div>
+                <div class="stat-content">
+                    <h3 class="stat-number">@totalDoctors</h3>
+                    <p class="stat-label">Total Doctors</p>
+                </div>
+            </div>
+            <div class="stat-card-modern">
+                <div class="stat-icon-bg" style="background:#e6f7ec;">
+                    <i class="fas fa-stethoscope" style="color:#16a34a;"></i>
+                </div>
+                <div class="stat-content">
+                    <h3 class="stat-number">@specialties</h3>
+                    <p class="stat-label">Specialties</p>
+                </div>
+            </div>
+            <div class="stat-card-modern">
+                <div class="stat-icon-bg" style="background:#e6f7ec;">
+                    <i class="fas fa-check-circle" style="color:#16a34a;"></i>
+                </div>
+                <div class="stat-content">
+                    <h3 class="stat-number">@activeDoctors</h3>
+                    <p class="stat-label">Active</p>
+                    <span class="stat-trend success">Available</span>
+                </div>
+            </div>
+            <div class="stat-card-modern">
+                <div class="stat-icon-bg">
+                    <i class="fas fa-plus-circle"></i>
+                </div>
+                <div class="stat-content">
+                    <a asp-action="AddDoctor" class="stat-link" style="margin-top: 8px; display: inline-flex; align-items: center; gap: 6px;">
+                        <i class="fas fa-plus-circle"></i> Add New
+                    </a>
+                </div>
+            </div>
+        </div>
+
+        <!-- Doctors Grid -->
+        @if (!Model.Any())
+        {
+            <div class="empty-modern">
+                <div class="empty-icon">
+                    <i class="fas fa-user-md"></i>
+                </div>
+                <h3>No doctors added yet</h3>
+                <p>Click the "Add New" button to add your first doctor.</p>
+            </div>
+        }
+        else
+        {
+            <div class="doctors-grid-modern">
+                @foreach (var doctor in Model)
+                {
+                    <div class="doctor-card-modern">
+                        <div class="doctor-cover">
+                            @if (!string.IsNullOrEmpty(doctor.ImagePath))
+                            {
+                                <img src="@doctor.ImagePath" alt="Dr. @doctor.Name">
+                            }
+                            else
+                            {
+                                <div class="cover-placeholder">
+                                    <i class="fas fa-user-md"></i>
+                                </div>
+                            }
+                            <div class="fee-badge">৳@doctor.Fees</div>
+                        </div>
+                        <div class="doctor-content">
+                            <h3 class="doctor-name">Dr. @doctor.Name</h3>
+                            <p class="doctor-specialty">@doctor.Specialist</p>
+                            <p class="doctor-degrees">@doctor.Degrees</p>
+
+                            <div class="doctor-badges">
+                                <span class="badge info">@doctor.Experience Years Exp</span>
+                                <span class="badge secondary">@doctor.Department</span>
+                            </div>
+
+                            <div class="doctor-location">
+                                <i class="fas fa-hospital"></i> @doctor.HospitalName
+                                <br><i class="fas fa-map-marker-alt"></i> @doctor.HospitalLocation
+                            </div>
+
+                            <div class="doctor-schedule">
+                                <i class="fas fa-calendar-alt"></i> @doctor.AvailableDays
+                                <br><i class="fas fa-clock"></i> @doctor.AvailableTime
+                            </div>
+
+                            <div class="doctor-actions">
+                                <a asp-action="EditDoctor" asp-route-id="@doctor.Id" class="btn-edit">
+                                    <i class="fas fa-edit"></i> Edit
+                                </a>
+                                <button onclick="deleteDoctor(@doctor.Id)" class="btn-delete">
+                                    <i class="fas fa-trash"></i> Delete
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                }
+            </div>
+        }
+    </div>
+</div>
+
+<!-- Delete Confirmation Modal -->
+<div class="modal fade" id="deleteModal" tabindex="-1">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Confirm Delete</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                Are you sure you want to delete this doctor? This action cannot be undone.
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                <form id="deleteForm" method="post" asp-action="DeleteDoctor">
+                    @Html.AntiForgeryToken()
+                    <input type="hidden" name="id" id="deleteId" />
+                    <button type="submit" class="btn-delete">Delete</button>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script>
+        function deleteDoctor(id) {
+            document.getElementById('deleteId').value = id;
+            new bootstrap.Modal(document.getElementById('deleteModal')).show();
+        }
+    </script>
+}
+
+<style>
+    /* ========== MODERN STYLES (same as other admin pages) ========== */
+    .dashboard-wrapper {
+        background: #f5f7fb;
+        min-height: 100vh;
+    }
+
+    /* Hero Section */
+    .hero-section {
+        background: linear-gradient(125deg, #ffffff 0%, #f8fafc 100%);
+        padding: 60px 5% 80px;
+        position: relative;
+        overflow: hidden;
+    }
+    .hero-bg-shapes { position: absolute; top: 0; left: 0; width: 100%; height: 100%; pointer-events: none; }
+    .shape { position: absolute; border-radius: 50%; background: rgba(22, 163, 74, 0.03); }
+    .shape-1 { width: 400px; height: 400px; top: -150px; right: -100px; }
+    .shape-2 { width: 250px; height: 250px; bottom: -80px; left: 10%; background: rgba(22, 163, 74, 0.05); }
+    .shape-3 { width: 180px; height: 180px; top: 30%; left: -60px; background: rgba(22, 163, 74, 0.04); }
+    .hero-content { max-width: 1100px; margin: 0 auto; position: relative; z-index: 2; text-align: center; }
+    .hero-tag { display: inline-flex; align-items: center; gap: 8px; background: rgba(22, 163, 74, 0.1); padding: 6px 18px; border-radius: 40px; font-size: 0.8rem; font-weight: 500; color: #16a34a; margin-bottom: 24px; }
+    .pulse-dot { width: 8px; height: 8px; background: #16a34a; border-radius: 50%; display: inline-block; animation: pulse 1.5s infinite; }
+    @@keyframes pulse { 0%, 100% { opacity: 1; transform: scale(1); } 50% { opacity: 0.5; transform: scale(1.2); } }
+    .hero-heading { font-size: 3.5rem; font-weight: 800; color: #0f172a; margin-bottom: 16px; line-height: 1.2; }
+    .gradient-text { background: linear-gradient(135deg, #16a34a, #15803d); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text; }
+    .hero-subheading { font-size: 1.1rem; color: #5a6e8a; max-width: 550px; margin: 0 auto; }
+
+    /* Main Content */
+    .dashboard-main {
+        max-width: 1300px;
+        margin: 0 auto;
+        padding: 40px 24px 60px;
+    }
+
+    /* Alerts */
+    .alert-modern {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+        padding: 14px 20px;
+        border-radius: 16px;
+        margin-bottom: 24px;
+        animation: slideIn 0.3s ease;
+    }
+    @@keyframes slideIn { from { transform: translateY(-10px); opacity: 0; } to { transform: translateY(0); opacity: 1; } }
+    .alert-modern.success { background: #e8f5e9; border-left: 4px solid #16a34a; color: #1e7b3a; }
+    .alert-modern.error { background: #ffebee; border-left: 4px solid #ef4444; color: #b91c1c; }
+    .alert-close { margin-left: auto; background: none; border: none; font-size: 1.2rem; cursor: pointer; color: inherit; opacity: 0.6; }
+
+    /* Stats Cards */
+    .stats-grid {
+        display: grid;
+        grid-template-columns: repeat(4, 1fr);
+        gap: 24px;
+        margin-bottom: 40px;
+    }
+    .stat-card-modern {
+        background: white;
+        border-radius: 24px;
+        padding: 20px;
+        transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
+        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.02);
+        border: 1px solid #eef2f6;
+        display: flex;
+        align-items: center;
+        gap: 16px;
+    }
+    .stat-card-modern:hover {
+        transform: translateY(-4px);
+        box-shadow: 0 20px 35px -12px rgba(0, 0, 0, 0.12);
+        border-color: rgba(22, 163, 74, 0.2);
+    }
+    .stat-icon-bg {
+        width: 56px;
+        height: 56px;
+        background: #e8f5e9;
+        border-radius: 18px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        flex-shrink: 0;
+    }
+    .stat-icon-bg i { font-size: 28px; color: #16a34a; }
+    .stat-content { flex: 1; }
+    .stat-number { font-size: 2rem; font-weight: 800; color: #0f172a; margin-bottom: 4px; }
+    .stat-label { font-size: 0.85rem; color: #64748b; margin-bottom: 6px; }
+    .stat-trend { font-size: 0.7rem; display: inline-flex; align-items: center; gap: 4px; padding: 2px 8px; border-radius: 20px; background: #f1f5f9; }
+    .stat-trend.success { color: #16a34a; background: #e8f5e9; }
+    .stat-link {
+        text-decoration: none;
+        font-weight: 600;
+        color: #16a34a;
+        display: inline-flex;
+        align-items: center;
+        gap: 6px;
+        transition: gap 0.2s;
+    }
+    .stat-link:hover { gap: 10px; }
+
+    /* Doctors Grid */
+    .doctors-grid-modern {
+        display: grid;
+        grid-template-columns: repeat(3, 1fr);
+        gap: 32px;
+    }
+    .doctor-card-modern {
+        background: white;
+        border-radius: 24px;
+        overflow: hidden;
+        transition: all 0.3s ease;
+        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.02);
+        border: 1px solid #eef2f6;
+        display: flex;
+        flex-direction: column;
+    }
+    .doctor-card-modern:hover {
+        transform: translateY(-4px);
+        box-shadow: 0 20px 35px -12px rgba(0, 0, 0, 0.12);
+        border-color: rgba(22, 163, 74, 0.2);
+    }
+    .doctor-cover {
+        position: relative;
+        height: 200px;
+        overflow: hidden;
+        background: #f1f5f9;
+    }
+    .doctor-cover img {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+        transition: transform 0.3s ease;
+    }
+    .doctor-card-modern:hover .doctor-cover img {
+        transform: scale(1.05);
+    }
+    .cover-placeholder {
+        height: 100%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        background: #e8f5e9;
+        color: #16a34a;
+        font-size: 3rem;
+    }
+    .fee-badge {
+        position: absolute;
+        top: 12px;
+        right: 12px;
+        background: white;
+        color: #16a34a;
+        padding: 4px 12px;
+        border-radius: 30px;
+        font-weight: 700;
+        font-size: 0.8rem;
+        box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+    }
+    .doctor-content {
+        padding: 20px;
+        flex: 1;
+        display: flex;
+        flex-direction: column;
+    }
+    .doctor-name {
+        font-size: 1.2rem;
+        font-weight: 700;
+        color: #0f172a;
+        margin-bottom: 4px;
+    }
+    .doctor-specialty {
+        font-size: 0.85rem;
+        color: #16a34a;
+        margin-bottom: 4px;
+    }
+    .doctor-degrees {
+        font-size: 0.75rem;
+        color: #64748b;
+        margin-bottom: 12px;
+    }
+    .doctor-badges {
+        display: flex;
+        gap: 8px;
+        margin-bottom: 16px;
+    }
+    .badge {
+        display: inline-block;
+        padding: 4px 10px;
+        font-size: 0.7rem;
+        font-weight: 500;
+        border-radius: 30px;
+    }
+    .badge.info {
+        background: #e6f7ec;
+        color: #16a34a;
+    }
+    .badge.secondary {
+        background: #f1f5f9;
+        color: #475569;
+    }
+    .doctor-location, .doctor-schedule {
+        font-size: 0.8rem;
+        color: #475569;
+        margin-bottom: 12px;
+        line-height: 1.4;
+    }
+    .doctor-location i, .doctor-schedule i {
+        width: 18px;
+        color: #16a34a;
+        margin-right: 6px;
+    }
+    .doctor-actions {
+        display: flex;
+        gap: 12px;
+        margin-top: auto;
+        padding-top: 12px;
+    }
+    .btn-edit, .btn-delete {
+        flex: 1;
+        padding: 8px;
+        border-radius: 10px;
+        font-size: 0.8rem;
+        font-weight: 600;
+        text-align: center;
+        text-decoration: none;
+        cursor: pointer;
+        transition: all 0.2s;
+        border: none;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        gap: 6px;
+    }
+    .btn-edit {
+        background: #e6f7ec;
+        color: #16a34a;
+        border: 1px solid #16a34a;
+    }
+    .btn-edit:hover {
+        background: #16a34a;
+        color: white;
+        transform: translateY(-2px);
+    }
+    .btn-delete {
+        background: #fee2e2;
+        color: #dc2626;
+        border: 1px solid #dc2626;
+    }
+    .btn-delete:hover {
+        background: #dc2626;
+        color: white;
+        transform: translateY(-2px);
+    }
+
+    /* Empty State */
+    .empty-modern {
+        text-align: center;
+        padding: 80px 20px;
+        background: white;
+        border-radius: 32px;
+        margin-top: 40px;
+    }
+    .empty-icon {
+        width: 80px;
+        height: 80px;
+        background: #f1f5f9;
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        margin: 0 auto 20px;
+        font-size: 2.5rem;
+        color: #94a3b8;
+    }
+    .empty-modern h3 { font-size: 1.3rem; color: #334155; margin-bottom: 8px; }
+    .empty-modern p { color: #64748b; }
+
+    /* Modal Styles */
+    .modal-content {
+        border-radius: 24px;
+        border: none;
+        box-shadow: 0 20px 35px -12px rgba(0, 0, 0, 0.2);
+    }
+    .modal-header {
+        border-bottom: 1px solid #eef2f0;
+        padding: 20px 24px;
+    }
+    .modal-footer {
+        border-top: 1px solid #eef2f0;
+        padding: 16px 24px;
+    }
+    .modal-footer .btn-secondary {
+        background: white;
+        border: 1px solid #e2e8f0;
+        color: #475569;
+        padding: 8px 20px;
+        border-radius: 10px;
+        font-weight: 500;
+    }
+    .modal-footer .btn-secondary:hover {
+        border-color: #16a34a;
+        color: #16a34a;
+    }
+
+    /* Responsive */
+    @@media (max-width: 1100px) {
+        .stats-grid { grid-template-columns: repeat(2, 1fr); }
+        .doctors-grid-modern { grid-template-columns: repeat(2, 1fr); }
+    }
+    @@media (max-width: 768px) {
+        .hero-heading { font-size: 2rem; }
+        .stats-grid { grid-template-columns: 1fr; }
+        .doctors-grid-modern { grid-template-columns: 1fr; }
+    }
+</style>

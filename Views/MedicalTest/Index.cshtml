@@ -1,0 +1,309 @@
+﻿@using EasySheba.Data
+@using Microsoft.EntityFrameworkCore
+@model IEnumerable<EasySheba.Models.MedicalTest>
+@inject ApplicationDbContext DbContext
+
+@{
+    ViewData["Title"] = "Medical Tests | EasySheba";
+    var today = DateTime.Today;
+}
+
+<div class="doctor-page-wrapper">
+
+    <!-- ================= HERO SECTION ================= -->
+    <div class="doctor-hero-modern">
+        <div class="hero-bg-shapes">
+            <div class="shape shape-1"></div>
+            <div class="shape shape-2"></div>
+            <div class="shape shape-3"></div>
+        </div>
+
+        <div class="hero-content-modern">
+            <div class="hero-tag">
+                <span class="pulse-dot"></span> 100+ Medical Tests
+            </div>
+
+            <h1 class="hero-heading">
+                Book Your <span class="green-glow">Medical Test</span>
+            </h1>
+
+            <p class="hero-subheading">
+                Certified labs. Real-time availability. Instant booking.
+            </p>
+
+            <!-- SAME SEARCH STYLE -->
+            <div class="search-bar-modern">
+                <div class="search-row">
+                    <div class="search-field">
+                        <i class="fas fa-flask"></i>
+                        <input type="text" id="searchTest" placeholder="Test name..." autocomplete="off">
+                    </div>
+
+                    <div class="search-field">
+                        <i class="fas fa-calendar-day"></i>
+                        <select id="filterAvailability">
+                            <option value="">Any Time</option>
+                            <option value="available">Available Today</option>
+                            <option value="limited">Limited Slots</option>
+                            <option value="booked">Fully Booked</option>
+                        </select>
+                    </div>
+
+                    <button id="searchBtn" class="search-trigger">
+                        <i class="fas fa-search"></i> Find
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- ================= MAIN ================= -->
+    <div class="doctor-main">
+
+        <!-- ALERTS -->
+        @if (TempData["success"] != null)
+        {
+            <div class="alert-modern success">
+                <i class="fas fa-check-circle"></i>
+                <span>@TempData["success"]</span>
+                <button class="alert-close" onclick="this.parentElement.remove()">×</button>
+            </div>
+        }
+
+        @if (TempData["error"] != null)
+        {
+            <div class="alert-modern error">
+                <i class="fas fa-exclamation-circle"></i>
+                <span>@TempData["error"]</span>
+                <button class="alert-close" onclick="this.parentElement.remove()">×</button>
+            </div>
+        }
+
+        <!-- ================= STATS TOOLBAR (MATCHED) ================= -->
+        <div class="stats-toolbar">
+            <div class="stats-bubbles">
+                <div class="stat-bubble"><i class="fas fa-flask"></i> <span>@Model.Count()</span> Tests</div>
+                <div class="stat-bubble"><i class="fas fa-calendar-check"></i> Today Available</div>
+                <div class="stat-bubble"><i class="fas fa-clock"></i> Real-time Slots</div>
+            </div>
+
+            <button id="refreshBtn" class="refresh-modern">
+                <i class="fas fa-sync-alt"></i> Refresh
+            </button>
+        </div>
+
+        <!-- ================= GRID ================= -->
+        <div class="doctors-grid-modern" id="testsGrid">
+            @{
+                var testList = Model.ToList();
+            }
+
+            @for (int i = 0; i < testList.Count; i++)
+            {
+                var test = testList[i];
+
+                var bookedCount = await DbContext.Appointments
+                    .CountAsync(a => a.MedicalTestId == test.Id
+                    && a.AppointmentDate.Date == today.Date
+                    && a.Status == "Approved"
+                    && a.IsTestCountedTowardsLimit == true);
+
+                string dayName = today.DayOfWeek.ToString();
+
+                var todayLimit = dayName switch
+                {
+                    "Monday" => test.MondayLimit,
+                    "Tuesday" => test.TuesdayLimit,
+                    "Wednesday" => test.WednesdayLimit,
+                    "Thursday" => test.ThursdayLimit,
+                    "Friday" => test.FridayLimit,
+                    "Saturday" => test.SaturdayLimit,
+                    "Sunday" => test.SundayLimit,
+                    _ => test.DailyAppointmentLimit
+                };
+
+                var availableSlots = Math.Max(0, todayLimit - bookedCount);
+                var availableDaysList = test.AvailableDays?.Split(", ", StringSplitOptions.RemoveEmptyEntries) ?? new string[0];
+                var isAvailableToday = availableDaysList.Contains(dayName);
+
+                string statusClass = "";
+                string statusText = "";
+                string statusIcon = "";
+
+                if (!isAvailableToday)
+                {
+                    statusClass = "status-off";
+                    statusText = "Off Today";
+                    statusIcon = "fa-calendar-times";
+                }
+                else if (availableSlots <= 0)
+                {
+                    statusClass = "status-full";
+                    statusText = "Fully Booked";
+                    statusIcon = "fa-ban";
+                }
+                else if (availableSlots <= 3)
+                {
+                    statusClass = "status-limited";
+                    statusText = $"{availableSlots} Slots Left";
+                    statusIcon = "fa-hourglass-half";
+                }
+                else
+                {
+                    statusClass = "status-available";
+                    statusText = $"{availableSlots} Available";
+                    statusIcon = "fa-check-circle";
+                }
+
+                <div class="doctor-card-modern test-card"
+                     data-name="@test.TestName.ToLower()"
+                     data-available="@availableSlots">
+
+                    <div class="card-inner-modern">
+
+                        <!-- LEFT -->
+                        <div class="card-left">
+                            <div class="doctor-avatar-modern">
+                                @if (!string.IsNullOrEmpty(test.ImagePath))
+                                {
+                                    <img src="@test.ImagePath">
+                                }
+                                else
+                                {
+                                    <div class="avatar-placeholder">
+                                        <i class="fas fa-flask"></i>
+                                    </div>
+                                }
+
+                                <div class="status-indicator @statusClass">
+                                    <i class="fas @statusIcon"></i> @statusText
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- RIGHT -->
+                        <div class="card-right">
+
+                            <div class="doctor-header-modern">
+                                <div>
+                                    <h3 class="doctor-name-modern">@test.TestName</h3>
+                                    <span class="doctor-specialty-modern">@test.Description</span>
+
+                                    <div class="doctor-badges">
+                                        <span class="badge-minimal"><i class="fas fa-hospital"></i> @test.HospitalName</span>
+                                        <span class="badge-minimal"><i class="fas fa-location-dot"></i> @test.HospitalLocation</span>
+                                        <span class="badge-minimal"><i class="fas fa-clock"></i> @test.AvailableTime</span>
+                                    </div>
+                                </div>
+
+                                <div class="fee-modern">
+                                    <span class="fee-amount">৳@test.Price</span>
+                                    <span class="fee-label">per test</span>
+                                </div>
+                            </div>
+
+                            <div class="doctor-info-modern">
+                                <div class="info-row">
+                                    <i class="fas fa-calendar-alt"></i>
+                                    <span>@test.AvailableDays</span>
+                                </div>
+                                <div class="info-row">
+                                    <i class="fas fa-clock"></i>
+                                    <span>@test.AvailableTime</span>
+                                </div>
+                            </div>
+
+                            @if (isAvailableToday && todayLimit > 0)
+                            {
+                                var percentage = (bookedCount * 100) / todayLimit;
+
+                                <div class="slot-progress-modern">
+                                    <div class="progress-text">
+                                        <span>Today's bookings</span>
+                                        <strong>@bookedCount / @todayLimit</strong>
+                                    </div>
+
+                                    <div class="progress-track-modern">
+                                        <div class="progress-fill-modern"
+                                             style="width:@(Math.Min(percentage, 100))%">
+                                        </div>
+                                    </div>
+                                </div>
+                            }
+
+                            <div class="action-modern">
+                                @if (isAvailableToday && availableSlots > 0)
+                                {
+                                    <a asp-controller="Appointment"
+                                           asp-action="BookTest"
+                                           asp-route-testId="@test.Id"
+                                           class="book-btn-modern">
+                                        <i class="fas fa-calendar-check"></i> Book Now
+                                        <i class="fas fa-arrow-right arrow-icon"></i>
+                                    </a>
+                                }
+                                else if (isAvailableToday && availableSlots <= 0)
+                                {
+                                    <button class="book-btn-modern disabled" disabled>
+                                        <i class="fas fa-clock"></i> Sold Out Today
+                                    </button>
+                                }
+                                else
+                                {
+                                    <button class="book-btn-modern disabled" disabled>
+                                        <i class="fas fa-calendar-week"></i> Not Available
+                                    </button>
+                                }
+                            </div>
+
+                        </div>
+                    </div>
+                </div>
+            }
+        </div>
+
+        <!-- EMPTY -->
+        @if (!Model.Any())
+        {
+            <div class="empty-modern">
+                <div class="empty-icon">
+                    <i class="fas fa-flask"></i>
+                </div>
+                <h3>No medical tests found</h3>
+                <p>Try adjusting your search</p>
+            </div>
+        }
+    </div>
+</div>
+
+@section Scripts {
+    <script>
+        $(document).ready(function () {
+            function filterTests() {
+                var search = $("#searchTest").val().toLowerCase();
+                var availability = $("#filterAvailability").val();
+                $(".test-card").each(function () {
+                    var name = $(this).data("name");
+                    var available = parseInt($(this).data("available"));
+                    var nameMatch = name.includes(search);
+                    var availabilityMatch = true;
+                    if (availability === "available") {
+                        availabilityMatch = available > 3;
+                    } else if (availability === "limited") {
+                        availabilityMatch = available > 0 && available <= 3;
+                    } else if (availability === "booked") {
+                        availabilityMatch = available <= 0;
+                    }
+                    $(this).toggle(nameMatch && availabilityMatch);
+                });
+            }
+            $("#searchTest, #filterAvailability, #searchBtn").on("keyup change click", function () {
+                filterTests();
+            });
+            $("#refreshBtn").click(function () {
+                location.reload();
+            });
+        });
+    </script>
+    <link rel="stylesheet" href="~/css/medicaltest.css" />
+}

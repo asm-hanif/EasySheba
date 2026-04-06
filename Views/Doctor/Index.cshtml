@@ -1,0 +1,1018 @@
+﻿@using EasySheba.Data
+@using Microsoft.EntityFrameworkCore
+@model IEnumerable<EasySheba.Models.Doctor>
+@using EasySheba.Services
+@inject IAppointmentLimitService LimitService
+@inject ApplicationDbContext DbContext
+
+@{
+    ViewData["Title"] = "Find Doctors | EasySheba";
+    var today = DateTime.Today;
+}
+
+<!-- ================= MODERN DOCTOR PAGE ================= -->
+<div class="doctor-page-wrapper">
+    <!-- Hero Section - Minimal & Bold -->
+    <div class="doctor-hero-modern">
+        <div class="hero-bg-shapes">
+            <div class="shape shape-1"></div>
+            <div class="shape shape-2"></div>
+            <div class="shape shape-3"></div>
+        </div>
+        <div class="hero-content-modern">
+            <div class="hero-tag">
+                <span class="pulse-dot"></span> 150+ Expert Doctors
+            </div>
+            <h1 class="hero-heading">
+                Find Your <span class="green-glow">Perfect</span> Doctor
+            </h1>
+            <p class="hero-subheading">
+                Connect with trusted specialists. Book appointments in seconds.
+            </p>
+            
+            <!-- Search Bar - Clean & Minimal -->
+            <div class="search-bar-modern">
+                <div class="search-row">
+                    <div class="search-field">
+                        <i class="fas fa-user-md"></i>
+                        <input type="text" id="searchDoctor" placeholder="Doctor name..." autocomplete="off">
+                    </div>
+                    <div class="search-field">
+                        <i class="fas fa-stethoscope"></i>
+                        <select id="filterSpecialist">
+                            <option value="">All Specialties</option>
+                            <option>Cardiology</option>
+                            <option>Neurology</option>
+                            <option>Orthopedics</option>
+                            <option>Pediatrics</option>
+                            <option>Gynecology</option>
+                            <option>Dermatology</option>
+                            <option>Ophthalmology</option>
+                            <option>Dentistry</option>
+                        </select>
+                    </div>
+                    <div class="search-field">
+                        <i class="fas fa-calendar-day"></i>
+                        <select id="filterAvailability">
+                            <option value="">Any Time</option>
+                            <option value="available">Available Today</option>
+                            <option value="limited">Limited Slots</option>
+                            <option value="booked">Fully Booked</option>
+                        </select>
+                    </div>
+                    <button id="searchBtn" class="search-trigger">
+                        <i class="fas fa-search"></i> Find
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Main Content Area -->
+    <div class="doctor-main">
+        <!-- Alerts -->
+        @if (TempData["success"] != null)
+        {
+            <div class="alert-modern success">
+                <i class="fas fa-check-circle"></i>
+                <span>@TempData["success"]</span>
+                <button class="alert-close" onclick="this.parentElement.remove()">×</button>
+            </div>
+        }
+        @if (TempData["error"] != null)
+        {
+            <div class="alert-modern error">
+                <i class="fas fa-exclamation-circle"></i>
+                <span>@TempData["error"]</span>
+                <button class="alert-close" onclick="this.parentElement.remove()">×</button>
+            </div>
+        }
+
+        <!-- Stats & Refresh Bar -->
+        <div class="stats-toolbar">
+            <div class="stats-bubbles">
+                <div class="stat-bubble"><i class="fas fa-user-md"></i> <span>@Model.Count()</span> Doctors</div>
+                <div class="stat-bubble"><i class="fas fa-calendar-check"></i> Today Available</div>
+                <div class="stat-bubble"><i class="fas fa-clock"></i> Real-time Slots</div>
+            </div>
+            <button id="refreshBtn" class="refresh-modern">
+                <i class="fas fa-sync-alt"></i> Refresh
+            </button>
+        </div>
+
+        <!-- Doctors Grid - Modern Card Design -->
+        <div class="doctors-grid-modern" id="doctorsGrid">
+            @{
+                var doctorList = Model.ToList();
+            }
+
+            @for (int i = 0; i < doctorList.Count; i++)
+            {
+                var doctor = doctorList[i];
+
+                var bookedCount = await DbContext.Appointments
+                .CountAsync(a => a.DoctorId == doctor.Id
+                && a.AppointmentDate.Date == today.Date
+                && a.Status == "Approved"
+                && a.IsCountedTowardsLimit == true);
+
+                string dayName = today.DayOfWeek.ToString();
+                var todayLimit = dayName switch
+                {
+                    "Monday" => doctor.MondayLimit,
+                    "Tuesday" => doctor.TuesdayLimit,
+                    "Wednesday" => doctor.WednesdayLimit,
+                    "Thursday" => doctor.ThursdayLimit,
+                    "Friday" => doctor.FridayLimit,
+                    "Saturday" => doctor.SaturdayLimit,
+                    "Sunday" => doctor.SundayLimit,
+                    _ => doctor.DailyAppointmentLimit
+                };
+
+                var availableSlots = Math.Max(0, todayLimit - bookedCount);
+                var availableDaysList = doctor.AvailableDays?.Split(", ", StringSplitOptions.RemoveEmptyEntries) ?? new string[0];
+                var isAvailableToday = availableDaysList.Contains(dayName);
+
+                // Status styling
+                string statusClass = "";
+                string statusText = "";
+                string statusIcon = "";
+                if (!isAvailableToday)
+                {
+                    statusClass = "status-off";
+                    statusText = "Off Today";
+                    statusIcon = "fa-calendar-times";
+                }
+                else if (availableSlots <= 0)
+                {
+                    statusClass = "status-full";
+                    statusText = "Fully Booked";
+                    statusIcon = "fa-ban";
+                }
+                else if (availableSlots <= 3)
+                {
+                    statusClass = "status-limited";
+                    statusText = $"{availableSlots} Slots Left";
+                    statusIcon = "fa-hourglass-half";
+                }
+                else
+                {
+                    statusClass = "status-available";
+                    statusText = $"{availableSlots} Available";
+                    statusIcon = "fa-check-circle";
+                }
+
+                <div class="doctor-card-modern"
+                     data-name="@doctor.Name.ToLower()"
+                     data-specialist="@doctor.Specialist.ToLower()"
+                     data-available="@availableSlots"
+                     data-doctor-id="@doctor.Id">
+                    <div class="card-inner-modern">
+                        <div class="card-left">
+                            <div class="doctor-avatar-modern">
+                                @if (!string.IsNullOrEmpty(doctor.ImagePath))
+                                {
+                                    <img src="@doctor.ImagePath" alt="@doctor.Name">
+                                }
+                                else
+                                {
+                                    <div class="avatar-placeholder">
+                                        <i class="fas fa-user-md"></i>
+                                    </div>
+                                }
+                                <div class="status-indicator @statusClass">
+                                    <i class="fas @statusIcon"></i> @statusText
+                                </div>
+                            </div>
+                        </div>
+                        <div class="card-right">
+                            <div class="doctor-header-modern">
+                                <div>
+                                    <h3 class="doctor-name-modern">Dr. @doctor.Name</h3>
+                                    <span class="doctor-specialty-modern">@doctor.Specialist</span>
+                                    <div class="doctor-badges">
+                                        <span class="badge-minimal"><i class="fas fa-graduation-cap"></i> @doctor.Degrees</span>
+                                        <span class="badge-minimal"><i class="fas fa-building"></i> @doctor.Department</span>
+                                        <span class="badge-minimal"><i class="fas fa-star"></i> @doctor.Experience+ yrs</span>
+                                    </div>
+                                </div>
+                                <div class="fee-modern">
+                                    <span class="fee-amount">৳@doctor.Fees</span>
+                                    <span class="fee-label">per visit</span>
+                                </div>
+                            </div>
+
+                            <div class="doctor-info-modern">
+                                <div class="info-row">
+                                    <i class="fas fa-hospital"></i>
+                                    <span>@doctor.HospitalName</span>
+                                </div>
+                                <div class="info-row">
+                                    <i class="fas fa-location-dot"></i>
+                                    <span>@doctor.HospitalLocation</span>
+                                </div>
+                                <div class="info-row">
+                                    <i class="fas fa-calendar-alt"></i>
+                                    <span>@doctor.AvailableDays</span>
+                                </div>
+                                <div class="info-row">
+                                    <i class="fas fa-clock"></i>
+                                    <span>@doctor.AvailableTime</span>
+                                </div>
+                            </div>
+
+                            <!-- Progress Ring Style -->
+                            @if (isAvailableToday && todayLimit > 0)
+                            {
+                                var percentage = (bookedCount * 100) / todayLimit;
+                                <div class="slot-progress-modern">
+                                    <div class="progress-text">
+                                        <span>Today's bookings</span>
+                                        <strong>@bookedCount / @todayLimit</strong>
+                                    </div>
+                                    <div class="progress-track-modern">
+                                        <div class="progress-fill-modern" style="width: @(Math.Min(percentage, 100))%"></div>
+                                    </div>
+                                </div>
+                            }
+
+                            <div class="action-modern">
+                                @if (isAvailableToday && availableSlots > 0)
+                                {
+                                    <a asp-controller="Appointment" asp-action="Book" asp-route-doctorId="@doctor.Id"
+                                       class="book-btn-modern" data-doctor-id="@doctor.Id">
+                                        <i class="fas fa-calendar-check"></i> Book Now
+                                        <i class="fas fa-arrow-right arrow-icon"></i>
+                                    </a>
+                                }
+                                else if (isAvailableToday && availableSlots <= 0)
+                                {
+                                    <button class="book-btn-modern disabled" disabled>
+                                        <i class="fas fa-clock"></i> Sold Out Today
+                                    </button>
+                                }
+                                else
+                                {
+                                    <button class="book-btn-modern disabled" disabled>
+                                        <i class="fas fa-calendar-week"></i> Not Available
+                                    </button>
+                                }
+                            </div>
+
+                            <!-- Tomorrow Hint -->
+                            @if (!isAvailableToday)
+                            {
+                                var tomorrow = DateTime.Today.AddDays(1);
+                                var tomorrowDayName = tomorrow.DayOfWeek.ToString();
+                                var tomorrowAvailable = doctor.AvailableDays?.Contains(tomorrowDayName) == true;
+                                if (tomorrowAvailable)
+                                {
+                                    <div class="tomorrow-hint">
+                                        <i class="fas fa-sun"></i> Available from tomorrow
+                                    </div>
+                                }
+                            }
+                        </div>
+                    </div>
+                </div>
+            }
+        </div>
+
+        @if (!Model.Any())
+        {
+            <div class="empty-modern">
+                <div class="empty-icon">
+                    <i class="fas fa-user-md"></i>
+                </div>
+                <h3>No doctors found</h3>
+                <p>Try adjusting your search or check back later</p>
+            </div>
+        }
+    </div>
+</div>
+
+@section Scripts {
+    <script>
+        $(document).ready(function() {
+            function filterDoctors() {
+                var searchText = $("#searchDoctor").val().toLowerCase();
+                var specialist = $("#filterSpecialist").val().toLowerCase();
+                var availability = $("#filterAvailability").val();
+
+                $(".doctor-card-modern").each(function() {
+                    var name = $(this).data("name");
+                    var docSpecialist = $(this).data("specialist");
+                    var available = parseInt($(this).data("available"));
+                    
+                    var statusElement = $(this).find('.status-indicator');
+                    var statusText = statusElement.text().toLowerCase();
+                    var isNotAvailable = statusText.includes('off') || statusText.includes('not');
+                    var isFullyBooked = statusText.includes('full') || statusText.includes('booked');
+
+                    var nameMatch = name.includes(searchText);
+                    var specialistMatch = specialist === "" || docSpecialist.includes(specialist);
+
+                    var availabilityMatch = false;
+                    if (availability === "") {
+                        availabilityMatch = true;
+                    } else if (availability === "available") {
+                        availabilityMatch = !isNotAvailable && !isFullyBooked && available > 3;
+                    } else if (availability === "limited") {
+                        availabilityMatch = !isNotAvailable && !isFullyBooked && available > 0 && available <= 3;
+                    } else if (availability === "booked") {
+                        availabilityMatch = isFullyBooked || available <= 0;
+                    }
+
+                    if (nameMatch && specialistMatch && availabilityMatch) {
+                        $(this).show();
+                    } else {
+                        $(this).hide();
+                    }
+                });
+            }
+
+            $("#searchDoctor, #filterSpecialist, #filterAvailability, #searchBtn").on("keyup change click", function() {
+                filterDoctors();
+            });
+
+            $("#refreshBtn").on("click", function() {
+                location.reload();
+            });
+
+            setInterval(function() {
+                location.reload();
+            }, 30000);
+        });
+    </script>
+}
+
+<style>
+    /* ================= MODERN REDESIGN ================= */
+    /* Keeping original green color scheme (#16a34a) with fresh modern style */
+
+    * {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+    }
+
+    .doctor-page-wrapper {
+        background: #f5f7fb;
+        min-height: 100vh;
+    }
+
+    /* Hero Section - Modern Minimal */
+    .doctor-hero-modern {
+        background: linear-gradient(125deg, #ffffff 0%, #f8fafc 100%);
+        padding: 60px 5% 80px;
+        position: relative;
+        overflow: hidden;
+    }
+
+    .hero-bg-shapes {
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        pointer-events: none;
+    }
+
+    .shape {
+        position: absolute;
+        border-radius: 50%;
+        background: rgba(22, 163, 74, 0.03);
+    }
+
+    .shape-1 {
+        width: 400px;
+        height: 400px;
+        top: -150px;
+        right: -100px;
+    }
+
+    .shape-2 {
+        width: 250px;
+        height: 250px;
+        bottom: -80px;
+        left: 10%;
+        background: rgba(22, 163, 74, 0.05);
+    }
+
+    .shape-3 {
+        width: 180px;
+        height: 180px;
+        top: 30%;
+        left: -60px;
+        background: rgba(22, 163, 74, 0.04);
+    }
+
+    .hero-content-modern {
+        max-width: 1100px;
+        margin: 0 auto;
+        position: relative;
+        z-index: 2;
+        text-align: center;
+    }
+
+    .hero-tag {
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+        background: rgba(22, 163, 74, 0.1);
+        padding: 6px 18px;
+        border-radius: 40px;
+        font-size: 0.8rem;
+        font-weight: 500;
+        color: #16a34a;
+        margin-bottom: 24px;
+    }
+
+    .pulse-dot {
+        width: 8px;
+        height: 8px;
+        background: #16a34a;
+        border-radius: 50%;
+        display: inline-block;
+        animation: pulse 1.5s infinite;
+    }
+
+    @@keyframes pulse {
+        0%, 100% { opacity: 1; transform: scale(1); }
+        50% { opacity: 0.5; transform: scale(1.2); }
+    }
+
+    .hero-heading {
+        font-size: 3.5rem;
+        font-weight: 800;
+        color: #0f172a;
+        margin-bottom: 16px;
+        line-height: 1.2;
+    }
+
+    .green-glow {
+        background: linear-gradient(135deg, #16a34a, #15803d);
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+        background-clip: text;
+        position: relative;
+    }
+
+    .hero-subheading {
+        font-size: 1.1rem;
+        color: #5a6e8a;
+        max-width: 550px;
+        margin: 0 auto 40px;
+    }
+
+    /* Search Bar - Clean Modern */
+    .search-bar-modern {
+        max-width: 900px;
+        margin: 0 auto;
+        background: white;
+        border-radius: 60px;
+        padding: 8px;
+        box-shadow: 0 20px 35px -10px rgba(0, 0, 0, 0.08);
+        border: 1px solid rgba(22, 163, 74, 0.15);
+    }
+
+    .search-row {
+        display: flex;
+        gap: 12px;
+        align-items: center;
+        flex-wrap: wrap;
+    }
+
+    .search-field {
+        flex: 1;
+        display: flex;
+        align-items: center;
+        gap: 12px;
+        background: #f8fafc;
+        padding: 12px 20px;
+        border-radius: 50px;
+        transition: all 0.2s;
+    }
+
+    .search-field:focus-within {
+        background: white;
+        box-shadow: 0 0 0 2px rgba(22, 163, 74, 0.2);
+    }
+
+    .search-field i {
+        color: #16a34a;
+        font-size: 1rem;
+    }
+
+    .search-field input,
+    .search-field select {
+        border: none;
+        background: transparent;
+        font-size: 0.9rem;
+        width: 100%;
+        outline: none;
+        font-family: inherit;
+        color: #1e293b;
+    }
+
+    .search-field select {
+        cursor: pointer;
+    }
+
+    .search-trigger {
+        background: #16a34a;
+        border: none;
+        padding: 12px 32px;
+        border-radius: 50px;
+        color: white;
+        font-weight: 600;
+        font-size: 0.9rem;
+        cursor: pointer;
+        transition: all 0.2s;
+        display: flex;
+        align-items: center;
+        gap: 8px;
+    }
+
+    .search-trigger:hover {
+        background: #15803d;
+        transform: scale(1.02);
+    }
+
+    /* Main Content */
+    .doctor-main {
+        max-width: 1300px;
+        margin: 0 auto;
+        padding: 40px 24px 60px;
+    }
+
+    /* Alerts */
+    .alert-modern {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+        padding: 14px 20px;
+        border-radius: 16px;
+        margin-bottom: 24px;
+        animation: slideIn 0.3s ease;
+    }
+
+    @@keyframes slideIn {
+        from { transform: translateY(-10px); opacity: 0; }
+        to { transform: translateY(0); opacity: 1; }
+    }
+
+    .alert-modern.success {
+        background: #e8f5e9;
+        border-left: 4px solid #16a34a;
+        color: #1e7b3a;
+    }
+
+    .alert-modern.error {
+        background: #ffebee;
+        border-left: 4px solid #ef4444;
+        color: #b91c1c;
+    }
+
+    .alert-close {
+        margin-left: auto;
+        background: none;
+        border: none;
+        font-size: 1.2rem;
+        cursor: pointer;
+        color: inherit;
+        opacity: 0.6;
+    }
+
+    /* Stats Toolbar */
+    .stats-toolbar {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        flex-wrap: wrap;
+        gap: 16px;
+        margin-bottom: 40px;
+        padding-bottom: 20px;
+        border-bottom: 1px solid #e2e8f0;
+    }
+
+    .stats-bubbles {
+        display: flex;
+        gap: 12px;
+        flex-wrap: wrap;
+    }
+
+    .stat-bubble {
+        background: white;
+        padding: 8px 20px;
+        border-radius: 40px;
+        font-size: 0.8rem;
+        font-weight: 500;
+        color: #334155;
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        box-shadow: 0 1px 3px rgba(0,0,0,0.05);
+        border: 1px solid #e2e8f0;
+    }
+
+    .stat-bubble i {
+        color: #16a34a;
+    }
+
+    .refresh-modern {
+        background: transparent;
+        border: 1px solid #e2e8f0;
+        padding: 8px 20px;
+        border-radius: 40px;
+        font-size: 0.8rem;
+        font-weight: 500;
+        cursor: pointer;
+        transition: all 0.2s;
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        color: #475569;
+    }
+
+    .refresh-modern:hover {
+        border-color: #16a34a;
+        color: #16a34a;
+        background: #f0fdf4;
+    }
+
+    /* Doctor Cards - Modern Fresh Layout */
+    .doctors-grid-modern {
+        display: grid;
+        grid-template-columns: repeat(3, 1fr);
+        gap: 32px;
+        align-items: stretch;
+    }
+    .doctor-card-modern {
+        display: flex;
+        flex-direction: column;
+        height: 100%;
+        min-height: 480px; /* adjust as needed for your content */
+        background: white;
+        border-radius: 28px;
+        box-shadow: 0 2px 8px rgba(0,0,0,0.02);
+        border: 1px solid #eef2f6;
+    }
+    .card-inner-modern {
+        display: flex;
+        flex-direction: column;
+        flex: 1 1 auto;
+        height: 100%;
+    }
+
+    .doctor-card-modern {
+        animation: fadeUp 0.4s ease;
+    }
+
+    @@keyframes fadeUp {
+        from { opacity: 0; transform: translateY(15px); }
+        to { opacity: 1; transform: translateY(0); }
+    }
+
+    .card-inner-modern {
+        background: white;
+        border-radius: 28px;
+        display: flex;
+        gap: 24px;
+        padding: 24px;
+        transition: all 0.3s ease;
+        border: 1px solid #eef2f6;
+        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.02);
+    }
+
+    .card-inner-modern:hover {
+        transform: translateY(-4px);
+        box-shadow: 0 20px 35px -12px rgba(0, 0, 0, 0.12);
+        border-color: rgba(22, 163, 74, 0.2);
+    }
+
+    /* Left Column - Avatar */
+    .card-left {
+        flex-shrink: 0;
+    }
+
+    .doctor-avatar-modern {
+        position: relative;
+        width: 120px;
+        height: 120px;
+    }
+
+    .doctor-avatar-modern img {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+        border-radius: 28px;
+        background: #f1f5f9;
+    }
+
+    .avatar-placeholder {
+        width: 100%;
+        height: 100%;
+        background: linear-gradient(135deg, #e8f5e9, #c8e6d9);
+        border-radius: 28px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 3rem;
+        color: #16a34a;
+    }
+
+    .status-indicator {
+        position: absolute;
+        bottom: -8px;
+        left: 50%;
+        transform: translateX(-50%);
+        white-space: nowrap;
+        padding: 4px 12px;
+        border-radius: 30px;
+        font-size: 0.65rem;
+        font-weight: 600;
+        display: flex;
+        align-items: center;
+        gap: 4px;
+        box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+    }
+
+    .status-available {
+        background: #16a34a;
+        color: white;
+    }
+    .status-limited {
+        background: #f59e0b;
+        color: white;
+    }
+    .status-full {
+        background: #ef4444;
+        color: white;
+    }
+    .status-off {
+        background: #94a3b8;
+        color: white;
+    }
+
+    /* Right Column */
+    .card-right {
+        flex: 1;
+    }
+
+    .doctor-header-modern {
+        display: flex;
+        justify-content: space-between;
+        align-items: flex-start;
+        flex-wrap: wrap;
+        gap: 16px;
+        margin-bottom: 16px;
+    }
+
+    .doctor-name-modern {
+        font-size: 1.35rem;
+        font-weight: 700;
+        color: #0f172a;
+        margin-bottom: 4px;
+    }
+
+    .doctor-specialty-modern {
+        color: #16a34a;
+        font-weight: 600;
+        font-size: 0.85rem;
+        display: inline-block;
+        margin-bottom: 8px;
+    }
+
+    .doctor-badges {
+        display: flex;
+        gap: 8px;
+        flex-wrap: wrap;
+        margin-top: 6px;
+    }
+
+    .badge-minimal {
+        background: #f1f5f9;
+        padding: 3px 10px;
+        border-radius: 20px;
+        font-size: 0.7rem;
+        font-weight: 500;
+        color: #475569;
+        display: inline-flex;
+        align-items: center;
+        gap: 5px;
+    }
+
+    .fee-modern {
+        text-align: right;
+        background: #f8fafc;
+        padding: 8px 16px;
+        border-radius: 20px;
+    }
+
+    .fee-amount {
+        font-size: 1.4rem;
+        font-weight: 800;
+        color: #16a34a;
+    }
+
+    .fee-label {
+        font-size: 0.7rem;
+        color: #64748b;
+        display: block;
+    }
+
+    .doctor-info-modern {
+        display: grid;
+        grid-template-columns: repeat(2, 1fr);
+        gap: 10px 20px;
+        margin-bottom: 20px;
+    }
+
+    .info-row {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        font-size: 0.8rem;
+        color: #475569;
+    }
+
+    .info-row i {
+        width: 20px;
+        color: #16a34a;
+        font-size: 0.85rem;
+    }
+
+    .slot-progress-modern {
+        margin-bottom: 20px;
+    }
+
+    .progress-text {
+        display: flex;
+        justify-content: space-between;
+        font-size: 0.7rem;
+        margin-bottom: 6px;
+        color: #64748b;
+    }
+
+    .progress-track-modern {
+        background: #e2e8f0;
+        border-radius: 20px;
+        height: 6px;
+        overflow: hidden;
+    }
+
+    .progress-fill-modern {
+        height: 100%;
+        background: #16a34a;
+        border-radius: 20px;
+        transition: width 0.3s;
+    }
+
+    .action-modern {
+        margin-top: 8px;
+    }
+
+    .book-btn-modern {
+        display: inline-flex;
+        align-items: center;
+        gap: 10px;
+        background: #16a34a;
+        color: white;
+        padding: 12px 28px;
+        border-radius: 40px;
+        font-weight: 600;
+        font-size: 0.85rem;
+        text-decoration: none;
+        transition: all 0.2s;
+        border: none;
+        cursor: pointer;
+    }
+
+    .book-btn-modern:hover:not(.disabled) {
+        background: #15803d;
+        gap: 14px;
+    }
+
+    .arrow-icon {
+        transition: transform 0.2s;
+    }
+
+    .book-btn-modern:hover:not(.disabled) .arrow-icon {
+        transform: translateX(3px);
+    }
+
+    .book-btn-modern.disabled {
+        background: #cbd5e1;
+        cursor: not-allowed;
+        opacity: 0.7;
+    }
+
+    .tomorrow-hint {
+        margin-top: 12px;
+        font-size: 0.7rem;
+        color: #16a34a;
+        background: #f0fdf4;
+        display: inline-flex;
+        align-items: center;
+        gap: 6px;
+        padding: 5px 12px;
+        border-radius: 30px;
+    }
+
+    /* Empty State */
+    .empty-modern {
+        text-align: center;
+        padding: 80px 20px;
+        background: white;
+        border-radius: 32px;
+        margin-top: 40px;
+    }
+
+    .empty-icon {
+        width: 80px;
+        height: 80px;
+        background: #f1f5f9;
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        margin: 0 auto 20px;
+        font-size: 2.5rem;
+        color: #94a3b8;
+    }
+
+    .empty-modern h3 {
+        font-size: 1.3rem;
+        color: #334155;
+        margin-bottom: 8px;
+    }
+
+    .empty-modern p {
+        color: #64748b;
+    }
+
+    /* Responsive */
+    @@media (max-width: 900px) {
+        .hero-heading {
+            font-size: 2.2rem;
+        }
+        .search-row {
+            flex-direction: column;
+        }
+        .search-field {
+            width: 100%;
+        }
+        .search-trigger {
+            width: 100%;
+            justify-content: center;
+        }
+        .search-bar-modern {
+            border-radius: 28px;
+        }
+        .card-inner-modern {
+            flex-direction: column;
+            align-items: center;
+            text-align: center;
+        }
+        .doctor-header-modern {
+            flex-direction: column;
+            align-items: center;
+            text-align: center;
+        }
+        .fee-modern {
+            text-align: center;
+        }
+        .doctor-info-modern {
+            grid-template-columns: 1fr;
+            text-align: left;
+        }
+        .info-row {
+            justify-content: center;
+        }
+        .stats-toolbar {
+            flex-direction: column;
+            align-items: stretch;
+        }
+        .stats-bubbles {
+            justify-content: center;
+        }
+        .refresh-modern {
+            align-self: center;
+        }
+    }
+
+    @@media (max-width: 480px) {
+        .doctor-avatar-modern {
+            width: 100px;
+            height: 100px;
+        }
+        .doctor-name-modern {
+            font-size: 1.1rem;
+        }
+        .book-btn-modern {
+            width: 100%;
+            justify-content: center;
+        }
+    }
+</style>

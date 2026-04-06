@@ -1,0 +1,792 @@
+﻿@model EasySheba.Models.Doctor
+
+@{
+    ViewData["Title"] = "Add Doctor | EasySheba";
+    var days = new[] { "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday", "Sunday" };
+}
+
+<div class="dashboard-wrapper">
+    <!-- Hero Section -->
+    <div class="hero-section">
+        <div class="hero-bg-shapes">
+            <div class="shape shape-1"></div>
+            <div class="shape shape-2"></div>
+            <div class="shape shape-3"></div>
+        </div>
+        <div class="hero-content">
+            <div class="hero-tag">
+                <span class="pulse-dot"></span> Hospital Admin
+            </div>
+            <h1 class="hero-heading">
+                Add New <span class="gradient-text">Doctor</span>
+            </h1>
+            <p class="hero-subheading">
+                Enter doctor details, schedule, and appointment limits.
+            </p>
+        </div>
+    </div>
+
+    <!-- Main Form -->
+    <div class="form-container">
+        <div class="form-card">
+            <div class="form-card-header">
+                <div class="header-icon">
+                    <i class="fas fa-user-md"></i>
+                </div>
+                <div class="header-text">
+                    <h3>Doctor Information</h3>
+                    <p>Fill in the details below</p>
+                </div>
+            </div>
+
+            <div class="form-card-body">
+                <form asp-action="AddDoctor" method="post" enctype="multipart/form-data" id="doctorForm">
+                    @Html.AntiForgeryToken()
+
+                    <!-- Personal Information Section -->
+                    <div class="form-section">
+                        <div class="section-title">
+                            <i class="fas fa-user"></i>
+                            <h5>Personal Information</h5>
+                        </div>
+                        <div class="row">
+                            <div class="col-md-6 mb-4">
+                                <label asp-for="Name" class="form-label">Doctor Name <span class="required">*</span></label>
+                                <div class="input-group">
+                                    <span class="input-icon"><i class="fas fa-user-circle"></i></span>
+                                    <input asp-for="Name" class="form-control" placeholder="Dr. John Doe" />
+                                </div>
+                                <span asp-validation-for="Name" class="validation-error"></span>
+                            </div>
+                            <div class="col-md-6 mb-4">
+                                <label asp-for="Department" class="form-label">Department <span class="required">*</span></label>
+                                <div class="input-group">
+                                    <span class="input-icon"><i class="fas fa-building"></i></span>
+                                    <select asp-for="Department" class="form-control">
+                                        <option value="">-- Select Department --</option>
+                                        <option>Cardiology</option>
+                                        <option>Neurology</option>
+                                        <option>Orthopedics</option>
+                                        <option>Pediatrics</option>
+                                        <option>Gynecology</option>
+                                        <option>Dermatology</option>
+                                        <option>Ophthalmology</option>
+                                        <option>Dentistry</option>
+                                        <option>Psychiatry</option>
+                                        <option>General Medicine</option>
+                                    </select>
+                                </div>
+                                <span asp-validation-for="Department" class="validation-error"></span>
+                            </div>
+                            <div class="col-md-6 mb-4">
+                                <label asp-for="Degrees" class="form-label">Medical Degrees <span class="required">*</span></label>
+                                <div class="input-group">
+                                    <span class="input-icon"><i class="fas fa-graduation-cap"></i></span>
+                                    <input asp-for="Degrees" class="form-control" placeholder="MBBS, FCPS, MD" />
+                                </div>
+                                <span asp-validation-for="Degrees" class="validation-error"></span>
+                            </div>
+                            <div class="col-md-6 mb-4">
+                                <label asp-for="Specialist" class="form-label">Specialist In <span class="required">*</span></label>
+                                <div class="input-group">
+                                    <span class="input-icon"><i class="fas fa-stethoscope"></i></span>
+                                    <input asp-for="Specialist" class="form-control" placeholder="Cardiologist, Neurologist, etc." />
+                                </div>
+                                <span asp-validation-for="Specialist" class="validation-error"></span>
+                            </div>
+                            <div class="col-md-6 mb-4">
+                                <label asp-for="Experience" class="form-label">Experience (Years) <span class="required">*</span></label>
+                                <div class="input-group">
+                                    <span class="input-icon"><i class="fas fa-chart-line"></i></span>
+                                    <input asp-for="Experience" class="form-control" type="number" min="0" placeholder="10" />
+                                </div>
+                                <span asp-validation-for="Experience" class="validation-error"></span>
+                            </div>
+                            <div class="col-md-6 mb-4">
+                                <label asp-for="Fees" class="form-label">Consultation Fee (৳) <span class="required">*</span></label>
+                                <div class="input-group">
+                                    <span class="input-icon"><i class="fas fa-taka-sign"></i></span>
+                                    <input asp-for="Fees" class="form-control" type="number" min="0" placeholder="1000" />
+                                </div>
+                                <span asp-validation-for="Fees" class="validation-error"></span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Hospital Information Section -->
+                    <div class="form-section">
+                        <div class="section-title">
+                            <i class="fas fa-hospital"></i>
+                            <h5>Hospital Information</h5>
+                        </div>
+                        <div class="row">
+                            <div class="col-md-6 mb-4">
+                                <label asp-for="HospitalName" class="form-label">Hospital/Clinic Name <span class="required">*</span></label>
+                                <div class="input-group">
+                                    <span class="input-icon"><i class="fas fa-building"></i></span>
+                                    <input asp-for="HospitalName" class="form-control" placeholder="City Hospital" />
+                                </div>
+                                <span asp-validation-for="HospitalName" class="validation-error"></span>
+                            </div>
+                            <div class="col-md-6 mb-4">
+                                <label asp-for="HospitalLocation" class="form-label">Hospital Location <span class="required">*</span></label>
+                                <div class="input-group">
+                                    <span class="input-icon"><i class="fas fa-location-dot"></i></span>
+                                    <input asp-for="HospitalLocation" class="form-control" placeholder="Dhaka, Bangladesh" />
+                                </div>
+                                <span asp-validation-for="HospitalLocation" class="validation-error"></span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Availability Section -->
+                    <div class="form-section">
+                        <div class="section-title">
+                            <i class="fas fa-calendar-alt"></i>
+                            <h5>Availability</h5>
+                        </div>
+                        <div class="row">
+                            <div class="col-12 mb-4">
+                                <label class="form-label">Available Days <span class="required">*</span></label>
+                                <div class="days-grid">
+                                    @foreach (var day in days)
+                                    {
+                                        <div class="day-checkbox">
+                                            <input class="form-check-input" type="checkbox" name="dayList" value="@day" id="day_@day">
+                                            <label class="form-check-label" for="day_@day">@day</label>
+                                        </div>
+                                    }
+                                </div>
+                            </div>
+                            <div class="col-md-6 mb-4">
+                                <label asp-for="AvailableTime" class="form-label">Available Hours <span class="required">*</span></label>
+                                <div class="input-group">
+                                    <span class="input-icon"><i class="fas fa-clock"></i></span>
+                                    <input asp-for="AvailableTime" class="form-control" placeholder="10:00 AM - 6:00 PM" />
+                                </div>
+                                <span asp-validation-for="AvailableTime" class="validation-error"></span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Appointment Limits Section -->
+                    <div class="form-section">
+                        <div class="section-title">
+                            <i class="fas fa-chart-bar"></i>
+                            <h5>Appointment Limits</h5>
+                        </div>
+                        <div class="row">
+                            <div class="col-md-4 mb-4">
+                                <label asp-for="DailyAppointmentLimit" class="form-label">Default Daily Limit <span class="required">*</span></label>
+                                <div class="input-group">
+                                    <span class="input-icon"><i class="fas fa-users"></i></span>
+                                    <input asp-for="DailyAppointmentLimit" class="form-control" type="number" min="1" value="20" id="defaultLimit" />
+                                </div>
+                                <div class="field-hint">This will be the default limit for all days</div>
+                                <span asp-validation-for="DailyAppointmentLimit" class="validation-error"></span>
+                            </div>
+                        </div>
+                        <div class="alert-modern info">
+                            <i class="fas fa-info-circle"></i>
+                            <span>You can set specific limits for each day below. Leave blank to use default limit.</span>
+                        </div>
+                        <div class="row limit-grid">
+                            <div class="col-md-3 mb-3">
+                                <label class="form-label">Monday Limit</label>
+                                <div class="input-group">
+                                    <span class="input-icon"><i class="fas fa-calendar-day"></i></span>
+                                    <input type="number" name="MondayLimit" class="form-control" min="0" placeholder="Default" value="20" />
+                                </div>
+                            </div>
+                            <div class="col-md-3 mb-3">
+                                <label class="form-label">Tuesday Limit</label>
+                                <div class="input-group">
+                                    <span class="input-icon"><i class="fas fa-calendar-day"></i></span>
+                                    <input type="number" name="TuesdayLimit" class="form-control" min="0" placeholder="Default" value="20" />
+                                </div>
+                            </div>
+                            <div class="col-md-3 mb-3">
+                                <label class="form-label">Wednesday Limit</label>
+                                <div class="input-group">
+                                    <span class="input-icon"><i class="fas fa-calendar-day"></i></span>
+                                    <input type="number" name="WednesdayLimit" class="form-control" min="0" placeholder="Default" value="20" />
+                                </div>
+                            </div>
+                            <div class="col-md-3 mb-3">
+                                <label class="form-label">Thursday Limit</label>
+                                <div class="input-group">
+                                    <span class="input-icon"><i class="fas fa-calendar-day"></i></span>
+                                    <input type="number" name="ThursdayLimit" class="form-control" min="0" placeholder="Default" value="20" />
+                                </div>
+                            </div>
+                            <div class="col-md-3 mb-3">
+                                <label class="form-label">Friday Limit</label>
+                                <div class="input-group">
+                                    <span class="input-icon"><i class="fas fa-calendar-day"></i></span>
+                                    <input type="number" name="FridayLimit" class="form-control" min="0" placeholder="Default" value="20" />
+                                </div>
+                            </div>
+                            <div class="col-md-3 mb-3">
+                                <label class="form-label">Saturday Limit</label>
+                                <div class="input-group">
+                                    <span class="input-icon"><i class="fas fa-calendar-day"></i></span>
+                                    <input type="number" name="SaturdayLimit" class="form-control" min="0" placeholder="Default" value="20" />
+                                </div>
+                            </div>
+                            <div class="col-md-3 mb-3">
+                                <label class="form-label">Sunday Limit</label>
+                                <div class="input-group">
+                                    <span class="input-icon"><i class="fas fa-calendar-day"></i></span>
+                                    <input type="number" name="SundayLimit" class="form-control" min="0" placeholder="Default" value="20" />
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Image Upload Section -->
+                    <div class="form-section">
+                        <div class="section-title">
+                            <i class="fas fa-image"></i>
+                            <h5>Doctor Image</h5>
+                        </div>
+                        <div class="row">
+                            <div class="col-12 mb-3">
+                                <label asp-for="ImageFile" class="form-label">Upload Photo</label>
+                                <div class="file-upload-area" id="imageUploadArea">
+                                    <input type="file" name="ImageFile" id="ImageFile" accept="image/*" style="display: none;" />
+                                    <div class="upload-preview" id="uploadPreview">
+                                        <i class="fas fa-cloud-upload-alt"></i>
+                                        <p>Click or drag image to upload</p>
+                                        <span class="file-info">PNG, JPG, JPEG up to 2MB</span>
+                                    </div>
+                                    <div class="preview-image" id="previewImage" style="display: none;">
+                                        <img id="doctorImagePreview" src="#" alt="Preview" />
+                                        <button type="button" class="remove-image"><i class="fas fa-times"></i></button>
+                                    </div>
+                                </div>
+                                <div class="field-hint">Recommended size: 300x300px, Max size: 2MB</div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="form-actions">
+                        <a asp-action="Doctors" class="btn-secondary">
+                            <i class="fas fa-arrow-left"></i> Back to List
+                        </a>
+                        <button type="submit" class="btn-primary">
+                            <i class="fas fa-save"></i> Save Doctor
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+    <script>
+        $(document).ready(function() {
+            // Auto-fill day limits with default value
+            const defaultLimit = $('#defaultLimit');
+            const dayInputs = $('input[name$="Limit"]:not([name="DailyAppointmentLimit"])');
+
+            defaultLimit.on('input', function() {
+                const defaultValue = $(this).val();
+                dayInputs.each(function() {
+                    if (!$(this).val() || $(this).val() === '20') {
+                        $(this).val(defaultValue);
+                    }
+                });
+            });
+
+            // Image upload functionality
+            const uploadArea = $('#imageUploadArea');
+            const fileInput = $('#ImageFile');
+            const previewContainer = $('#previewImage');
+            const previewImg = $('#doctorImagePreview');
+            const uploadPreview = $('#uploadPreview');
+
+            uploadArea.on('click', function() {
+                fileInput.click();
+            });
+
+            fileInput.on('change', function(event) {
+                const file = event.target.files[0];
+                if (file) {
+                    const reader = new FileReader();
+                    reader.onload = function(e) {
+                        uploadPreview.hide();
+                        previewContainer.show();
+                        previewImg.attr('src', e.target.result);
+                    };
+                    reader.readAsDataURL(file);
+                }
+            });
+
+            $('.remove-image').on('click', function() {
+                fileInput.val('');
+                previewContainer.hide();
+                uploadPreview.show();
+            });
+
+            // Drag and drop
+            uploadArea.on('dragover', function(e) {
+                e.preventDefault();
+                $(this).addClass('dragover');
+            });
+            uploadArea.on('dragleave', function(e) {
+                $(this).removeClass('dragover');
+            });
+            uploadArea.on('drop', function(e) {
+                e.preventDefault();
+                $(this).removeClass('dragover');
+                const files = e.originalEvent.dataTransfer.files;
+                if (files.length > 0) {
+                    fileInput.prop('files', files);
+                    fileInput.trigger('change');
+                }
+            });
+        });
+    </script>
+}
+
+<style>
+    /* ========== GLOBAL STYLES (matching other admin pages) ========== */
+    .dashboard-wrapper {
+        background: #f5f7fb;
+        min-height: 100vh;
+    }
+
+    /* Hero Section */
+    .hero-section {
+        background: linear-gradient(125deg, #ffffff 0%, #f8fafc 100%);
+        padding: 60px 5% 80px;
+        position: relative;
+        overflow: hidden;
+    }
+
+    .hero-bg-shapes {
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        pointer-events: none;
+    }
+
+    .shape {
+        position: absolute;
+        border-radius: 50%;
+        background: rgba(22, 163, 74, 0.03);
+    }
+    .shape-1 { width: 400px; height: 400px; top: -150px; right: -100px; }
+    .shape-2 { width: 250px; height: 250px; bottom: -80px; left: 10%; background: rgba(22, 163, 74, 0.05); }
+    .shape-3 { width: 180px; height: 180px; top: 30%; left: -60px; background: rgba(22, 163, 74, 0.04); }
+
+    .hero-content {
+        max-width: 1100px;
+        margin: 0 auto;
+        position: relative;
+        z-index: 2;
+        text-align: center;
+    }
+
+    .hero-tag {
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+        background: rgba(22, 163, 74, 0.1);
+        padding: 6px 18px;
+        border-radius: 40px;
+        font-size: 0.8rem;
+        font-weight: 500;
+        color: #16a34a;
+        margin-bottom: 24px;
+    }
+
+    .pulse-dot {
+        width: 8px;
+        height: 8px;
+        background: #16a34a;
+        border-radius: 50%;
+        display: inline-block;
+        animation: pulse 1.5s infinite;
+    }
+
+    @@keyframes pulse {
+        0%, 100% { opacity: 1; transform: scale(1); }
+        50% { opacity: 0.5; transform: scale(1.2); }
+    }
+
+    .hero-heading {
+        font-size: 3.5rem;
+        font-weight: 800;
+        color: #0f172a;
+        margin-bottom: 16px;
+        line-height: 1.2;
+    }
+
+    .gradient-text {
+        background: linear-gradient(135deg, #16a34a, #15803d);
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+        background-clip: text;
+    }
+
+    .hero-subheading {
+        font-size: 1.1rem;
+        color: #5a6e8a;
+        max-width: 550px;
+        margin: 0 auto;
+    }
+
+    /* Form Container */
+    .form-container {
+        max-width: 900px;
+        margin: -40px auto 60px;
+        padding: 0 24px;
+        position: relative;
+        z-index: 2;
+    }
+
+    .form-card {
+        background: white;
+        border-radius: 32px;
+        box-shadow: 0 20px 35px -10px rgba(0, 0, 0, 0.08);
+        border: 1px solid #eef2f6;
+        overflow: hidden;
+        transition: all 0.3s ease;
+    }
+
+    .form-card-header {
+        background: linear-gradient(135deg, #fafef7, #ffffff);
+        padding: 28px 32px;
+        display: flex;
+        align-items: center;
+        gap: 16px;
+        border-bottom: 1px solid #eef2f0;
+    }
+
+    .header-icon {
+        width: 48px;
+        height: 48px;
+        background: #e6f7ec;
+        border-radius: 24px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+    }
+    .header-icon i {
+        font-size: 24px;
+        color: #16a34a;
+    }
+
+    .header-text h3 {
+        font-size: 1.3rem;
+        font-weight: 700;
+        color: #0a2f1f;
+        margin: 0 0 4px 0;
+    }
+    .header-text p {
+        font-size: 0.85rem;
+        color: #64748b;
+        margin: 0;
+    }
+
+    .form-card-body {
+        padding: 32px;
+    }
+
+    /* Form Sections */
+    .form-section {
+        margin-bottom: 36px;
+        padding-bottom: 24px;
+        border-bottom: 1px solid #eef2f0;
+    }
+    .form-section:last-child {
+        border-bottom: none;
+        margin-bottom: 0;
+        padding-bottom: 0;
+    }
+
+    .section-title {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+        margin-bottom: 24px;
+    }
+    .section-title i {
+        width: 32px;
+        height: 32px;
+        background: #e6f7ec;
+        border-radius: 10px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        color: #16a34a;
+        font-size: 1rem;
+    }
+    .section-title h5 {
+        font-size: 1rem;
+        font-weight: 700;
+        color: #0a2f1f;
+        margin: 0;
+    }
+
+    /* Form Elements */
+    .form-label {
+        display: block;
+        font-size: 0.85rem;
+        font-weight: 600;
+        color: #0a2f1f;
+        margin-bottom: 8px;
+    }
+    .required {
+        color: #dc2626;
+    }
+    .input-group {
+        display: flex;
+        align-items: center;
+        border: 1px solid #e2e8f0;
+        border-radius: 12px;
+        background: #fafef7;
+        transition: all 0.2s;
+    }
+    .input-group:focus-within {
+        border-color: #16a34a;
+        box-shadow: 0 0 0 3px rgba(22, 163, 74, 0.1);
+    }
+    .input-icon {
+        padding: 0 14px;
+        color: #94a3b8;
+    }
+    .form-control {
+        flex: 1;
+        padding: 12px 0;
+        border: none;
+        background: transparent;
+        font-size: 0.95rem;
+        outline: none;
+    }
+    select.form-control {
+        padding: 12px 0;
+    }
+    .validation-error {
+        font-size: 0.75rem;
+        color: #dc2626;
+        margin-top: 4px;
+        display: block;
+    }
+    .field-hint {
+        font-size: 0.7rem;
+        color: #94a3b8;
+        margin-top: 6px;
+        display: flex;
+        align-items: center;
+        gap: 4px;
+    }
+
+    /* Days Grid */
+    .days-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(100px, 1fr));
+        gap: 12px;
+        background: #fafef7;
+        border-radius: 12px;
+        padding: 16px;
+        border: 1px solid #eef2f0;
+    }
+    .day-checkbox {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+    }
+    .form-check-input {
+        width: 1em;
+        height: 1em;
+        margin-top: 0;
+        background-color: #fff;
+        border: 1px solid #cbd5e1;
+        border-radius: 0.25rem;
+        cursor: pointer;
+    }
+    .form-check-input:checked {
+        background-color: #16a34a;
+        border-color: #16a34a;
+        background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 20 20'%3e%3cpath fill='none' stroke='%23fff' stroke-linecap='round' stroke-linejoin='round' stroke-width='3' d='M6 10l3 3l6-6'/%3e%3c/svg%3e");
+    }
+    .form-check-label {
+        font-size: 0.85rem;
+        color: #1e293b;
+        cursor: pointer;
+    }
+
+    /* Limit Grid */
+    .limit-grid {
+        margin-top: 16px;
+    }
+
+    /* Alert */
+    .alert-modern {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+        padding: 14px 20px;
+        border-radius: 16px;
+        margin-bottom: 24px;
+        background: #eff6ff;
+        border-left: 4px solid #3b82f6;
+        color: #1e40af;
+    }
+    .alert-modern.info {
+        background: #eff6ff;
+        border-left-color: #3b82f6;
+    }
+
+    /* File Upload */
+    .file-upload-area {
+        border: 2px dashed #e2e8f0;
+        border-radius: 16px;
+        background: #fafef7;
+        cursor: pointer;
+        transition: all 0.2s;
+        min-height: 160px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        position: relative;
+        overflow: hidden;
+    }
+    .file-upload-area.dragover {
+        border-color: #16a34a;
+        background: #e6f7ec;
+    }
+    .upload-preview {
+        text-align: center;
+        padding: 32px;
+    }
+    .upload-preview i {
+        font-size: 48px;
+        color: #94a3b8;
+        margin-bottom: 12px;
+        display: block;
+    }
+    .upload-preview p {
+        font-size: 0.85rem;
+        color: #475569;
+        margin: 0;
+    }
+    .file-info {
+        font-size: 0.7rem;
+        color: #94a3b8;
+        display: block;
+        margin-top: 8px;
+    }
+    .preview-image {
+        position: relative;
+        width: 100%;
+        max-height: 200px;
+        overflow: hidden;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        background: #f8fafc;
+    }
+    .preview-image img {
+        max-width: 100%;
+        max-height: 180px;
+        object-fit: contain;
+    }
+    .remove-image {
+        position: absolute;
+        top: 8px;
+        right: 8px;
+        background: rgba(0,0,0,0.6);
+        border: none;
+        border-radius: 50%;
+        width: 28px;
+        height: 28px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        color: white;
+        cursor: pointer;
+        transition: all 0.2s;
+    }
+    .remove-image:hover {
+        background: #dc2626;
+    }
+
+    /* Buttons */
+    .form-actions {
+        display: flex;
+        justify-content: flex-end;
+        gap: 16px;
+        margin-top: 32px;
+        padding-top: 24px;
+        border-top: 1px solid #eef2f0;
+    }
+    .btn-primary, .btn-secondary {
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+        padding: 12px 28px;
+        border-radius: 12px;
+        font-weight: 600;
+        font-size: 0.9rem;
+        transition: all 0.3s ease;
+        text-decoration: none;
+        cursor: pointer;
+        border: none;
+    }
+    .btn-primary {
+        background: #16a34a;
+        color: white;
+        box-shadow: 0 4px 8px rgba(22, 163, 74, 0.2);
+    }
+    .btn-primary:hover {
+        background: #15803d;
+        transform: translateY(-2px);
+        box-shadow: 0 8px 16px rgba(22, 163, 74, 0.3);
+    }
+    .btn-secondary {
+        background: white;
+        border: 1px solid #e2e8f0;
+        color: #475569;
+    }
+    .btn-secondary:hover {
+        border-color: #16a34a;
+        color: #16a34a;
+        transform: translateY(-2px);
+    }
+
+    /* Responsive */
+    @@media (max-width: 768px) {
+        .hero-heading {
+            font-size: 2rem;
+        }
+        .form-container {
+            margin-top: -20px;
+            padding: 0 16px;
+        }
+        .form-card-header {
+            padding: 20px 24px;
+            flex-direction: column;
+            text-align: center;
+        }
+        .form-card-body {
+            padding: 24px;
+        }
+        .form-actions {
+            flex-direction: column;
+        }
+        .btn-primary, .btn-secondary {
+            justify-content: center;
+            width: 100%;
+        }
+        .days-grid {
+            grid-template-columns: repeat(2, 1fr);
+        }
+    }
+</style>

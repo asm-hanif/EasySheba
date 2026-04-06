@@ -1,0 +1,257 @@
+/* Color Palette */
+:root {
+  --primary-brand: #1A365D;
+  --secondary-brand: #2B6CB0;
+  --booking-btn: #38B2AC;
+  --main-bg: #FFFFFF;
+  --section-bg: #F7FAFC;
+  --status-available: #48BB78;
+  --status-busy: #E53E3E;
+}
+
+body {
+  background: var(--main-bg);
+  color: var(--primary-brand);
+}
+
+/* --- Redesigned Appointment Card --- */
+.appointment-card {
+  border-radius: 18px;
+  background: var(--section-bg);
+  color: var(--primary-brand);
+  box-shadow: 0 4px 24px rgba(26,54,93,0.10);
+  transition: transform 0.2s, box-shadow 0.2s;
+  border: none;
+}
+.appointment-card:hover {
+  transform: translateY(-6px) scale(1.01);
+  box-shadow: 0 12px 32px rgba(26,54,93,0.16);
+}
+.icon-circle {
+  width: 48px;
+  height: 48px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.7rem;
+  background: var(--main-bg);
+  box-shadow: 0 2px 8px rgba(26,54,93,0.06);
+}
+.status-badge {
+  font-size: 1rem;
+  font-weight: 600;
+  padding: 0.5em 1.2em;
+  border-radius: 2em;
+  display: flex;
+  align-items: center;
+  gap: 0.5em;
+  margin-bottom: 0.2em;
+  background: #e9ecef;
+  color: var(--primary-brand);
+  border: none;
+}
+.status-badge.approved {
+  background: var(--status-available);
+  color: #fff;
+}
+.status-badge.pending {
+  background: #ffc107;
+  color: #222;
+}
+.status-badge.rejected {
+  background: var(--status-busy);
+  color: #fff;
+}
+.btn-direction {
+  background: var(--booking-btn);
+  color: #fff;
+  border-radius: 50%;
+  width: 38px;
+  height: 38px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border: none;
+  box-shadow: 0 2px 6px rgba(26,54,93,0.08);
+  transition: background 0.2s;
+  font-size: 1.2rem;
+}
+.btn-direction:hover {
+  background: var(--secondary-brand);
+  color: #fff;
+}
+.patient-info {
+  font-size: 1.08rem;
+  color: var(--primary-brand);
+}
+.schedule-info {
+  background: #f1f7fa;
+  font-size: 1.08rem;
+  color: var(--primary-brand);
+}
+.card-footer .btn {
+  font-size: 1.08rem;
+  border-radius: 8px;
+  font-weight: 600;
+}
+.card-footer .btn-success {
+  background: var(--status-available);
+  border: none;
+}
+.card-footer .btn-danger {
+  background: var(--status-busy);
+  border: none;
+}
+
+/* --- Navbar Redesign --- */
+.main-navbar {
+  background: var(--primary-brand) !important;
+  box-shadow: 0 2px 8px rgba(26,54,93,0.08);
+  padding: 0.7rem 0;
+}
+.main-navbar .navbar-brand span {
+  color: var(--booking-btn);
+  font-weight: bold;
+  font-size: 1.7rem;
+  letter-spacing: 1px;
+}
+.main-navbar .navbar-nav .nav-link {
+  color: #fff !important;
+  font-weight: 500;
+  padding: 0.7rem 1.3rem;
+  border-radius: 2em;
+  transition: background 0.2s, color 0.2s;
+  font-size: 1.13rem;
+}
+.main-navbar .navbar-nav .nav-link:hover,
+.main-navbar .navbar-nav .nav-link.active {
+  background: var(--booking-btn);
+  color: #fff !important;
+}
+.main-navbar .navbar-nav .dropdown-menu {
+  background: var(--section-bg);
+  border-radius: 12px;
+  box-shadow: 0 4px 16px rgba(26,54,93,0.10);
+  border: none;
+}
+.main-navbar .navbar-nav .dropdown-item {
+  color: var(--primary-brand);
+  font-weight: 500;
+  border-radius: 8px;
+  transition: background 0.2s, color 0.2s;
+  font-size: 1.08rem;
+}
+.main-navbar .navbar-nav .dropdown-item:hover {
+  background: var(--booking-btn);
+  color: #fff;
+}
+.login-btn, .register-btn, .appointment-btn, .dashboard-btn, .super-dashboard-btn {
+  background: var(--booking-btn);
+  color: #fff !important;
+  border-radius: 2em;
+  margin-left: 0.5rem;
+  font-weight: 600;
+  transition: background 0.2s;
+  padding: 0.5em 1.3em;
+  font-size: 1.13rem;
+  border: none;
+}
+.login-btn:hover, .register-btn:hover, .appointment-btn:hover, .dashboard-btn:hover, .super-dashboard-btn:hover {
+  background: var(--secondary-brand);
+  color: #fff !important;
+}
+.logout-btn {
+  background: var(--status-busy);
+  color: #fff !important;
+  border-radius: 2em;
+  margin-left: 0.5rem;
+  font-weight: 600;
+  transition: background 0.2s;
+  border: none;
+  padding: 0.5em 1.3em;
+  font-size: 1.13rem;
+}
+.logout-btn:hover {
+  background: #b91c1c;
+  color: #fff !important;
+}
+
+/* Topbar */
+.topbar {
+  background: var(--secondary-brand);
+  color: #fff;
+  font-size: 1.05rem;
+  padding: 0.3rem 0;
+}
+.topbar a {
+  color: #fff;
+  margin-left: 0.5rem;
+  margin-right: 0.5rem;
+  transition: color 0.2s;
+}
+.topbar a:hover {
+  color: var(--booking-btn);
+}
+
+/* Footer */
+.footer {
+  background: var(--primary-brand);
+  color: #fff;
+  padding: 2rem 0 1rem 0;
+  margin-top: 2rem;
+}
+.footer h4 {
+  color: var(--booking-btn);
+  font-weight: bold;
+}
+.footer a {
+  color: var(--secondary-brand);
+  text-decoration: none;
+  transition: color 0.2s;
+}
+.footer a:hover {
+  color: var(--booking-btn);
+}
+.footer-bottom {
+  border-top: 1px solid #2B6CB0;
+  margin-top: 1rem;
+  padding-top: 0.5rem;
+  color: #b3c6e0;
+  font-size: 0.95rem;
+  text-align: center;
+}
+
+/* Search Overlay */
+.search-overlay {
+  background: rgba(26,54,93,0.95);
+  color: #fff;
+}
+.search-popup input {
+  background: var(--section-bg);
+  color: var(--primary-brand);
+  border-radius: 8px;
+  border: 1px solid var(--secondary-brand);
+  padding: 0.7rem 1.2rem 0.7rem 2.5rem;
+  font-size: 1.1rem;
+}
+.search-popup input:focus {
+  border-color: var(--booking-btn);
+  outline: none;
+}
+.search-popup .search-icon {
+  color: var(--secondary-brand);
+  left: 0.8rem;
+  top: 1.1rem;
+}
+
+/* Responsive Navbar */
+@media (max-width: 991px) {
+  .main-navbar .navbar-nav .nav-link {
+    padding: 0.7rem 1rem;
+    font-size: 1rem;
+  }
+  .main-navbar .navbar-brand span {
+    font-size: 1.2rem;
+  }
+}

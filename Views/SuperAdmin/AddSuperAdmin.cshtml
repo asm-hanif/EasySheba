@@ -1,0 +1,532 @@
+﻿@model EasySheba.Controllers.AddSuperAdminViewModel
+
+@{
+    ViewData["Title"] = "Add Super Admin | EasySheba";
+}
+
+<div class="dashboard-wrapper">
+    <!-- Hero Section -->
+    <div class="hero-section">
+        <div class="hero-bg-shapes">
+            <div class="shape shape-1"></div>
+            <div class="shape shape-2"></div>
+            <div class="shape shape-3"></div>
+        </div>
+        <div class="hero-content">
+            <div class="hero-tag">
+                <span class="pulse-dot"></span> Super Admin
+            </div>
+            <h1 class="hero-heading">
+                Add <span class="gradient-text">Super Admin</span>
+            </h1>
+            <p class="hero-subheading">
+                Create a new administrator with full system access.
+            </p>
+        </div>
+    </div>
+
+    <!-- Main Form -->
+    <div class="form-container">
+        <div class="form-card">
+            <div class="form-card-header">
+                <div class="header-icon">
+                    <i class="fas fa-user-shield"></i>
+                </div>
+                <div class="header-text">
+                    <h3>Super Admin Details</h3>
+                    <p>Fill in the credentials below</p>
+                </div>
+            </div>
+
+            <div class="form-card-body">
+                <form asp-action="AddSuperAdmin" method="post" id="addAdminForm">
+                    @Html.AntiForgeryToken()
+
+                    <!-- Validation Summary -->
+                    <div asp-validation-summary="ModelOnly" class="alert-modern error" style="display: none;" id="validationSummary"></div>
+
+                    <!-- Email Field -->
+                    <div class="form-section">
+                        <div class="section-title">
+                            <i class="fas fa-envelope"></i>
+                            <h5>Email Address</h5>
+                        </div>
+                        <div class="row">
+                            <div class="col-12 mb-4">
+                                <div class="input-group">
+                                    <span class="input-icon"><i class="fas fa-envelope"></i></span>
+                                    <input asp-for="Email" type="email" class="form-control" placeholder="admin@example.com" required />
+                                </div>
+                                <span asp-validation-for="Email" class="validation-error"></span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Password Field -->
+                    <div class="form-section">
+                        <div class="section-title">
+                            <i class="fas fa-lock"></i>
+                            <h5>Password</h5>
+                        </div>
+                        <div class="row">
+                            <div class="col-12 mb-4">
+                                <div class="input-group password-wrapper">
+                                    <span class="input-icon"><i class="fas fa-lock"></i></span>
+                                    <input asp-for="Password" type="password" class="form-control password-input" placeholder="••••••••" required />
+                                    <button type="button" class="password-toggle" onclick="togglePassword(this)">
+                                        <i class="fas fa-eye"></i>
+                                    </button>
+                                </div>
+                                <span asp-validation-for="Password" class="validation-error"></span>
+                                <div class="field-hint">
+                                    <div class="requirement-item" id="length-check">
+                                        <i class="fas fa-circle"></i>
+                                        <span>At least 6 characters</span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Confirm Password Field -->
+                    <div class="form-section">
+                        <div class="section-title">
+                            <i class="fas fa-lock"></i>
+                            <h5>Confirm Password</h5>
+                        </div>
+                        <div class="row">
+                            <div class="col-12 mb-4">
+                                <div class="input-group password-wrapper">
+                                    <span class="input-icon"><i class="fas fa-lock"></i></span>
+                                    <input asp-for="ConfirmPassword" type="password" class="form-control password-input" placeholder="••••••••" required />
+                                    <button type="button" class="password-toggle" onclick="togglePassword(this)">
+                                        <i class="fas fa-eye"></i>
+                                    </button>
+                                </div>
+                                <span asp-validation-for="ConfirmPassword" class="validation-error"></span>
+                                <div class="password-match-indicator" id="match-indicator">
+                                    <i class="fas fa-info-circle"></i>
+                                    <span>Passwords must match</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Info Box -->
+                    <div class="alert-modern info">
+                        <i class="fas fa-shield-alt"></i>
+                        <div>
+                            <strong>Super Admin Privileges:</strong>
+                            <span>Full access to manage hospitals, admins, and system settings.</span>
+                        </div>
+                    </div>
+
+                    <div class="form-actions">
+                        <a asp-action="SuperAdmins" class="btn-secondary">
+                            <i class="fas fa-arrow-left"></i> Back to List
+                        </a>
+                        <button type="submit" class="btn-primary" id="submitBtn">
+                            <span class="btn-content">
+                                <i class="fas fa-user-plus"></i> Create Super Admin
+                            </span>
+                            <span class="btn-loader" style="display: none;">
+                                <i class="fas fa-spinner fa-spin"></i> Creating...
+                            </span>
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+    <script>
+        // Password visibility toggle
+        function togglePassword(button) {
+            const wrapper = button.closest('.password-wrapper');
+            const input = wrapper.querySelector('.password-input');
+            const icon = button.querySelector('i');
+
+            if (input.type === 'password') {
+                input.type = 'text';
+                icon.classList.remove('fa-eye');
+                icon.classList.add('fa-eye-slash');
+                wrapper.classList.add('password-visible');
+            } else {
+                input.type = 'password';
+                icon.classList.remove('fa-eye-slash');
+                icon.classList.add('fa-eye');
+                wrapper.classList.remove('password-visible');
+            }
+        }
+
+        // Real-time password length validation
+        const passwordInput = document.querySelector('[asp-for="Password"]');
+        const lengthCheck = document.getElementById('length-check');
+
+        if (passwordInput) {
+            passwordInput.addEventListener('input', function(e) {
+                const password = e.target.value;
+                if (password.length >= 6) {
+                    lengthCheck.classList.add('valid');
+                    lengthCheck.querySelector('i').className = 'fas fa-check-circle';
+                } else {
+                    lengthCheck.classList.remove('valid');
+                    lengthCheck.querySelector('i').className = 'fas fa-circle';
+                }
+            });
+        }
+
+        // Real-time password match validation
+        const confirmInput = document.querySelector('[asp-for="ConfirmPassword"]');
+        const matchIndicator = document.getElementById('match-indicator');
+
+        function checkPasswordMatch() {
+            if (!confirmInput || !passwordInput) return;
+            if (!confirmInput.value) {
+                matchIndicator.className = 'password-match-indicator';
+                matchIndicator.querySelector('i').className = 'fas fa-info-circle';
+                matchIndicator.querySelector('span').textContent = 'Passwords must match';
+                return;
+            }
+
+            if (passwordInput.value === confirmInput.value) {
+                matchIndicator.className = 'password-match-indicator match-success';
+                matchIndicator.querySelector('i').className = 'fas fa-check-circle';
+                matchIndicator.querySelector('span').textContent = 'Passwords match';
+            } else {
+                matchIndicator.className = 'password-match-indicator match-error';
+                matchIndicator.querySelector('i').className = 'fas fa-exclamation-circle';
+                matchIndicator.querySelector('span').textContent = 'Passwords do not match';
+            }
+        }
+
+        if (passwordInput && confirmInput) {
+            passwordInput.addEventListener('input', checkPasswordMatch);
+            confirmInput.addEventListener('input', checkPasswordMatch);
+        }
+
+        // Form submission with loader
+        const form = document.getElementById('addAdminForm');
+        const submitBtn = document.getElementById('submitBtn');
+        const btnContent = submitBtn.querySelector('.btn-content');
+        const btnLoader = submitBtn.querySelector('.btn-loader');
+
+        form.addEventListener('submit', function(e) {
+            btnContent.style.display = 'none';
+            btnLoader.style.display = 'inline-flex';
+            submitBtn.disabled = true;
+        });
+    </script>
+}
+
+<style>
+    /* ========== MODERN STYLES (same as other admin pages) ========== */
+    .dashboard-wrapper {
+        background: #f5f7fb;
+        min-height: 100vh;
+    }
+
+    /* Hero Section */
+    .hero-section {
+        background: linear-gradient(125deg, #ffffff 0%, #f8fafc 100%);
+        padding: 60px 5% 80px;
+        position: relative;
+        overflow: hidden;
+    }
+    .hero-bg-shapes { position: absolute; top: 0; left: 0; width: 100%; height: 100%; pointer-events: none; }
+    .shape { position: absolute; border-radius: 50%; background: rgba(22, 163, 74, 0.03); }
+    .shape-1 { width: 400px; height: 400px; top: -150px; right: -100px; }
+    .shape-2 { width: 250px; height: 250px; bottom: -80px; left: 10%; background: rgba(22, 163, 74, 0.05); }
+    .shape-3 { width: 180px; height: 180px; top: 30%; left: -60px; background: rgba(22, 163, 74, 0.04); }
+    .hero-content {
+        max-width: 1100px;
+        margin: 0 auto;
+        position: relative;
+        z-index: 2;
+        text-align: center;
+    }
+    .hero-tag {
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+        background: rgba(22, 163, 74, 0.1);
+        padding: 6px 18px;
+        border-radius: 40px;
+        font-size: 0.8rem;
+        font-weight: 500;
+        color: #16a34a;
+        margin-bottom: 24px;
+    }
+    .pulse-dot {
+        width: 8px;
+        height: 8px;
+        background: #16a34a;
+        border-radius: 50%;
+        display: inline-block;
+        animation: pulse 1.5s infinite;
+    }
+    @@keyframes pulse {
+        0%, 100% { opacity: 1; transform: scale(1); }
+        50% { opacity: 0.5; transform: scale(1.2); }
+    }
+    .hero-heading {
+        font-size: 3.5rem;
+        font-weight: 800;
+        color: #0f172a;
+        margin-bottom: 16px;
+        line-height: 1.2;
+    }
+    .gradient-text {
+        background: linear-gradient(135deg, #16a34a, #15803d);
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+        background-clip: text;
+    }
+    .hero-subheading {
+        font-size: 1.1rem;
+        color: #5a6e8a;
+        max-width: 550px;
+        margin: 0 auto;
+    }
+
+    /* Form Container */
+    .form-container {
+        max-width: 700px;
+        margin: -40px auto 60px;
+        padding: 0 24px;
+        position: relative;
+        z-index: 2;
+    }
+    .form-card {
+        background: white;
+        border-radius: 32px;
+        box-shadow: 0 20px 35px -10px rgba(0, 0, 0, 0.08);
+        border: 1px solid #eef2f6;
+        overflow: hidden;
+        transition: all 0.3s ease;
+    }
+    .form-card-header {
+        background: linear-gradient(135deg, #fafef7, #ffffff);
+        padding: 28px 32px;
+        display: flex;
+        align-items: center;
+        gap: 16px;
+        border-bottom: 1px solid #eef2f0;
+    }
+    .header-icon {
+        width: 48px;
+        height: 48px;
+        background: #e6f7ec;
+        border-radius: 24px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+    }
+    .header-icon i { font-size: 24px; color: #16a34a; }
+    .header-text h3 { font-size: 1.3rem; font-weight: 700; color: #0a2f1f; margin: 0 0 4px 0; }
+    .header-text p { font-size: 0.85rem; color: #64748b; margin: 0; }
+    .form-card-body { padding: 32px; }
+
+    /* Form Sections */
+    .form-section {
+        margin-bottom: 28px;
+    }
+    .section-title {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+        margin-bottom: 20px;
+    }
+    .section-title i {
+        width: 32px;
+        height: 32px;
+        background: #e6f7ec;
+        border-radius: 10px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        color: #16a34a;
+        font-size: 1rem;
+    }
+    .section-title h5 {
+        font-size: 1rem;
+        font-weight: 700;
+        color: #0a2f1f;
+        margin: 0;
+    }
+
+    /* Form Elements */
+    .input-group {
+        display: flex;
+        align-items: center;
+        border: 1px solid #e2e8f0;
+        border-radius: 12px;
+        background: #fafef7;
+        transition: all 0.2s;
+        position: relative;
+    }
+    .input-group:focus-within {
+        border-color: #16a34a;
+        box-shadow: 0 0 0 3px rgba(22, 163, 74, 0.1);
+    }
+    .input-icon {
+        padding: 0 14px;
+        color: #94a3b8;
+    }
+    .form-control {
+        flex: 1;
+        padding: 12px 0;
+        border: none;
+        background: transparent;
+        font-size: 0.95rem;
+        outline: none;
+    }
+    .password-toggle {
+        position: absolute;
+        right: 12px;
+        background: none;
+        border: none;
+        color: #94a3b8;
+        cursor: pointer;
+        padding: 8px;
+        border-radius: 8px;
+        transition: all 0.2s;
+    }
+    .password-toggle:hover {
+        color: #16a34a;
+        background: #e6f7ec;
+    }
+    .validation-error {
+        font-size: 0.75rem;
+        color: #dc2626;
+        margin-top: 6px;
+        display: block;
+    }
+    .field-hint {
+        font-size: 0.75rem;
+        color: #64748b;
+        margin-top: 8px;
+        padding-left: 12px;
+    }
+    .requirement-item {
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+        transition: all 0.2s;
+    }
+    .requirement-item.valid {
+        color: #16a34a;
+    }
+    .requirement-item i {
+        font-size: 10px;
+    }
+
+    /* Password Match Indicator */
+    .password-match-indicator {
+        margin-top: 8px;
+        padding: 8px 12px;
+        border-radius: 10px;
+        font-size: 0.75rem;
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+        background: #f8fafc;
+        transition: all 0.2s;
+    }
+    .password-match-indicator.match-success {
+        background: #e6f7ec;
+        color: #16a34a;
+    }
+    .password-match-indicator.match-error {
+        background: #fee2e2;
+        color: #dc2626;
+    }
+
+    /* Alert */
+    .alert-modern {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+        padding: 14px 20px;
+        border-radius: 16px;
+        margin: 24px 0;
+        background: #eff6ff;
+        border-left: 4px solid #3b82f6;
+        color: #1e40af;
+    }
+    .alert-modern.info {
+        background: #eff6ff;
+        border-left-color: #3b82f6;
+    }
+    .alert-modern.error {
+        background: #fee2e2;
+        border-left-color: #dc2626;
+        color: #b91c1c;
+    }
+
+    /* Buttons */
+    .form-actions {
+        display: flex;
+        justify-content: flex-end;
+        gap: 16px;
+        margin-top: 32px;
+        padding-top: 24px;
+        border-top: 1px solid #eef2f0;
+    }
+    .btn-primary, .btn-secondary {
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+        padding: 12px 28px;
+        border-radius: 12px;
+        font-weight: 600;
+        font-size: 0.9rem;
+        transition: all 0.3s ease;
+        text-decoration: none;
+        cursor: pointer;
+        border: none;
+    }
+    .btn-primary {
+        background: #16a34a;
+        color: white;
+        box-shadow: 0 4px 8px rgba(22, 163, 74, 0.2);
+    }
+    .btn-primary:hover {
+        background: #15803d;
+        transform: translateY(-2px);
+        box-shadow: 0 8px 16px rgba(22, 163, 74, 0.3);
+    }
+    .btn-primary:disabled {
+        opacity: 0.7;
+        cursor: not-allowed;
+        transform: none;
+    }
+    .btn-secondary {
+        background: white;
+        border: 1px solid #e2e8f0;
+        color: #475569;
+    }
+    .btn-secondary:hover {
+        border-color: #16a34a;
+        color: #16a34a;
+        transform: translateY(-2px);
+    }
+    .btn-loader {
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+    }
+
+    /* Responsive */
+    @@media (max-width: 768px) {
+        .hero-heading { font-size: 2rem; }
+        .form-container { margin-top: -20px; padding: 0 16px; }
+        .form-card-header { padding: 20px 24px; flex-direction: column; text-align: center; }
+        .form-card-body { padding: 24px; }
+        .form-actions { flex-direction: column; }
+        .btn-primary, .btn-secondary { justify-content: center; width: 100%; }
+    }
+</style>

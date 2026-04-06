@@ -1,0 +1,521 @@
+﻿@{
+    ViewData["Title"] = "Super Admin Dashboard | EasySheba";
+}
+
+<div class="dashboard-wrapper">
+    <!-- Hero Section -->
+    <div class="hero-section">
+        <div class="hero-bg-shapes">
+            <div class="shape shape-1"></div>
+            <div class="shape shape-2"></div>
+            <div class="shape shape-3"></div>
+        </div>
+        <div class="hero-content">
+            <div class="hero-tag">
+                <span class="pulse-dot"></span> Super Admin
+            </div>
+            <h1 class="hero-heading">
+                Super Admin <span class="gradient-text">Dashboard</span>
+            </h1>
+            <p class="hero-subheading">
+                Manage hospitals, super admins, and monitor platform activity.
+            </p>
+            <div class="admin-badge">
+                <i class="fas fa-shield-alt me-2"></i>
+                <span>@User.Identity.Name</span>
+            </div>
+        </div>
+    </div>
+
+    <!-- Main Content -->
+    <div class="dashboard-main">
+        <!-- Stats Cards -->
+        <div class="stats-grid">
+            <div class="stat-card-modern">
+                <div class="stat-icon-bg">
+                    <i class="fas fa-hospital"></i>
+                </div>
+                <div class="stat-content">
+                    <h3 class="stat-number">@ViewBag.TotalHospitals</h3>
+                    <p class="stat-label">Total Hospitals</p>
+                </div>
+            </div>
+            <div class="stat-card-modern">
+                <div class="stat-icon-bg" style="background:#e6f7ec;">
+                    <i class="fas fa-check-circle" style="color:#16a34a;"></i>
+                </div>
+                <div class="stat-content">
+                    <h3 class="stat-number">@ViewBag.ApprovedHospitals</h3>
+                    <p class="stat-label">Approved</p>
+                    <span class="stat-trend success">Active</span>
+                </div>
+            </div>
+            <div class="stat-card-modern">
+                <div class="stat-icon-bg" style="background:#fef3c7;">
+                    <i class="fas fa-clock" style="color:#f59e0b;"></i>
+                </div>
+                <div class="stat-content">
+                    <h3 class="stat-number">@ViewBag.PendingHospitals</h3>
+                    <p class="stat-label">Pending Approval</p>
+                    <span class="stat-trend warning">Needs attention</span>
+                </div>
+            </div>
+            <div class="stat-card-modern">
+                <div class="stat-icon-bg">
+                    <i class="fas fa-user-shield"></i>
+                </div>
+                <div class="stat-content">
+                    <h3 class="stat-number">@ViewBag.TotalSuperAdmins</h3>
+                    <p class="stat-label">Super Admins</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Quick Actions -->
+        <div class="quick-actions-section">
+            <div class="section-header">
+                <h2 class="section-title">
+                    <i class="fas fa-bolt"></i> Quick Actions
+                </h2>
+            </div>
+            <div class="actions-grid">
+                <a asp-action="Requests" class="action-card pending-btn">
+                    <div class="action-icon">
+                        <i class="fas fa-clock"></i>
+                    </div>
+                    <span>Pending Requests</span>
+                    @if (ViewBag.PendingHospitals > 0)
+                    {
+                        <span class="action-badge">@ViewBag.PendingHospitals</span>
+                    }
+                </a>
+                <a asp-action="Hospitals" class="action-card hospital-btn">
+                    <div class="action-icon">
+                        <i class="fas fa-hospital"></i>
+                    </div>
+                    <span>All Hospitals</span>
+                </a>
+                <a asp-action="SuperAdmins" class="action-card admin-btn">
+                    <div class="action-icon">
+                        <i class="fas fa-user-shield"></i>
+                    </div>
+                    <span>Super Admins</span>
+                </a>
+                <a asp-action="AddSuperAdmin" class="action-card add-btn">
+                    <div class="action-icon">
+                        <i class="fas fa-user-plus"></i>
+                    </div>
+                    <span>Add Super Admin</span>
+                </a>
+            </div>
+        </div>
+
+        <!-- Recent Activity & Overview -->
+        <div class="two-columns">
+            <div class="recent-section">
+                <div class="section-header">
+                    <h2 class="section-title">
+                        <i class="fas fa-clock"></i> Recent Pending Requests
+                    </h2>
+                </div>
+                <div class="list-container">
+                    @if (ViewBag.PendingHospitals > 0)
+                    {
+                        <div class="info-group">
+                            <div class="info-row">
+                                <i class="fas fa-hospital"></i>
+                                <span>@ViewBag.PendingHospitals hospitals waiting for approval</span>
+                            </div>
+                        </div>
+                        <div class="action-buttons">
+                            <a asp-action="Requests" class="btn-primary" style="margin-top: 16px; display: inline-flex;">
+                                <i class="fas fa-eye"></i> View All Requests
+                            </a>
+                        </div>
+                    }
+                    else
+                    {
+                        <div class="empty-state">
+                            <i class="fas fa-check-circle"></i>
+                            <p>No pending requests</p>
+                        </div>
+                    }
+                </div>
+            </div>
+
+            <div class="recent-section">
+                <div class="section-header">
+                    <h2 class="section-title">
+                        <i class="fas fa-chart-line"></i> Platform Overview
+                    </h2>
+                </div>
+                <div class="list-container">
+                    <div class="overview-list">
+                        <div class="overview-item">
+                            <span class="label">Active Hospitals</span>
+                            <span class="value">@ViewBag.ApprovedHospitals</span>
+                        </div>
+                        <div class="overview-item">
+                            <span class="label">Pending Approval</span>
+                            <span class="value">@ViewBag.PendingHospitals</span>
+                        </div>
+                        <div class="overview-item">
+                            <span class="label">Super Admins</span>
+                            <span class="value">@ViewBag.TotalSuperAdmins</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+    /* ========== MODERN STYLES (matching other admin pages) ========== */
+    .dashboard-wrapper {
+        background: #f5f7fb;
+        min-height: 100vh;
+    }
+
+    /* Hero Section */
+    .hero-section {
+        background: linear-gradient(125deg, #ffffff 0%, #f8fafc 100%);
+        padding: 60px 5% 80px;
+        position: relative;
+        overflow: hidden;
+    }
+    .hero-bg-shapes { position: absolute; top: 0; left: 0; width: 100%; height: 100%; pointer-events: none; }
+    .shape { position: absolute; border-radius: 50%; background: rgba(22, 163, 74, 0.03); }
+    .shape-1 { width: 400px; height: 400px; top: -150px; right: -100px; }
+    .shape-2 { width: 250px; height: 250px; bottom: -80px; left: 10%; background: rgba(22, 163, 74, 0.05); }
+    .shape-3 { width: 180px; height: 180px; top: 30%; left: -60px; background: rgba(22, 163, 74, 0.04); }
+    .hero-content {
+        max-width: 1100px;
+        margin: 0 auto;
+        position: relative;
+        z-index: 2;
+        text-align: center;
+    }
+    .hero-tag {
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+        background: rgba(22, 163, 74, 0.1);
+        padding: 6px 18px;
+        border-radius: 40px;
+        font-size: 0.8rem;
+        font-weight: 500;
+        color: #16a34a;
+        margin-bottom: 24px;
+    }
+    .pulse-dot {
+        width: 8px;
+        height: 8px;
+        background: #16a34a;
+        border-radius: 50%;
+        display: inline-block;
+        animation: pulse 1.5s infinite;
+    }
+    @@keyframes pulse {
+        0%, 100% { opacity: 1; transform: scale(1); }
+        50% { opacity: 0.5; transform: scale(1.2); }
+    }
+    .hero-heading {
+        font-size: 3.5rem;
+        font-weight: 800;
+        color: #0f172a;
+        margin-bottom: 16px;
+        line-height: 1.2;
+    }
+    .gradient-text {
+        background: linear-gradient(135deg, #16a34a, #15803d);
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+        background-clip: text;
+    }
+    .hero-subheading {
+        font-size: 1.1rem;
+        color: #5a6e8a;
+        max-width: 550px;
+        margin: 0 auto 24px;
+    }
+    .admin-badge {
+        display: inline-flex;
+        align-items: center;
+        gap: 10px;
+        background: white;
+        padding: 8px 24px;
+        border-radius: 40px;
+        font-size: 0.9rem;
+        font-weight: 600;
+        color: #16a34a;
+        box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+        border: 1px solid #e2e8f0;
+        margin-top: 16px;
+    }
+
+    /* Main Content */
+    .dashboard-main {
+        max-width: 1300px;
+        margin: 0 auto;
+        padding: 40px 24px 60px;
+    }
+
+    /* Stats Cards (reused from other pages) */
+    .stats-grid {
+        display: grid;
+        grid-template-columns: repeat(4, 1fr);
+        gap: 24px;
+        margin-bottom: 48px;
+    }
+    .stat-card-modern {
+        background: white;
+        border-radius: 24px;
+        padding: 20px;
+        transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
+        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.02);
+        border: 1px solid #eef2f6;
+        display: flex;
+        align-items: center;
+        gap: 16px;
+    }
+    .stat-card-modern:hover {
+        transform: translateY(-4px);
+        box-shadow: 0 20px 35px -12px rgba(0, 0, 0, 0.12);
+        border-color: rgba(22, 163, 74, 0.2);
+    }
+    .stat-icon-bg {
+        width: 56px;
+        height: 56px;
+        background: #e8f5e9;
+        border-radius: 18px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        flex-shrink: 0;
+    }
+    .stat-icon-bg i {
+        font-size: 28px;
+        color: #16a34a;
+    }
+    .stat-content {
+        flex: 1;
+    }
+    .stat-number {
+        font-size: 2rem;
+        font-weight: 800;
+        color: #0f172a;
+        margin-bottom: 4px;
+    }
+    .stat-label {
+        font-size: 0.85rem;
+        color: #64748b;
+        margin-bottom: 6px;
+    }
+    .stat-trend {
+        font-size: 0.7rem;
+        display: inline-flex;
+        align-items: center;
+        gap: 4px;
+        padding: 2px 8px;
+        border-radius: 20px;
+        background: #f1f5f9;
+    }
+    .stat-trend.success {
+        color: #16a34a;
+        background: #e8f5e9;
+    }
+    .stat-trend.warning {
+        color: #d97706;
+        background: #fef3c7;
+    }
+
+    /* Quick Actions */
+    .quick-actions-section {
+        margin-bottom: 48px;
+    }
+    .section-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 24px;
+        flex-wrap: wrap;
+        gap: 12px;
+    }
+    .section-title {
+        font-size: 1.25rem;
+        font-weight: 700;
+        color: #0f172a;
+        display: flex;
+        align-items: center;
+        gap: 8px;
+    }
+    .section-title i {
+        color: #16a34a;
+    }
+    .actions-grid {
+        display: grid;
+        grid-template-columns: repeat(4, 1fr);
+        gap: 20px;
+    }
+    .action-card {
+        background: white;
+        border-radius: 20px;
+        padding: 24px;
+        text-align: center;
+        text-decoration: none;
+        transition: all 0.3s;
+        border: 1px solid #eef2f6;
+        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.02);
+        position: relative;
+    }
+    .action-card:hover {
+        transform: translateY(-4px);
+        border-color: #16a34a;
+        box-shadow: 0 12px 24px -12px rgba(22, 163, 74, 0.2);
+    }
+    .action-icon {
+        width: 56px;
+        height: 56px;
+        background: #e8f5e9;
+        border-radius: 18px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        margin: 0 auto 16px;
+    }
+    .action-icon i {
+        font-size: 28px;
+        color: #16a34a;
+    }
+    .action-card span {
+        font-size: 0.9rem;
+        font-weight: 600;
+        color: #1e293b;
+    }
+    .action-badge {
+        position: absolute;
+        top: 12px;
+        right: 12px;
+        background: #f59e0b;
+        color: white;
+        border-radius: 20px;
+        padding: 2px 8px;
+        font-size: 0.7rem;
+        font-weight: 600;
+    }
+
+    /* Two Column Layout */
+    .two-columns {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 32px;
+    }
+    .recent-section {
+        background: white;
+        border-radius: 24px;
+        border: 1px solid #eef2f6;
+        overflow: hidden;
+    }
+    .recent-section .section-header {
+        padding: 20px 24px;
+        margin: 0;
+        border-bottom: 1px solid #eef2f0;
+    }
+    .list-container {
+        padding: 24px;
+    }
+    .info-group {
+        margin-bottom: 20px;
+    }
+    .info-row {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        font-size: 0.9rem;
+        color: #1e293b;
+        margin-bottom: 12px;
+    }
+    .info-row i {
+        width: 20px;
+        color: #16a34a;
+    }
+    .empty-state {
+        text-align: center;
+        padding: 40px 20px;
+        color: #94a3b8;
+    }
+    .empty-state i {
+        font-size: 48px;
+        margin-bottom: 12px;
+        display: block;
+        color: #16a34a;
+    }
+    .overview-list {
+        display: flex;
+        flex-direction: column;
+        gap: 16px;
+    }
+    .overview-item {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        padding: 12px 0;
+        border-bottom: 1px solid #eef2f0;
+    }
+    .overview-item:last-child {
+        border-bottom: none;
+    }
+    .overview-item .label {
+        font-size: 0.9rem;
+        color: #64748b;
+    }
+    .overview-item .value {
+        font-size: 1.25rem;
+        font-weight: 700;
+        color: #16a34a;
+    }
+    .btn-primary {
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+        padding: 10px 20px;
+        background: #16a34a;
+        color: white;
+        border-radius: 12px;
+        font-weight: 600;
+        text-decoration: none;
+        transition: all 0.2s;
+    }
+    .btn-primary:hover {
+        background: #15803d;
+        transform: translateY(-2px);
+    }
+
+    /* Responsive */
+    @@media (max-width: 1100px) {
+        .stats-grid {
+            grid-template-columns: repeat(2, 1fr);
+        }
+        .actions-grid {
+            grid-template-columns: repeat(2, 1fr);
+        }
+        .two-columns {
+            grid-template-columns: 1fr;
+        }
+    }
+    @@media (max-width: 768px) {
+        .hero-heading {
+            font-size: 2rem;
+        }
+        .stats-grid {
+            grid-template-columns: 1fr;
+        }
+        .actions-grid {
+            grid-template-columns: 1fr;
+        }
+        .dashboard-main {
+            padding: 24px 16px 40px;
+        }
+    }
+</style>

@@ -1,0 +1,376 @@
+@model IEnumerable<EasySheba.Models.Appointment>
+
+@{
+    ViewData["Title"] = "My Appointments | EasySheba";
+}
+
+<div class="doctor-page-wrapper">
+    <!-- Hero Section -->
+    <div class="doctor-hero-modern">
+        <div class="hero-bg-shapes">
+            <div class="shape shape-1"></div>
+            <div class="shape shape-2"></div>
+            <div class="shape shape-3"></div>
+        </div>
+        <div class="hero-content-modern">
+            <div class="hero-tag">
+                <span class="pulse-dot"></span> Your Appointments
+            </div>
+            <h1 class="hero-heading">
+                Manage Your <span class="green-glow">Bookings</span>
+            </h1>
+            <p class="hero-subheading">
+                View, reschedule, or cancel your doctor, test, and bed appointments.
+            </p>
+        </div>
+    </div>
+
+    <!-- Main Content -->
+    <div class="doctor-main">
+        <!-- Alerts -->
+        @if (TempData["success"] != null)
+        {
+            <div class="alert-modern success">
+                <i class="fas fa-check-circle"></i>
+                <span>@TempData["success"]</span>
+                <button class="alert-close" onclick="this.parentElement.remove()">×</button>
+            </div>
+        }
+        @if (TempData["error"] != null)
+        {
+            <div class="alert-modern error">
+                <i class="fas fa-exclamation-circle"></i>
+                <span>@TempData["error"]</span>
+                <button class="alert-close" onclick="this.parentElement.remove()">×</button>
+            </div>
+        }
+
+        <!-- Stats Toolbar -->
+        <div class="stats-toolbar">
+            <div class="stats-bubbles">
+                <div class="stat-bubble"><i class="fas fa-calendar-alt"></i> <span>@Model.Count()</span> Total</div>
+                <div class="stat-bubble"><i class="fas fa-clock"></i> <span>@Model.Count(a => a.Status == "Pending")</span> Pending</div>
+                <div class="stat-bubble"><i class="fas fa-check-circle"></i> <span>@Model.Count(a => a.Status == "Approved")</span> Approved</div>
+                <div class="stat-bubble"><i class="fas fa-times-circle"></i> <span>@Model.Count(a => a.Status == "Rejected")</span> Rejected</div>
+            </div>
+            <button id="refreshBtn" class="refresh-modern">
+                <i class="fas fa-sync-alt"></i> Refresh
+            </button>
+        </div>
+
+        <!-- Appointments Grid -->
+        <div class="doctors-grid-modern" id="appointmentsGrid">
+            @foreach (var appointment in Model)
+            {
+                @await Html.PartialAsync("_AppointmentCard", appointment)
+            }
+        </div>
+
+        @if (!Model.Any())
+        {
+            <div class="empty-modern">
+                <div class="empty-icon">
+                    <i class="fas fa-calendar-alt"></i>
+                </div>
+                <h3>No appointments found</h3>
+                <p>Book your first doctor, test, or bed now.</p>
+            </div>
+        }
+    </div>
+</div>
+
+@section Scripts {
+    <script>
+        $(document).ready(function() {
+            $("#refreshBtn").on("click", function() {
+                location.reload();
+            });
+        });
+    </script>
+}
+
+<style>
+    /* ================= MODERN REDESIGN (from Doctor/Index.cshtml) ================= */
+    * {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+    }
+
+    .doctor-page-wrapper {
+        background: #f5f7fb;
+        min-height: 100vh;
+    }
+
+    /* Hero Section */
+    .doctor-hero-modern {
+        background: linear-gradient(125deg, #ffffff 0%, #f8fafc 100%);
+        padding: 60px 5% 80px;
+        position: relative;
+        overflow: hidden;
+    }
+
+    .hero-bg-shapes {
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        pointer-events: none;
+    }
+
+    .shape {
+        position: absolute;
+        border-radius: 50%;
+        background: rgba(22, 163, 74, 0.03);
+    }
+
+    .shape-1 {
+        width: 400px;
+        height: 400px;
+        top: -150px;
+        right: -100px;
+    }
+
+    .shape-2 {
+        width: 250px;
+        height: 250px;
+        bottom: -80px;
+        left: 10%;
+        background: rgba(22, 163, 74, 0.05);
+    }
+
+    .shape-3 {
+        width: 180px;
+        height: 180px;
+        top: 30%;
+        left: -60px;
+        background: rgba(22, 163, 74, 0.04);
+    }
+
+    .hero-content-modern {
+        max-width: 1100px;
+        margin: 0 auto;
+        position: relative;
+        z-index: 2;
+        text-align: center;
+    }
+
+    .hero-tag {
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+        background: rgba(22, 163, 74, 0.1);
+        padding: 6px 18px;
+        border-radius: 40px;
+        font-size: 0.8rem;
+        font-weight: 500;
+        color: #16a34a;
+        margin-bottom: 24px;
+    }
+
+    .pulse-dot {
+        width: 8px;
+        height: 8px;
+        background: #16a34a;
+        border-radius: 50%;
+        display: inline-block;
+        animation: pulse 1.5s infinite;
+    }
+
+    @@keyframes pulse {
+        0%, 100% { opacity: 1; transform: scale(1); }
+        50% { opacity: 0.5; transform: scale(1.2); }
+    }
+
+    .hero-heading {
+        font-size: 3.5rem;
+        font-weight: 800;
+        color: #0f172a;
+        margin-bottom: 16px;
+        line-height: 1.2;
+    }
+
+    .green-glow {
+        background: linear-gradient(135deg, #16a34a, #15803d);
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+        background-clip: text;
+        position: relative;
+    }
+
+    .hero-subheading {
+        font-size: 1.1rem;
+        color: #5a6e8a;
+        max-width: 550px;
+        margin: 0 auto 40px;
+    }
+
+    /* Main Content */
+    .doctor-main {
+        max-width: 1300px;
+        margin: 0 auto;
+        padding: 40px 24px 60px;
+    }
+
+    /* Alerts */
+    .alert-modern {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+        padding: 14px 20px;
+        border-radius: 16px;
+        margin-bottom: 24px;
+        animation: slideIn 0.3s ease;
+    }
+
+    @@keyframes slideIn {
+        from { transform: translateY(-10px); opacity: 0; }
+        to { transform: translateY(0); opacity: 1; }
+    }
+
+    .alert-modern.success {
+        background: #e8f5e9;
+        border-left: 4px solid #16a34a;
+        color: #1e7b3a;
+    }
+
+    .alert-modern.error {
+        background: #ffebee;
+        border-left: 4px solid #ef4444;
+        color: #b91c1c;
+    }
+
+    .alert-close {
+        margin-left: auto;
+        background: none;
+        border: none;
+        font-size: 1.2rem;
+        cursor: pointer;
+        color: inherit;
+        opacity: 0.6;
+    }
+
+    /* Stats Toolbar */
+    .stats-toolbar {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        flex-wrap: wrap;
+        gap: 16px;
+        margin-bottom: 40px;
+        padding-bottom: 20px;
+        border-bottom: 1px solid #e2e8f0;
+    }
+
+    .stats-bubbles {
+        display: flex;
+        gap: 12px;
+        flex-wrap: wrap;
+    }
+
+    .stat-bubble {
+        background: white;
+        padding: 8px 20px;
+        border-radius: 40px;
+        font-size: 0.8rem;
+        font-weight: 500;
+        color: #334155;
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        box-shadow: 0 1px 3px rgba(0,0,0,0.05);
+        border: 1px solid #e2e8f0;
+    }
+
+    .stat-bubble i {
+        color: #16a34a;
+    }
+
+    .refresh-modern {
+        background: transparent;
+        border: 1px solid #e2e8f0;
+        padding: 8px 20px;
+        border-radius: 40px;
+        font-size: 0.8rem;
+        font-weight: 500;
+        cursor: pointer;
+        transition: all 0.2s;
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        color: #475569;
+    }
+
+    .refresh-modern:hover {
+        border-color: #16a34a;
+        color: #16a34a;
+        background: #f0fdf4;
+    }
+
+    /* Doctors Grid (for appointments) */
+    .doctors-grid-modern {
+        display: grid;
+        grid-template-columns: repeat(3, 1fr);
+        gap: 32px;
+        align-items: stretch;
+    }
+
+    /* Empty State */
+    .empty-modern {
+        text-align: center;
+        padding: 80px 20px;
+        background: white;
+        border-radius: 32px;
+        margin-top: 40px;
+    }
+
+    .empty-icon {
+        width: 80px;
+        height: 80px;
+        background: #f1f5f9;
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        margin: 0 auto 20px;
+        font-size: 2.5rem;
+        color: #94a3b8;
+    }
+
+    .empty-modern h3 {
+        font-size: 1.3rem;
+        color: #334155;
+        margin-bottom: 8px;
+    }
+
+    .empty-modern p {
+        color: #64748b;
+    }
+
+    /* Responsive */
+    @@media (max-width: 900px) {
+        .hero-heading {
+            font-size: 2.2rem;
+        }
+        .stats-toolbar {
+            flex-direction: column;
+            align-items: stretch;
+        }
+        .stats-bubbles {
+            justify-content: center;
+        }
+        .refresh-modern {
+            align-self: center;
+        }
+        .doctors-grid-modern {
+            grid-template-columns: repeat(2, 1fr);
+        }
+    }
+
+    @@media (max-width: 576px) {
+        .doctors-grid-modern {
+            grid-template-columns: 1fr;
+        }
+    }
+</style>

@@ -1,0 +1,593 @@
+﻿@model EasySheba.Models.Blog
+
+@{
+    ViewData["Title"] = Model != null ? Model.Headline + " | EasySheba" : "Blog Details";
+}
+
+@if (Model == null)
+{
+    <!-- Error State -->
+    <section class="error-section">
+        <div class="container">
+            <div class="error-content text-center">
+                <div class="error-icon">
+                    <i class="fas fa-blog"></i>
+                </div>
+                <h2>Blog Post Not Found</h2>
+                <p>The blog post you're looking for doesn't exist or has been removed.</p>
+                <a href="/Blog" class="btn-primary">
+                    <i class="fas fa-arrow-left"></i> Back to Blog
+                </a>
+            </div>
+        </div>
+    </section>
+}
+else
+{
+    <!-- Blog Details Section -->
+    <section class="blog-details-section">
+        <div class="container">
+            <div class="blog-details-wrapper">
+                <!-- Header -->
+                <div class="blog-header text-center">
+                    <span class="blog-category">Health Article</span>
+                    <h1>@Model.Headline</h1>
+                    <div class="blog-meta">
+                        <span class="meta-item">
+                            <i class="far fa-calendar-alt"></i> @Model.CreatedAt.ToString("MMMM dd, yyyy")
+                        </span>
+                        @if (Model.UpdatedAt > Model.CreatedAt)
+                        {
+                            <span class="meta-item">
+                                <i class="far fa-edit"></i> Updated: @Model.UpdatedAt.ToString("MMMM dd, yyyy")
+                            </span>
+                        }
+                    </div>
+                </div>
+
+                <!-- Cover Image -->
+                @if (!string.IsNullOrEmpty(Model.CoverImagePath))
+                {
+                    <div class="blog-cover">
+                        <img src="@Model.CoverImagePath" alt="@Model.Headline">
+                    </div>
+                }
+
+                <!-- Blog Content -->
+                <div class="blog-content">
+                    @Html.Raw(Model.Description.Replace("\n", "<br>"))
+                </div>
+
+                <!-- Media Gallery -->
+                @if (ViewBag.MediaPaths != null && ViewBag.MediaPaths.Count > 0)
+                {
+                    <div class="blog-gallery">
+                        <div class="gallery-header">
+                            <h3><i class="fas fa-images"></i> Gallery</h3>
+                            <p>Additional images and media related to this article</p>
+                        </div>
+                        <div class="gallery-grid">
+                            @foreach (var mediaItem in ViewBag.MediaPaths)
+                            {
+                                <div class="gallery-item">
+                                    @if (mediaItem.ToString().EndsWith(".mp4") || mediaItem.ToString().EndsWith(".webm") || mediaItem.ToString().EndsWith(".mov"))
+                                    {
+                                        <video src="@mediaItem" controls>
+                                            <source src="@mediaItem" type="video/mp4">
+                                            Your browser does not support the video tag.
+                                        </video>
+                                    }
+                                    else
+                                    {
+                                        <img src="@mediaItem" alt="Blog Media" onclick="openFullscreen(this.src)">
+                                        <div class="gallery-overlay" onclick="openFullscreen(this.parentElement.querySelector('img').src)">
+                                            <i class="fas fa-expand"></i>
+                                        </div>
+                                    }
+                                </div>
+                            }
+                        </div>
+                    </div>
+                }
+
+                <!-- Navigation Buttons -->
+                <div class="blog-navigation">
+                    <a href="/Blog" class="btn-secondary-outline">
+                        <i class="fas fa-arrow-left"></i> Back to Blog
+                    </a>
+                </div>
+            </div>
+        </div>
+    </section>
+}
+
+<!-- Fullscreen Image Modal -->
+<div class="modal fade" id="imageModal" tabindex="-1">
+    <div class="modal-dialog modal-xl modal-dialog-centered">
+        <div class="modal-content-custom">
+            <div class="modal-body-custom">
+                <button type="button" class="modal-close" data-bs-dismiss="modal">
+                    <i class="fas fa-times"></i>
+                </button>
+                <img src="" id="fullscreenImage" alt="Fullscreen Image">
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script>
+        function openFullscreen(src) {
+            document.getElementById('fullscreenImage').src = src;
+            var modal = new bootstrap.Modal(document.getElementById('imageModal'));
+            modal.show();
+        }
+        
+        // Add animation to blog content on load
+        document.addEventListener('DOMContentLoaded', function() {
+            const blogContent = document.querySelector('.blog-content');
+            if (blogContent) {
+                blogContent.style.opacity = '0';
+                blogContent.style.transform = 'translateY(20px)';
+                setTimeout(() => {
+                    blogContent.style.transition = 'all 0.6s ease';
+                    blogContent.style.opacity = '1';
+                    blogContent.style.transform = 'translateY(0)';
+                }, 100);
+            }
+        });
+    </script>
+}
+
+<style>
+    /* ================= RESET & BASE ================= */
+    * {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+    }
+
+    body {
+        font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', sans-serif;
+        color: #1e293b;
+        line-height: 1.5;
+        background: #ffffff;
+    }
+
+    .container {
+        max-width: 1200px;
+        margin: 0 auto;
+        padding: 0 24px;
+    }
+
+    .text-center {
+        text-align: center;
+    }
+
+    /* ================= ERROR SECTION ================= */
+    .error-section {
+        padding: 100px 0;
+        background: linear-gradient(135deg, #f8fef8 0%, #eef6ee 100%);
+        min-height: 60vh;
+        display: flex;
+        align-items: center;
+    }
+
+    .error-content {
+        max-width: 500px;
+        margin: 0 auto;
+        padding: 48px;
+        background: white;
+        border-radius: 28px;
+        box-shadow: 0 20px 40px rgba(0, 0, 0, 0.05);
+        border: 1px solid #e2e8f0;
+    }
+
+    .error-icon {
+        width: 100px;
+        height: 100px;
+        background: #e6f7ec;
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        margin: 0 auto 24px;
+    }
+
+        .error-icon i {
+            font-size: 48px;
+            color: #16a34a;
+        }
+
+    .error-content h2 {
+        font-size: 1.8rem;
+        font-weight: 800;
+        color: #0a2f1f;
+        margin-bottom: 12px;
+    }
+
+    .error-content p {
+        font-size: 1rem;
+        color: #64748b;
+        margin-bottom: 32px;
+    }
+
+    .btn-primary {
+        display: inline-flex;
+        align-items: center;
+        gap: 10px;
+        background: #16a34a;
+        color: white;
+        padding: 12px 28px;
+        border-radius: 12px;
+        text-decoration: none;
+        font-weight: 600;
+        transition: all 0.3s ease;
+    }
+
+        .btn-primary:hover {
+            background: #15803d;
+            transform: translateY(-2px);
+            box-shadow: 0 8px 20px rgba(22, 163, 74, 0.3);
+            color: white;
+        }
+
+    /* ================= BLOG DETAILS SECTION ================= */
+    .blog-details-section {
+        padding: 60px 0 80px 0;
+        background: white;
+    }
+
+    .blog-details-wrapper {
+        max-width: 900px;
+        margin: 0 auto;
+    }
+
+    /* Blog Header */
+    .blog-header {
+        margin-bottom: 40px;
+    }
+
+    .blog-category {
+        display: inline-block;
+        background: #e6f7ec;
+        color: #16a34a;
+        padding: 6px 16px;
+        border-radius: 50px;
+        font-size: 0.75rem;
+        font-weight: 700;
+        text-transform: uppercase;
+        letter-spacing: 1px;
+        margin-bottom: 20px;
+    }
+
+    .blog-header h1 {
+        font-size: 2.8rem;
+        font-weight: 800;
+        color: #0a2f1f;
+        margin-bottom: 20px;
+        line-height: 1.2;
+    }
+
+    .blog-meta {
+        display: flex;
+        justify-content: center;
+        gap: 24px;
+        flex-wrap: wrap;
+    }
+
+    .meta-item {
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+        font-size: 0.85rem;
+        color: #64748b;
+    }
+
+        .meta-item i {
+            color: #16a34a;
+            font-size: 0.9rem;
+        }
+
+    /* Blog Cover Image */
+    .blog-cover {
+        margin-bottom: 48px;
+        border-radius: 24px;
+        overflow: hidden;
+        box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
+    }
+
+        .blog-cover img {
+            width: 100%;
+            max-height: 500px;
+            object-fit: cover;
+            display: block;
+            transition: transform 0.5s ease;
+        }
+
+        .blog-cover:hover img {
+            transform: scale(1.02);
+        }
+
+    /* Blog Content */
+    .blog-content {
+        font-size: 1.05rem;
+        line-height: 1.8;
+        color: #334155;
+        margin-bottom: 60px;
+    }
+
+        .blog-content p {
+            margin-bottom: 1.5rem;
+        }
+
+        .blog-content h2,
+        .blog-content h3,
+        .blog-content h4 {
+            color: #0a2f1f;
+            margin-top: 2rem;
+            margin-bottom: 1rem;
+            font-weight: 700;
+        }
+
+        .blog-content h2 {
+            font-size: 1.8rem;
+        }
+
+        .blog-content h3 {
+            font-size: 1.5rem;
+        }
+
+        .blog-content ul,
+        .blog-content ol {
+            margin: 1.5rem 0;
+            padding-left: 2rem;
+        }
+
+        .blog-content li {
+            margin-bottom: 0.5rem;
+        }
+
+        .blog-content blockquote {
+            border-left: 4px solid #16a34a;
+            padding-left: 1.5rem;
+            margin: 1.5rem 0;
+            font-style: italic;
+            color: #475569;
+        }
+
+    /* Gallery Section */
+    .blog-gallery {
+        margin-top: 60px;
+        margin-bottom: 48px;
+        padding-top: 40px;
+        border-top: 2px solid #eef2f0;
+    }
+
+    .gallery-header {
+        margin-bottom: 32px;
+    }
+
+        .gallery-header h3 {
+            font-size: 1.6rem;
+            font-weight: 700;
+            color: #0a2f1f;
+            margin-bottom: 8px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+            .gallery-header h3 i {
+                color: #16a34a;
+            }
+
+        .gallery-header p {
+            font-size: 0.9rem;
+            color: #64748b;
+        }
+
+    .gallery-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+        gap: 24px;
+    }
+
+    .gallery-item {
+        position: relative;
+        border-radius: 16px;
+        overflow: hidden;
+        aspect-ratio: 1;
+        cursor: pointer;
+        box-shadow: 0 10px 20px rgba(0, 0, 0, 0.08);
+        transition: all 0.3s ease;
+    }
+
+        .gallery-item:hover {
+            transform: translateY(-4px);
+            box-shadow: 0 15px 30px rgba(22, 163, 74, 0.15);
+        }
+
+        .gallery-item img,
+        .gallery-item video {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            display: block;
+            transition: transform 0.5s ease;
+        }
+
+        .gallery-item:hover img {
+            transform: scale(1.05);
+        }
+
+    .gallery-overlay {
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background: rgba(22, 163, 74, 0.7);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        opacity: 0;
+        transition: opacity 0.3s ease;
+    }
+
+    .gallery-item:hover .gallery-overlay {
+        opacity: 1;
+    }
+
+    .gallery-overlay i {
+        font-size: 32px;
+        color: white;
+    }
+
+    /* Navigation Buttons */
+    .blog-navigation {
+        text-align: center;
+        margin-top: 48px;
+        padding-top: 32px;
+        border-top: 1px solid #eef2f0;
+    }
+
+    .btn-secondary-outline {
+        display: inline-flex;
+        align-items: center;
+        gap: 10px;
+        background: transparent;
+        color: #16a34a;
+        padding: 12px 28px;
+        border-radius: 12px;
+        text-decoration: none;
+        font-weight: 600;
+        border: 2px solid #16a34a;
+        transition: all 0.3s ease;
+    }
+
+        .btn-secondary-outline:hover {
+            background: #16a34a;
+            color: white;
+            transform: translateY(-2px);
+            box-shadow: 0 8px 20px rgba(22, 163, 74, 0.3);
+        }
+
+    /* Modal Styles */
+    .modal-content-custom {
+        background: transparent;
+        border: none;
+        position: relative;
+    }
+
+    .modal-body-custom {
+        text-align: center;
+        padding: 0;
+        position: relative;
+    }
+
+    .modal-close {
+        position: absolute;
+        top: -50px;
+        right: 0;
+        background: rgba(0, 0, 0, 0.7);
+        border: none;
+        width: 40px;
+        height: 40px;
+        border-radius: 50%;
+        color: white;
+        cursor: pointer;
+        transition: all 0.3s ease;
+        z-index: 10;
+    }
+
+        .modal-close:hover {
+            background: #16a34a;
+            transform: rotate(90deg);
+        }
+
+    #fullscreenImage {
+        max-height: 80vh;
+        max-width: 100%;
+        border-radius: 16px;
+        box-shadow: 0 20px 40px rgba(0, 0, 0, 0.3);
+    }
+
+    /* Responsive Design */
+    @@media (max-width: 1024px) {
+        .blog-header h1 {
+            font-size: 2.2rem;
+        }
+
+        .blog-details-wrapper {
+            padding: 0 20px;
+        }
+    }
+
+    @@media (max-width: 768px) {
+        .blog-details-section {
+            padding: 40px 0 60px 0;
+        }
+
+        .blog-header h1 {
+            font-size: 1.8rem;
+        }
+
+        .blog-meta {
+            gap: 16px;
+        }
+
+        .meta-item {
+            font-size: 0.75rem;
+        }
+
+        .blog-content {
+            font-size: 1rem;
+        }
+
+        .gallery-grid {
+            grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
+            gap: 16px;
+        }
+
+        .gallery-header h3 {
+            font-size: 1.4rem;
+        }
+
+        .blog-cover {
+            margin-bottom: 32px;
+        }
+
+            .blog-cover img {
+                max-height: 300px;
+            }
+    }
+
+    @@media (max-width: 480px) {
+        .blog-header h1 {
+            font-size: 1.5rem;
+        }
+
+        .blog-meta {
+            flex-direction: column;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .blog-content {
+            font-size: 0.95rem;
+        }
+
+        .gallery-grid {
+            grid-template-columns: 1fr;
+        }
+
+        .error-content {
+            padding: 32px 24px;
+        }
+
+            .error-content h2 {
+                font-size: 1.5rem;
+            }
+    }
+</style>

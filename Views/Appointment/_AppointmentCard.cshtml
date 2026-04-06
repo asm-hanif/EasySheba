@@ -1,0 +1,595 @@
+﻿@model EasySheba.Models.Appointment
+
+@{
+    // Determine hospital address for navigation
+    string hospitalName = "";
+    string hospitalLocation = "";
+    if (Model.AppointmentType == "Doctor" && Model.Doctor != null)
+    {
+        hospitalName = Model.Doctor.HospitalName;
+        hospitalLocation = Model.Doctor.HospitalLocation;
+    }
+    else if (Model.AppointmentType == "Test" && Model.MedicalTest != null)
+    {
+        hospitalName = Model.MedicalTest.HospitalName;
+        hospitalLocation = Model.MedicalTest.HospitalLocation;
+    }
+    else if (Model.AppointmentType == "Bed" && Model.Bed != null)
+    {
+        hospitalName = Model.Bed.HospitalName;
+        hospitalLocation = Model.Bed.HospitalLocation;
+    }
+    string fullAddress = $"{hospitalName}, {hospitalLocation}";
+}
+
+<div class="appointment-card @Model.Status.ToLower()" data-status="@Model.Status">
+    <div class="card-header">
+        <div class="service-badge">
+            @if (Model.AppointmentType == "Doctor")
+            {
+                <i class="fas fa-user-md"></i>
+                <span>Doctor</span>
+            }
+            else if (Model.AppointmentType == "Test")
+            {
+                <i class="fas fa-flask"></i>
+                <span>Test</span>
+            }
+            else if (Model.AppointmentType == "Bed")
+            {
+                <i class="fas fa-bed"></i>
+                <span>Bed</span>
+            }
+        </div>
+        <div class="status-badge @Model.Status.ToLower()">
+            <i class="fas @(Model.Status == "Approved" ? "fa-check-circle" : Model.Status == "Pending" ? "fa-clock" : "fa-times-circle")"></i>
+            <span>@Model.Status</span>
+        </div>
+    </div>
+
+    <div class="card-body">
+        <!-- Main Service Info -->
+        <div class="service-info">
+            <div class="avatar">
+                @if (Model.AppointmentType == "Doctor" && Model.Doctor != null && !string.IsNullOrEmpty(Model.Doctor.ImagePath))
+                {
+                    <img src="@Model.Doctor.ImagePath" alt="Doctor" />
+                }
+                else if (Model.AppointmentType == "Test" && Model.MedicalTest != null && !string.IsNullOrEmpty(Model.MedicalTest.ImagePath))
+                {
+                    <img src="@Model.MedicalTest.ImagePath" alt="Test" />
+                }
+                else if (Model.AppointmentType == "Bed" && Model.Bed != null && !string.IsNullOrEmpty(Model.Bed.ImagePath))
+                {
+                    <img src="@Model.Bed.ImagePath" alt="Bed" />
+                }
+                else
+                {
+                    <div class="avatar-placeholder">
+                        @if (Model.AppointmentType == "Doctor")
+                        {
+                            <i class="fas fa-user-md"></i>
+                        }
+                        else if (Model.AppointmentType == "Test")
+                        {
+
+                            <i class="fas fa-flask"></i>
+                        }
+                        else
+                        {
+
+                            <i class="fas fa-bed"></i>
+                        }
+                    </div>
+                }
+            </div>
+            <div class="info">
+                <h3 class="title">
+                    @if (Model.AppointmentType == "Doctor" && Model.Doctor != null)
+                    {
+                        @:Dr. @Model.Doctor.Name
+                    }
+                    else if (Model.AppointmentType == "Test" && Model.MedicalTest != null)
+                    {
+                        @Model.MedicalTest.TestName
+                    }
+                    else if (Model.AppointmentType == "Bed" && Model.Bed != null)
+                    {
+                        @Model.Bed.BedType
+                    }
+                </h3>
+                @if (Model.AppointmentType == "Doctor" && Model.Doctor != null)
+                {
+                    <p class="subtitle">@Model.Doctor.Specialist</p>
+                }
+                else if (Model.AppointmentType == "Test" && Model.MedicalTest != null)
+                {
+                    <p class="subtitle">@Model.MedicalTest.Description</p>
+                }
+                else if (Model.AppointmentType == "Bed" && Model.Bed != null)
+                {
+                    <p class="subtitle">@Model.Bed.Description</p>
+                }
+            </div>
+        </div>
+
+        <!-- Hospital & Navigation -->
+        <div class="hospital-info">
+            <div class="hospital-details">
+                <i class="fas fa-hospital"></i>
+                <span class="hospital-name">@hospitalName</span>
+                <span class="hospital-location">@hospitalLocation</span>
+            </div>
+            @if (!string.IsNullOrEmpty(fullAddress))
+            {
+                <button class="map-btn" onclick="openDirections('@Html.Raw(fullAddress)')" title="Get Directions">
+                    <i class="fas fa-map-marker-alt"></i>
+                </button>
+            }
+        </div>
+
+        <!-- Price (if applicable) -->
+        @if (Model.AppointmentType == "Doctor" && Model.Doctor != null)
+        {
+            <div class="price">
+                <i class="fas fa-tag"></i>
+                <span>Fee: ৳@Model.Doctor.Fees</span>
+            </div>
+        }
+        else if (Model.AppointmentType == "Test" && Model.MedicalTest != null)
+        {
+            <div class="price">
+                <i class="fas fa-tag"></i>
+                <span>Price: ৳@Model.MedicalTest.Price</span>
+            </div>
+        }
+        else if (Model.AppointmentType == "Bed" && Model.Bed != null)
+        {
+            <div class="price">
+                <i class="fas fa-tag"></i>
+                <span>Price: ৳@Model.Bed.PricePerDay / day</span>
+            </div>
+        }
+
+        <!-- Patient Information -->
+        <div class="patient-info">
+            <div class="patient-name">
+                <i class="fas fa-user"></i>
+                <span>@Model.PatientName</span>
+            </div>
+            <div class="patient-phone">
+                <i class="fas fa-phone-alt"></i>
+                <span>@Model.Phone</span>
+            </div>
+        </div>
+
+        <!-- Schedule -->
+        <div class="schedule-info">
+            <div class="date">
+                <i class="fas fa-calendar-alt"></i>
+                <span>@Model.AppointmentDate.ToString("dddd, MMM dd, yyyy")</span>
+            </div>
+            <div class="time">
+                <i class="fas fa-clock"></i>
+                <span>@Model.AppointmentTime</span>
+            </div>
+        </div>
+    </div>
+
+    <div class="card-footer">
+        @if (Model.Status == "Pending")
+        {
+            <div class="action-buttons">
+                <a asp-action="Reschedule" asp-route-id="@Model.Id" class="btn-reschedule">
+                    <i class="fas fa-calendar-alt"></i> Reschedule
+                </a>
+                <form asp-action="Cancel" method="post" style="display:inline;">
+                    @Html.AntiForgeryToken()
+                    <input type="hidden" name="id" value="@Model.Id" />
+                    <button type="submit" class="btn-cancel" onclick="return confirm('Are you sure you want to cancel this appointment?')">
+                        <i class="fas fa-times"></i> Cancel
+                    </button>
+                </form>
+            </div>
+        }
+        else if (Model.Status == "Approved")
+        {
+            <div class="confirmed-badge">
+                <i class="fas fa-check-circle"></i> Confirmed
+            </div>
+        }
+        else if (Model.Status == "Rejected")
+        {
+            <div class="rejected-badge">
+                <i class="fas fa-times-circle"></i> Rejected
+            </div>
+        }
+    </div>
+</div>
+
+<script>
+    function openDirections(destination) {
+        if (navigator.geolocation) {
+            navigator.geolocation.getCurrentPosition(
+                function(position) {
+                    var lat = position.coords.latitude;
+                    var lng = position.coords.longitude;
+                    var origin = lat + "," + lng;
+                    var url = "https://www.google.com/maps/dir/?api=1&origin=" + encodeURIComponent(origin) + "&destination=" + encodeURIComponent(destination);
+                    window.open(url, "_blank");
+                },
+                function(error) {
+                    // If user denies or error, open without origin (just destination)
+                    var url = "https://www.google.com/maps/dir/?api=1&destination=" + encodeURIComponent(destination);
+                    window.open(url, "_blank");
+                }
+            );
+        } else {
+            // Geolocation not supported, open destination only
+            var url = "https://www.google.com/maps/dir/?api=1&destination=" + encodeURIComponent(destination);
+            window.open(url, "_blank");
+        }
+    }
+</script>
+
+<style>
+    /* ========== APPOINTMENT CARD STYLES ========== */
+    .appointment-card {
+        background: #ffffff;
+        border-radius: 24px;
+        overflow: hidden;
+        transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
+        box-shadow: 0 4px 6px -2px rgba(0, 0, 0, 0.05), 0 10px 15px -3px rgba(0, 0, 0, 0.1);
+        border: 1px solid #eef2f6;
+        display: flex;
+        flex-direction: column;
+        height: 100%;
+        position: relative;
+    }
+
+        .appointment-card:hover {
+            transform: translateY(-8px);
+            box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.02);
+            border-color: #16a34a20;
+        }
+
+    /* Card Header */
+    .card-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        padding: 16px 20px;
+        background: #fafef7;
+        border-bottom: 1px solid #eef2f0;
+    }
+
+    .service-badge {
+        display: inline-flex;
+        align-items: center;
+        gap: 6px;
+        background: #e6f7ec;
+        padding: 4px 12px;
+        border-radius: 20px;
+        font-size: 0.7rem;
+        font-weight: 600;
+        color: #16a34a;
+    }
+
+        .service-badge i {
+            font-size: 0.8rem;
+        }
+
+    .status-badge {
+        display: inline-flex;
+        align-items: center;
+        gap: 6px;
+        padding: 4px 12px;
+        border-radius: 20px;
+        font-size: 0.7rem;
+        font-weight: 600;
+    }
+
+        .status-badge.approved {
+            background: #e6f7ec;
+            color: #16a34a;
+        }
+
+        .status-badge.pending {
+            background: #fef3c7;
+            color: #d97706;
+        }
+
+        .status-badge.rejected {
+            background: #fee2e2;
+            color: #dc2626;
+        }
+
+    /* Card Body */
+    .card-body {
+        padding: 20px;
+        flex: 1;
+    }
+
+    .service-info {
+        display: flex;
+        gap: 14px;
+        margin-bottom: 20px;
+        align-items: center;
+    }
+
+    .avatar {
+        width: 56px;
+        height: 56px;
+        flex-shrink: 0;
+    }
+
+        .avatar img {
+            width: 100%;
+            height: 100%;
+            border-radius: 16px;
+            object-fit: cover;
+        }
+
+    .avatar-placeholder {
+        width: 100%;
+        height: 100%;
+        background: #e6f7ec;
+        border-radius: 16px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 28px;
+        color: #16a34a;
+    }
+
+    .info {
+        flex: 1;
+    }
+
+    .title {
+        font-size: 1rem;
+        font-weight: 700;
+        color: #0f172a;
+        margin: 0 0 4px 0;
+        line-height: 1.3;
+    }
+
+    .subtitle {
+        font-size: 0.75rem;
+        color: #16a34a;
+        margin: 0;
+    }
+
+    /* Hospital Info */
+    .hospital-info {
+        background: #f8fafc;
+        border-radius: 12px;
+        padding: 12px;
+        margin-bottom: 16px;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        gap: 8px;
+    }
+
+    .hospital-details {
+        flex: 1;
+        display: flex;
+        flex-direction: column;
+        gap: 4px;
+    }
+
+        .hospital-details i {
+            color: #16a34a;
+            font-size: 0.8rem;
+            margin-right: 6px;
+        }
+
+    .hospital-name {
+        font-size: 0.8rem;
+        font-weight: 600;
+        color: #1e293b;
+    }
+
+    .hospital-location {
+        font-size: 0.7rem;
+        color: #64748b;
+    }
+
+    .map-btn {
+        background: #e6f7ec;
+        border: none;
+        width: 32px;
+        height: 32px;
+        border-radius: 10px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        cursor: pointer;
+        transition: all 0.2s;
+        color: #16a34a;
+    }
+
+        .map-btn:hover {
+            background: #16a34a;
+            color: white;
+            transform: scale(1.05);
+        }
+
+    /* Price */
+    .price {
+        background: #fef9e6;
+        padding: 8px 12px;
+        border-radius: 12px;
+        margin-bottom: 16px;
+        font-size: 0.8rem;
+        font-weight: 600;
+        color: #d97706;
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+    }
+
+        .price i {
+            color: #d97706;
+        }
+
+    /* Patient Info */
+    .patient-info {
+        background: #ffffff;
+        border: 1px solid #eef2f0;
+        border-radius: 12px;
+        padding: 12px;
+        margin-bottom: 16px;
+        display: flex;
+        flex-wrap: wrap;
+        gap: 12px;
+    }
+
+    .patient-name, .patient-phone {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        font-size: 0.8rem;
+        color: #334155;
+    }
+
+        .patient-name i, .patient-phone i {
+            width: 20px;
+            color: #16a34a;
+        }
+
+    /* Schedule */
+    .schedule-info {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        background: #f1f5f9;
+        border-radius: 12px;
+        padding: 10px 12px;
+        font-size: 0.8rem;
+        color: #1e293b;
+    }
+
+    .date, .time {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+    }
+
+        .date i, .time i {
+            color: #16a34a;
+            font-size: 0.8rem;
+        }
+
+    /* Card Footer */
+    .card-footer {
+        padding: 16px 20px 20px;
+        border-top: 1px solid #eef2f0;
+        background: #ffffff;
+    }
+
+    .action-buttons {
+        display: flex;
+        gap: 12px;
+    }
+
+    .btn-reschedule, .btn-cancel {
+        flex: 1;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        gap: 8px;
+        padding: 10px 16px;
+        border-radius: 12px;
+        font-size: 0.8rem;
+        font-weight: 600;
+        cursor: pointer;
+        transition: all 0.2s;
+        border: none;
+        background: transparent;
+        text-decoration: none;
+    }
+
+    .btn-reschedule {
+        background: #e6f7ec;
+        color: #16a34a;
+        border: 1px solid #16a34a;
+    }
+
+        .btn-reschedule:hover {
+            background: #16a34a;
+            color: white;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 8px rgba(22, 163, 74, 0.2);
+        }
+
+    .btn-cancel {
+        background: #fee2e2;
+        color: #dc2626;
+        border: 1px solid #dc2626;
+    }
+
+        .btn-cancel:hover {
+            background: #dc2626;
+            color: white;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 8px rgba(220, 38, 38, 0.2);
+        }
+
+    .confirmed-badge, .rejected-badge {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 8px;
+        padding: 12px;
+        border-radius: 12px;
+        font-size: 0.85rem;
+        font-weight: 600;
+    }
+
+    .confirmed-badge {
+        background: #e6f7ec;
+        color: #16a34a;
+    }
+
+    .rejected-badge {
+        background: #fee2e2;
+        color: #dc2626;
+    }
+
+    /* Status border accent */
+    .appointment-card.approved {
+        border-left: 4px solid #16a34a;
+    }
+
+    .appointment-card.pending {
+        border-left: 4px solid #d97706;
+    }
+
+    .appointment-card.rejected {
+        border-left: 4px solid #dc2626;
+    }
+
+    /* Responsive */
+    @@media (max-width: 640px) {
+        .schedule-info {
+            flex-direction: column;
+            align-items: flex-start;
+            gap: 8px;
+        }
+
+        .action-buttons {
+            flex-direction: column;
+        }
+
+        .hospital-info {
+            flex-direction: column;
+            align-items: flex-start;
+        }
+
+        .map-btn {
+            align-self: flex-end;
+        }
+    }
+</style>

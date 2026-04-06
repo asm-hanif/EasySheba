@@ -1,0 +1,475 @@
+﻿@model IEnumerable<EasySheba.Models.Blog>
+
+@{
+    ViewData["Title"] = "Manage Blogs | EasySheba";
+    var totalBlogs = Model.Count();
+    var publishedCount = Model.Count(b => b.CreatedAt <= DateTime.Now);
+    // If you have a navigation property for media files, you can compute the total media count like this:
+    // var totalMedia = Model.Sum(b => b.MediaFiles?.Count() ?? 0);
+    // For now we'll set it to a placeholder or remove the stat.
+    // Let's just remove the media count stat to avoid errors.
+}
+
+<div class="dashboard-wrapper">
+    <!-- Hero Section -->
+    <div class="hero-section">
+        <div class="hero-bg-shapes">
+            <div class="shape shape-1"></div>
+            <div class="shape shape-2"></div>
+            <div class="shape shape-3"></div>
+        </div>
+        <div class="hero-content">
+            <div class="hero-tag">
+                <span class="pulse-dot"></span> Content Manager
+            </div>
+            <h1 class="hero-heading">
+                Manage <span class="gradient-text">Blog Posts</span>
+            </h1>
+            <p class="hero-subheading">
+                Create, edit, and publish health articles for your audience.
+            </p>
+        </div>
+    </div>
+
+    <!-- Main Content -->
+    <div class="dashboard-main">
+        <!-- Alerts -->
+        @if (TempData["success"] != null)
+        {
+            <div class="alert-modern success">
+                <i class="fas fa-check-circle"></i>
+                <span>@TempData["success"]</span>
+                <button class="alert-close" onclick="this.parentElement.remove()">×</button>
+            </div>
+        }
+        @if (TempData["error"] != null)
+        {
+            <div class="alert-modern error">
+                <i class="fas fa-exclamation-circle"></i>
+                <span>@TempData["error"]</span>
+                <button class="alert-close" onclick="this.parentElement.remove()">×</button>
+            </div>
+        }
+
+        <!-- Stats Cards -->
+        <div class="stats-grid">
+            <div class="stat-card-modern">
+                <div class="stat-icon-bg">
+                    <i class="fas fa-newspaper"></i>
+                </div>
+                <div class="stat-content">
+                    <h3 class="stat-number">@totalBlogs</h3>
+                    <p class="stat-label">Total Posts</p>
+                </div>
+            </div>
+            <div class="stat-card-modern">
+                <div class="stat-icon-bg" style="background:#e6f7ec;">
+                    <i class="fas fa-check-circle" style="color:#16a34a;"></i>
+                </div>
+                <div class="stat-content">
+                    <h3 class="stat-number">@publishedCount</h3>
+                    <p class="stat-label">Published</p>
+                    <span class="stat-trend success">Live</span>
+                </div>
+            </div>
+            <div class="stat-card-modern">
+                <div class="stat-icon-bg">
+                    <i class="fas fa-images"></i>
+                </div>
+                <div class="stat-content">
+                    <h3 class="stat-number">—</h3>
+                    <p class="stat-label">Media Files</p>
+                    <span class="stat-trend info">Attached</span>
+                </div>
+            </div>
+            <div class="stat-card-modern">
+                <div class="stat-icon-bg">
+                    <i class="fas fa-plus-circle"></i>
+                </div>
+                <div class="stat-content">
+                    <a asp-action="AddBlog" class="stat-link" style="margin-top: 8px; display: inline-flex; align-items: center; gap: 6px;">
+                        <i class="fas fa-plus-circle"></i> Create New
+                    </a>
+                </div>
+            </div>
+        </div>
+
+        <!-- Blog Grid -->
+        @if (!Model.Any())
+        {
+            <div class="empty-modern">
+                <div class="empty-icon">
+                    <i class="fas fa-newspaper"></i>
+                </div>
+                <h3>No blog posts yet</h3>
+                <p>Click the "Create New" button above to publish your first article.</p>
+            </div>
+        }
+        else
+        {
+            <div class="blogs-grid">
+                @foreach (var blog in Model.OrderByDescending(b => b.CreatedAt))
+                {
+                    <div class="blog-card-modern">
+                        <div class="blog-cover">
+                            @if (!string.IsNullOrEmpty(blog.CoverImagePath))
+                            {
+                                <img src="@blog.CoverImagePath" alt="@blog.Headline">
+                            }
+                            else
+                            {
+                                <div class="cover-placeholder">
+                                    <i class="fas fa-newspaper"></i>
+                                </div>
+                            }
+                        </div>
+                        <div class="blog-content">
+                            <h3 class="blog-title">@blog.Headline</h3>
+                            <p class="blog-description">
+                                @(blog.Description.Length > 120 ? blog.Description.Substring(0, 120) + "..." : blog.Description)
+                            </p>
+                            <div class="blog-meta">
+                                <span class="meta-date">
+                                    <i class="fas fa-calendar-alt"></i> @blog.CreatedAt.ToString("MMM dd, yyyy")
+                                </span>
+                                @if (blog.UpdatedAt > blog.CreatedAt)
+                                {
+                                    <span class="meta-updated">
+                                        <i class="fas fa-edit"></i> Updated
+                                    </span>
+                                }
+                                <!-- Media count removed to avoid error; you can add back if you have a property or navigation -->
+                                @* <span class="meta-media">
+                                    <i class="fas fa-images"></i> Media Files
+                                </span> *@
+                            </div>
+                            <div class="blog-actions">
+                                <a asp-action="EditBlog" asp-route-id="@blog.Id" class="btn-edit">
+                                    <i class="fas fa-edit"></i> Edit
+                                </a>
+                                <button onclick="deleteBlog(@blog.Id)" class="btn-delete">
+                                    <i class="fas fa-trash"></i> Delete
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                }
+            </div>
+        }
+    </div>
+</div>
+
+<!-- Delete Modal -->
+<div class="modal fade" id="deleteModal" tabindex="-1">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Confirm Delete</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                Are you sure you want to delete this blog post? All associated images and media will also be deleted.
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                <form id="deleteForm" method="post" asp-action="DeleteBlog">
+                    @Html.AntiForgeryToken()
+                    <input type="hidden" name="id" id="deleteId" />
+                    <button type="submit" class="btn-delete">Delete</button>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script>
+        function deleteBlog(id) {
+            document.getElementById('deleteId').value = id;
+            new bootstrap.Modal(document.getElementById('deleteModal')).show();
+        }
+    </script>
+}
+
+<style>
+    /* ========== MODERN STYLES (same as other admin pages) ========== */
+    .dashboard-wrapper {
+        background: #f5f7fb;
+        min-height: 100vh;
+    }
+
+    /* Hero Section */
+    .hero-section {
+        background: linear-gradient(125deg, #ffffff 0%, #f8fafc 100%);
+        padding: 60px 5% 80px;
+        position: relative;
+        overflow: hidden;
+    }
+    .hero-bg-shapes { position: absolute; top: 0; left: 0; width: 100%; height: 100%; pointer-events: none; }
+    .shape { position: absolute; border-radius: 50%; background: rgba(22, 163, 74, 0.03); }
+    .shape-1 { width: 400px; height: 400px; top: -150px; right: -100px; }
+    .shape-2 { width: 250px; height: 250px; bottom: -80px; left: 10%; background: rgba(22, 163, 74, 0.05); }
+    .shape-3 { width: 180px; height: 180px; top: 30%; left: -60px; background: rgba(22, 163, 74, 0.04); }
+    .hero-content { max-width: 1100px; margin: 0 auto; position: relative; z-index: 2; text-align: center; }
+    .hero-tag { display: inline-flex; align-items: center; gap: 8px; background: rgba(22, 163, 74, 0.1); padding: 6px 18px; border-radius: 40px; font-size: 0.8rem; font-weight: 500; color: #16a34a; margin-bottom: 24px; }
+    .pulse-dot { width: 8px; height: 8px; background: #16a34a; border-radius: 50%; display: inline-block; animation: pulse 1.5s infinite; }
+    @@keyframes pulse { 0%, 100% { opacity: 1; transform: scale(1); } 50% { opacity: 0.5; transform: scale(1.2); } }
+    .hero-heading { font-size: 3.5rem; font-weight: 800; color: #0f172a; margin-bottom: 16px; line-height: 1.2; }
+    .gradient-text { background: linear-gradient(135deg, #16a34a, #15803d); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text; }
+    .hero-subheading { font-size: 1.1rem; color: #5a6e8a; max-width: 550px; margin: 0 auto; }
+
+    /* Main Content */
+    .dashboard-main {
+        max-width: 1300px;
+        margin: 0 auto;
+        padding: 40px 24px 60px;
+    }
+
+    /* Alerts */
+    .alert-modern {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+        padding: 14px 20px;
+        border-radius: 16px;
+        margin-bottom: 24px;
+        animation: slideIn 0.3s ease;
+    }
+    @@keyframes slideIn { from { transform: translateY(-10px); opacity: 0; } to { transform: translateY(0); opacity: 1; } }
+    .alert-modern.success { background: #e8f5e9; border-left: 4px solid #16a34a; color: #1e7b3a; }
+    .alert-modern.error { background: #ffebee; border-left: 4px solid #ef4444; color: #b91c1c; }
+    .alert-close { margin-left: auto; background: none; border: none; font-size: 1.2rem; cursor: pointer; color: inherit; opacity: 0.6; }
+
+    /* Stats Cards */
+    .stats-grid {
+        display: grid;
+        grid-template-columns: repeat(4, 1fr);
+        gap: 24px;
+        margin-bottom: 40px;
+    }
+    .stat-card-modern {
+        background: white;
+        border-radius: 24px;
+        padding: 20px;
+        transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
+        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.02);
+        border: 1px solid #eef2f6;
+        display: flex;
+        align-items: center;
+        gap: 16px;
+    }
+    .stat-card-modern:hover {
+        transform: translateY(-4px);
+        box-shadow: 0 20px 35px -12px rgba(0, 0, 0, 0.12);
+        border-color: rgba(22, 163, 74, 0.2);
+    }
+    .stat-icon-bg {
+        width: 56px;
+        height: 56px;
+        background: #e8f5e9;
+        border-radius: 18px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        flex-shrink: 0;
+    }
+    .stat-icon-bg i { font-size: 28px; color: #16a34a; }
+    .stat-content { flex: 1; }
+    .stat-number { font-size: 2rem; font-weight: 800; color: #0f172a; margin-bottom: 4px; }
+    .stat-label { font-size: 0.85rem; color: #64748b; margin-bottom: 6px; }
+    .stat-trend { font-size: 0.7rem; display: inline-flex; align-items: center; gap: 4px; padding: 2px 8px; border-radius: 20px; background: #f1f5f9; }
+    .stat-trend.success { color: #16a34a; background: #e8f5e9; }
+    .stat-trend.info { color: #3b82f6; background: #eff6ff; }
+    .stat-link {
+        text-decoration: none;
+        font-weight: 600;
+        color: #16a34a;
+        display: inline-flex;
+        align-items: center;
+        gap: 6px;
+        transition: gap 0.2s;
+    }
+    .stat-link:hover { gap: 10px; }
+
+    /* Blog Grid */
+    .blogs-grid {
+        display: grid;
+        grid-template-columns: repeat(2, 1fr);
+        gap: 32px;
+    }
+    .blog-card-modern {
+        background: white;
+        border-radius: 24px;
+        overflow: hidden;
+        transition: all 0.3s ease;
+        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.02);
+        border: 1px solid #eef2f6;
+        display: flex;
+        flex-direction: column;
+    }
+    .blog-card-modern:hover {
+        transform: translateY(-4px);
+        box-shadow: 0 20px 35px -12px rgba(0, 0, 0, 0.12);
+        border-color: rgba(22, 163, 74, 0.2);
+    }
+    .blog-cover {
+        height: 200px;
+        overflow: hidden;
+        background: #f1f5f9;
+    }
+    .blog-cover img {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+        transition: transform 0.3s ease;
+    }
+    .blog-card-modern:hover .blog-cover img {
+        transform: scale(1.05);
+    }
+    .cover-placeholder {
+        height: 100%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        background: #e8f5e9;
+        color: #16a34a;
+        font-size: 3rem;
+    }
+    .blog-content {
+        padding: 24px;
+        flex: 1;
+        display: flex;
+        flex-direction: column;
+    }
+    .blog-title {
+        font-size: 1.25rem;
+        font-weight: 700;
+        color: #0f172a;
+        margin-bottom: 12px;
+        line-height: 1.4;
+    }
+    .blog-description {
+        font-size: 0.9rem;
+        color: #475569;
+        margin-bottom: 16px;
+        line-height: 1.5;
+    }
+    .blog-meta {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 16px;
+        margin-bottom: 20px;
+        font-size: 0.75rem;
+        color: #94a3b8;
+    }
+    .blog-meta i {
+        margin-right: 4px;
+    }
+    .meta-date, .meta-updated, .meta-media {
+        display: inline-flex;
+        align-items: center;
+        gap: 4px;
+    }
+    .blog-actions {
+        display: flex;
+        gap: 12px;
+        margin-top: auto;
+    }
+    .btn-edit, .btn-delete {
+        flex: 1;
+        padding: 10px;
+        border-radius: 12px;
+        font-size: 0.8rem;
+        font-weight: 600;
+        text-align: center;
+        text-decoration: none;
+        cursor: pointer;
+        transition: all 0.2s;
+        border: none;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        gap: 6px;
+    }
+    .btn-edit {
+        background: #e6f7ec;
+        color: #16a34a;
+        border: 1px solid #16a34a;
+    }
+    .btn-edit:hover {
+        background: #16a34a;
+        color: white;
+        transform: translateY(-2px);
+    }
+    .btn-delete {
+        background: #fee2e2;
+        color: #dc2626;
+        border: 1px solid #dc2626;
+    }
+    .btn-delete:hover {
+        background: #dc2626;
+        color: white;
+        transform: translateY(-2px);
+    }
+
+    /* Empty State */
+    .empty-modern {
+        text-align: center;
+        padding: 80px 20px;
+        background: white;
+        border-radius: 32px;
+        margin-top: 40px;
+    }
+    .empty-icon {
+        width: 80px;
+        height: 80px;
+        background: #f1f5f9;
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        margin: 0 auto 20px;
+        font-size: 2.5rem;
+        color: #94a3b8;
+    }
+    .empty-modern h3 { font-size: 1.3rem; color: #334155; margin-bottom: 8px; }
+    .empty-modern p { color: #64748b; }
+
+    /* Modal Styles (override to match theme) */
+    .modal-content {
+        border-radius: 24px;
+        border: none;
+        box-shadow: 0 20px 35px -12px rgba(0, 0, 0, 0.2);
+    }
+    .modal-header {
+        border-bottom: 1px solid #eef2f0;
+        padding: 20px 24px;
+    }
+    .modal-footer {
+        border-top: 1px solid #eef2f0;
+        padding: 16px 24px;
+    }
+    .modal-footer .btn-secondary {
+        background: white;
+        border: 1px solid #e2e8f0;
+        color: #475569;
+        padding: 8px 20px;
+        border-radius: 10px;
+        font-weight: 500;
+    }
+    .modal-footer .btn-secondary:hover {
+        border-color: #16a34a;
+        color: #16a34a;
+    }
+
+    /* Responsive */
+    @@media (max-width: 900px) {
+        .hero-heading { font-size: 2rem; }
+        .stats-grid { grid-template-columns: repeat(2, 1fr); }
+        .blogs-grid { grid-template-columns: 1fr; }
+    }
+    @@media (max-width: 640px) {
+        .stats-grid { grid-template-columns: 1fr; }
+        .blog-meta { flex-direction: column; gap: 6px; }
+    }
+</style>

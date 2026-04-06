@@ -1,0 +1,881 @@
+﻿@model EasySheba.Models.Appointment
+
+@{
+    ViewData["Title"] = "Book Medical Test | EasySheba";
+    var test = ViewBag.Test as EasySheba.Models.MedicalTest;
+    var today = DateTime.Today;
+}
+
+<div class="booking-container">
+    <div class="hero-bg-booking">
+        <i class="fas fa-flask"></i>
+        <i class="fas fa-microscope"></i>
+        <i class="fas fa-vial"></i>
+        <i class="fas fa-heartbeat"></i>
+        <i class="fas fa-stethoscope"></i>
+        <i class="fas fa-thermometer"></i>
+        <i class="fas fa-notes-medical"></i>
+        <i class="fas fa-calendar-check"></i>
+    </div>
+
+    <div class="container py-5">
+        <div class="row">
+            <!-- Main Booking Form -->
+            <div class="col-lg-8">
+                <div class="booking-form-card">
+                    <div class="form-header">
+                        <i class="fas fa-flask"></i>
+                        <div>
+                            <h3>Book Medical Test</h3>
+                            <p>Schedule your test with @test.TestName</p>
+                        </div>
+                    </div>
+
+                    @if (TempData["error"] != null)
+                    {
+                        <div class="alert alert-error-custom">
+                            <i class="fas fa-exclamation-circle"></i>
+                            <span>@TempData["error"]</span>
+                            <button type="button" class="alert-close" data-dismiss="alert">&times;</button>
+                        </div>
+                    }
+
+                    @if (TempData["success"] != null)
+                    {
+                        <div class="alert alert-success-custom">
+                            <i class="fas fa-check-circle"></i>
+                            <span>@TempData["success"]</span>
+                            <button type="button" class="alert-close" data-dismiss="alert">&times;</button>
+                        </div>
+                    }
+
+                    <div class="form-body">
+                        <form asp-action="BookTest" asp-controller="Appointment" method="post">
+                            @Html.AntiForgeryToken()
+
+                            <!-- Hidden fields -->
+                            <input type="hidden" name="testId" value="@test.Id" />
+                            <input type="hidden" asp-for="MedicalTestId" value="@test.Id" />
+                            <input type="hidden" asp-for="AppointmentType" value="Test" />
+
+                            <!-- Test Information Card -->
+                            <div class="doctor-info-card">
+                                <div class="doctor-avatar">
+                                    @if (!string.IsNullOrEmpty(test.ImagePath))
+                                    {
+                                        <img src="@test.ImagePath" alt="@test.TestName">
+                                    }
+                                    else
+                                    {
+                                        <div class="avatar-placeholder">
+                                            <i class="fas fa-flask"></i>
+                                        </div>
+                                    }
+                                </div>
+                                <div class="doctor-info">
+                                    <h4 class="doctor-name">@test.TestName</h4>
+                                    <p class="doctor-specialty">@test.Description</p>
+                                    <div class="doctor-meta">
+                                        <span class="meta-badge">
+                                            <i class="fas fa-hospital"></i> @test.HospitalName
+                                        </span>
+                                        <span class="meta-badge">
+                                            <i class="fas fa-location-dot"></i> @test.HospitalLocation
+                                        </span>
+                                        <span class="meta-badge">
+                                            <i class="fas fa-tag"></i> ৳@test.Price
+                                        </span>
+                                    </div>
+                                    <div class="doctor-schedule">
+                                        <div class="schedule-item">
+                                            <i class="fas fa-calendar-alt"></i>
+                                            <span>Available: @test.AvailableDays</span>
+                                        </div>
+                                        <div class="schedule-item">
+                                            <i class="fas fa-clock"></i>
+                                            <span>Hours: @test.AvailableTime</span>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Patient Information -->
+                            <div class="form-section">
+                                <div class="section-title">
+                                    <i class="fas fa-user-circle"></i>
+                                    <h5>Patient Information</h5>
+                                </div>
+                                <div class="row">
+                                    <div class="col-md-6 mb-3">
+                                        <label asp-for="PatientName" class="form-label">Full Name <span class="required">*</span></label>
+                                        <div class="input-wrapper">
+                                            <span class="input-icon"><i class="fas fa-user"></i></span>
+                                            <input asp-for="PatientName" class="form-control" placeholder="Enter patient's full name" required />
+                                        </div>
+                                        <span asp-validation-for="PatientName" class="validation-error"></span>
+                                    </div>
+                                    <div class="col-md-6 mb-3">
+                                        <label asp-for="Phone" class="form-label">Phone Number <span class="required">*</span></label>
+                                        <div class="input-wrapper">
+                                            <span class="input-icon"><i class="fas fa-phone-alt"></i></span>
+                                            <input asp-for="Phone" class="form-control" placeholder="01XXXXXXXXX" required />
+                                        </div>
+                                        <span asp-validation-for="Phone" class="validation-error"></span>
+                                    </div>
+                                    <div class="col-12 mb-3">
+                                        <label asp-for="Email" class="form-label">Email Address</label>
+                                        <div class="input-wrapper">
+                                            <span class="input-icon"><i class="fas fa-envelope"></i></span>
+                                            <input asp-for="Email" class="form-control" type="email" placeholder="your@email.com" />
+                                        </div>
+                                        <span asp-validation-for="Email" class="validation-error"></span>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Appointment Schedule -->
+                            <div class="form-section">
+                                <div class="section-title">
+                                    <i class="fas fa-calendar-alt"></i>
+                                    <h5>Appointment Schedule</h5>
+                                </div>
+                                <div class="row">
+                                    <div class="col-md-6 mb-3">
+                                        <label asp-for="AppointmentDate" class="form-label">Test Date <span class="required">*</span></label>
+                                        <div class="input-wrapper">
+                                            <span class="input-icon"><i class="fas fa-calendar-day"></i></span>
+                                            <input asp-for="AppointmentDate"
+                                                   type="date"
+                                                   class="form-control"
+                                                   id="appointmentDate"
+                                                   min="@DateTime.Now.ToString("yyyy-MM-dd")"
+                                                   max="@DateTime.Now.AddMonths(1).ToString("yyyy-MM-dd")"
+                                                   required />
+                                        </div>
+                                        <div id="dateAvailabilityMsg" class="field-hint"></div>
+                                        <span asp-validation-for="AppointmentDate" class="validation-error"></span>
+                                    </div>
+                                    <div class="col-md-6 mb-3">
+                                        <label asp-for="AppointmentTime" class="form-label">Preferred Time <span class="required">*</span></label>
+                                        <div class="input-wrapper">
+                                            <span class="input-icon"><i class="fas fa-clock"></i></span>
+                                            <input asp-for="AppointmentTime"
+                                                   type="time"
+                                                   class="form-control"
+                                                   required />
+                                        </div>
+                                        <div class="field-hint">
+                                            <i class="fas fa-info-circle"></i> Available: @test.AvailableTime
+                                        </div>
+                                        <span asp-validation-for="AppointmentTime" class="validation-error"></span>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="form-actions">
+                                <a asp-action="Index" asp-controller="MedicalTest" class="btn-back">
+                                    <i class="fas fa-arrow-left"></i> Cancel
+                                </a>
+                                <button type="submit" class="btn-submit" id="submitBtn">
+                                    <i class="fas fa-check-circle"></i> Confirm Booking
+                                </button>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Availability Sidebar -->
+            <div class="col-lg-4">
+                <div class="availability-sidebar">
+                    <div class="sidebar-header">
+                        <i class="fas fa-chart-line"></i>
+                        <h5>Today's Availability</h5>
+                    </div>
+
+                    @if (ViewBag.IsAvailableToday as bool? ?? false)
+                    {
+                        <div class="availability-stats">
+                            <div class="stats-number @((ViewBag.AvailableSlotsToday as int? ?? 0) > 0 ? "available" : "booked")">
+                                @(ViewBag.AvailableSlotsToday ?? 0)
+                            </div>
+                            <p class="stats-label">Slots Available Today</p>
+
+                            @if ((ViewBag.AvailableSlotsToday as int? ?? 0) > 0)
+                            {
+                                var percentage = ((ViewBag.TodayLimit as int? ?? 100) - (ViewBag.AvailableSlotsToday as int? ?? 0)) * 100 / Math.Max((ViewBag.TodayLimit as int? ?? 1), 1);
+                                var progressClass = percentage >= 90 ? "danger" : (percentage >= 60 ? "warning" : "success");
+                                <div class="progress-bar-container">
+                                    <div class="progress-fill @progressClass" style="width: @percentage%;"></div>
+                                </div>
+                                <p class="stats-detail">@((ViewBag.TodayLimit as int? ?? 0) - (ViewBag.AvailableSlotsToday as int? ?? 0)) out of @ViewBag.TodayLimit slots booked</p>
+                            }
+                            else
+                            {
+                                <div class="alert-info">
+                                    <i class="fas fa-times-circle"></i> No slots available today!
+                                </div>
+                            }
+                        </div>
+                    }
+                    else
+                    {
+                        <div class="alert-info unavailable">
+                            <i class="fas fa-clock"></i> Test not available today
+                        </div>
+                    }
+
+                    <hr class="sidebar-divider">
+
+                    <div class="quick-tips">
+                        <h6><i class="fas fa-lightbulb"></i> Quick Tips</h6>
+                        <ul>
+                            <li><i class="fas fa-check-circle"></i> Arrive 15 minutes early</li>
+                            <li><i class="fas fa-check-circle"></i> Bring previous medical reports</li>
+                            <li><i class="fas fa-check-circle"></i> Carry a valid ID proof</li>
+                            <li><i class="fas fa-check-circle"></i> Test fee: ৳@test.Price</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    @{
+        await Html.RenderPartialAsync("_ValidationScriptsPartial");
+    }
+
+    <script>
+        $(document).ready(function() {
+            var testId = @(test?.Id ?? 0);
+
+            // Check availability when date changes
+            $("#appointmentDate").on("change", function() {
+                var selectedDate = $(this).val();
+                var msgElement = $("#dateAvailabilityMsg");
+                var submitBtn = $("#submitBtn");
+
+                if (selectedDate && testId > 0) {
+                    msgElement.html('<i class="fas fa-spinner fa-spin"></i> Checking availability...');
+
+                    $.ajax({
+                        url: '@Url.Action("CheckTestAvailability", "Appointment")',
+                        type: 'GET',
+                        data: {
+                            testId: testId,
+                            date: selectedDate
+                        },
+                        success: function(response) {
+                            if (response.canBook) {
+                                msgElement.html('<i class="fas fa-check-circle"></i> ' +
+                                    response.availableSlots + ' slots available on this date');
+                                msgElement.removeClass('error').addClass('success');
+                                submitBtn.prop('disabled', false);
+                            } else if (!response.isAvailable) {
+                                msgElement.html('<i class="fas fa-times-circle"></i> ' +
+                                    'Test not available on this date');
+                                msgElement.removeClass('success').addClass('error');
+                                submitBtn.prop('disabled', true);
+                            } else {
+                                msgElement.html('<i class="fas fa-times-circle"></i> ' +
+                                    'No slots available on this date');
+                                msgElement.removeClass('success').addClass('error');
+                                submitBtn.prop('disabled', true);
+                            }
+                        },
+                        error: function() {
+                            msgElement.html('<i class="fas fa-exclamation-triangle"></i> Error checking availability');
+                            msgElement.addClass('error');
+                        }
+                    });
+                }
+            });
+
+            // Validate form before submit
+            $("form").on("submit", function(e) {
+                var selectedDate = $("#appointmentDate").val();
+                var today = new Date().toISOString().split('T')[0];
+                if (selectedDate < today) {
+                    e.preventDefault();
+                    alert("Please select a future date for appointment.");
+                }
+            });
+        });
+    </script>
+}
+
+<!-- ========== COPY THE ENTIRE STYLE FROM Doctor/Book.cshtml HERE ========== -->
+<style>
+    /* Container & Background */
+    .booking-container {
+        min-height: 100vh;
+        background: linear-gradient(135deg, #f8fef8 0%, #eef6ee 100%);
+        padding: 40px 0;
+        position: relative;
+        overflow: hidden;
+    }
+
+    .hero-bg-booking {
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        pointer-events: none;
+        z-index: 0;
+    }
+
+    .hero-bg-booking i {
+        position: absolute;
+        font-size: 40px;
+        color: rgba(22, 163, 74, 0.06);
+    }
+
+    .hero-bg-booking i:nth-child(1) { top: 15%; left: 5%; font-size: 45px; }
+    .hero-bg-booking i:nth-child(2) { top: 70%; left: 85%; font-size: 50px; }
+    .hero-bg-booking i:nth-child(3) { top: 80%; left: 15%; font-size: 42px; }
+    .hero-bg-booking i:nth-child(4) { top: 30%; left: 80%; font-size: 48px; }
+    .hero-bg-booking i:nth-child(5) { top: 50%; left: 45%; font-size: 55px; }
+    .hero-bg-booking i:nth-child(6) { top: 85%; left: 70%; font-size: 40px; }
+    .hero-bg-booking i:nth-child(7) { top: 20%; left: 55%; font-size: 38px; }
+    .hero-bg-booking i:nth-child(8) { top: 65%; left: 25%; font-size: 44px; }
+
+    /* Booking Form Card */
+    .booking-form-card {
+        background: white;
+        border-radius: 28px;
+        overflow: hidden;
+        box-shadow: 0 15px 35px rgba(0, 0, 0, 0.08);
+        border: 1px solid #eef2f0;
+        position: relative;
+        z-index: 1;
+    }
+
+    .form-header {
+        background: linear-gradient(135deg, #16a34a, #15803d);
+        padding: 24px 32px;
+        display: flex;
+        align-items: center;
+        gap: 16px;
+        color: white;
+    }
+
+    .form-header i {
+        font-size: 32px;
+    }
+
+    .form-header h3 {
+        font-size: 1.4rem;
+        font-weight: 700;
+        margin: 0 0 4px 0;
+    }
+
+    .form-header p {
+        font-size: 0.85rem;
+        opacity: 0.9;
+        margin: 0;
+    }
+
+    .form-body {
+        padding: 32px;
+    }
+
+    /* Doctor Info Card */
+    .doctor-info-card {
+        background: #fafef7;
+        border-radius: 20px;
+        padding: 20px;
+        margin-bottom: 28px;
+        display: flex;
+        gap: 20px;
+        border: 1px solid #eef2f0;
+    }
+
+    .doctor-avatar {
+        flex-shrink: 0;
+    }
+
+    .doctor-avatar img {
+        width: 80px;
+        height: 80px;
+        border-radius: 20px;
+        object-fit: cover;
+    }
+
+    .avatar-placeholder {
+        width: 80px;
+        height: 80px;
+        background: #e6f7ec;
+        border-radius: 20px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+    }
+
+    .avatar-placeholder i {
+        font-size: 40px;
+        color: #16a34a;
+    }
+
+    .doctor-info {
+        flex: 1;
+    }
+
+    .doctor-name {
+        font-size: 1.2rem;
+        font-weight: 700;
+        color: #0a2f1f;
+        margin: 0 0 4px 0;
+    }
+
+    .doctor-specialty {
+        font-size: 0.85rem;
+        color: #16a34a;
+        margin: 0 0 8px 0;
+    }
+
+    .doctor-meta {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 8px;
+        margin-bottom: 12px;
+    }
+
+    .meta-badge {
+        display: inline-flex;
+        align-items: center;
+        gap: 6px;
+        background: white;
+        padding: 4px 10px;
+        border-radius: 20px;
+        font-size: 0.7rem;
+        color: #475569;
+        border: 1px solid #eef2f0;
+    }
+
+    .meta-badge i {
+        color: #16a34a;
+    }
+
+    .doctor-schedule {
+        display: flex;
+        flex-direction: column;
+        gap: 6px;
+    }
+
+    .schedule-item {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        font-size: 0.8rem;
+        color: #64748b;
+    }
+
+    .schedule-item i {
+        width: 18px;
+        color: #16a34a;
+    }
+
+    /* Form Sections */
+    .form-section {
+        margin-bottom: 28px;
+        padding-bottom: 24px;
+        border-bottom: 1px solid #eef2f0;
+    }
+
+    .form-section:last-child {
+        border-bottom: none;
+        margin-bottom: 0;
+        padding-bottom: 0;
+    }
+
+    .section-title {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        margin-bottom: 20px;
+    }
+
+    .section-title i {
+        width: 32px;
+        height: 32px;
+        background: #e6f7ec;
+        border-radius: 10px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        color: #16a34a;
+        font-size: 1rem;
+    }
+
+    .section-title h5 {
+        font-size: 1rem;
+        font-weight: 700;
+        color: #0a2f1f;
+        margin: 0;
+    }
+
+    /* Form Elements */
+    .form-label {
+        display: block;
+        font-size: 0.85rem;
+        font-weight: 600;
+        color: #0a2f1f;
+        margin-bottom: 8px;
+    }
+
+    .required {
+        color: #dc2626;
+    }
+
+    .input-wrapper {
+        display: flex;
+        align-items: center;
+        border: 1px solid #e2e8f0;
+        border-radius: 12px;
+        background: #fafef7;
+        transition: all 0.3s ease;
+    }
+
+    .input-wrapper:focus-within {
+        border-color: #16a34a;
+        box-shadow: 0 0 0 3px rgba(22, 163, 74, 0.1);
+    }
+
+    .input-icon {
+        padding: 0 14px;
+        color: #94a3b8;
+    }
+
+    .input-wrapper:focus-within .input-icon {
+        color: #16a34a;
+    }
+
+    .form-control {
+        flex: 1;
+        padding: 12px 0;
+        border: none;
+        background: transparent;
+        font-size: 0.95rem;
+        outline: none;
+    }
+
+    .validation-error {
+        font-size: 0.75rem;
+        color: #dc2626;
+        margin-top: 4px;
+        display: block;
+    }
+
+    .field-hint {
+        font-size: 0.7rem;
+        color: #94a3b8;
+        margin-top: 6px;
+        display: flex;
+        align-items: center;
+        gap: 4px;
+    }
+
+    .field-hint.success {
+        color: #16a34a;
+    }
+
+    .field-hint.error {
+        color: #dc2626;
+    }
+
+    /* Form Actions */
+    .form-actions {
+        display: flex;
+        justify-content: flex-end;
+        gap: 16px;
+        margin-top: 24px;
+    }
+
+    .btn-back {
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+        padding: 12px 24px;
+        background: white;
+        border: 1px solid #e2e8f0;
+        border-radius: 12px;
+        color: #64748b;
+        font-weight: 600;
+        text-decoration: none;
+        transition: all 0.3s ease;
+    }
+
+    .btn-back:hover {
+        border-color: #16a34a;
+        color: #16a34a;
+        transform: translateY(-2px);
+        text-decoration: none;
+    }
+
+    .btn-submit {
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+        padding: 12px 32px;
+        background: #16a34a;
+        border: none;
+        border-radius: 12px;
+        color: white;
+        font-weight: 700;
+        cursor: pointer;
+        transition: all 0.3s ease;
+    }
+
+    .btn-submit:hover:not(:disabled) {
+        background: #15803d;
+        transform: translateY(-2px);
+        box-shadow: 0 8px 20px rgba(22, 163, 74, 0.3);
+    }
+
+    .btn-submit:disabled {
+        background: #cbd5e1;
+        cursor: not-allowed;
+    }
+
+    /* Availability Sidebar */
+    .availability-sidebar {
+        background: white;
+        border-radius: 24px;
+        padding: 24px;
+        position: sticky;
+        top: 20px;
+        border: 1px solid #eef2f0;
+        box-shadow: 0 10px 25px rgba(0, 0, 0, 0.05);
+    }
+
+    .sidebar-header {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        margin-bottom: 20px;
+        padding-bottom: 12px;
+        border-bottom: 2px solid #16a34a;
+    }
+
+    .sidebar-header i {
+        font-size: 24px;
+        color: #16a34a;
+    }
+
+    .sidebar-header h5 {
+        font-size: 1.1rem;
+        font-weight: 700;
+        color: #0a2f1f;
+        margin: 0;
+    }
+
+    .availability-stats {
+        text-align: center;
+        margin-bottom: 20px;
+    }
+
+    .stats-number {
+        font-size: 3rem;
+        font-weight: 800;
+    }
+
+    .stats-number.available {
+        color: #16a34a;
+    }
+
+    .stats-number.booked {
+        color: #dc2626;
+    }
+
+    .stats-label {
+        font-size: 0.85rem;
+        color: #64748b;
+        margin: 4px 0 12px 0;
+    }
+
+    .stats-detail {
+        font-size: 0.75rem;
+        color: #94a3b8;
+        margin-top: 8px;
+        text-align: center;
+    }
+
+    .progress-bar-container {
+        background: #eef2f0;
+        border-radius: 20px;
+        height: 8px;
+        overflow: hidden;
+        margin: 12px 0;
+    }
+
+    .progress-fill {
+        height: 100%;
+        border-radius: 20px;
+        transition: width 0.5s ease;
+    }
+
+    .progress-fill.success {
+        background: #16a34a;
+    }
+
+    .progress-fill.warning {
+        background: #f59e0b;
+    }
+
+    .progress-fill.danger {
+        background: #dc2626;
+    }
+
+    .alert-info {
+        background: #fef3c7;
+        padding: 12px;
+        border-radius: 12px;
+        text-align: center;
+        font-size: 0.85rem;
+        color: #d97706;
+        margin-top: 12px;
+    }
+
+    .alert-info.unavailable {
+        background: #f1f5f9;
+        color: #64748b;
+    }
+
+    .sidebar-divider {
+        margin: 20px 0;
+        border-color: #eef2f0;
+    }
+
+    .quick-tips h6,
+    .help-section h6 {
+        font-size: 0.9rem;
+        font-weight: 700;
+        color: #0a2f1f;
+        margin-bottom: 12px;
+        display: flex;
+        align-items: center;
+        gap: 8px;
+    }
+
+    .quick-tips ul {
+        list-style: none;
+        padding: 0;
+        margin: 0;
+    }
+
+    .quick-tips li {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        font-size: 0.8rem;
+        color: #64748b;
+        margin-bottom: 8px;
+    }
+
+    .quick-tips li i {
+        color: #16a34a;
+        font-size: 0.75rem;
+    }
+
+    .help-section p {
+        font-size: 0.8rem;
+        color: #64748b;
+        margin-bottom: 6px;
+        display: flex;
+        align-items: center;
+        gap: 10px;
+    }
+
+    .help-section p i {
+        width: 20px;
+        color: #16a34a;
+    }
+
+    /* Alert Styles */
+    .alert-success-custom,
+    .alert-error-custom {
+        padding: 12px 16px;
+        border-radius: 12px;
+        margin-bottom: 20px;
+        display: flex;
+        align-items: center;
+        gap: 10px;
+    }
+
+    .alert-success-custom {
+        background: #e6f7ec;
+        border-left: 4px solid #16a34a;
+    }
+
+    .alert-success-custom i {
+        color: #16a34a;
+    }
+
+    .alert-error-custom {
+        background: #fee2e2;
+        border-left: 4px solid #dc2626;
+    }
+
+    .alert-error-custom i {
+        color: #dc2626;
+    }
+
+    .alert-close {
+        background: transparent;
+        border: none;
+        font-size: 1.2rem;
+        cursor: pointer;
+        margin-left: auto;
+        opacity: 0.6;
+    }
+
+    /* Responsive */
+    @@media (max-width: 992px) {
+        .form-body {
+            padding: 24px;
+        }
+
+        .doctor-info-card {
+            flex-direction: column;
+            text-align: center;
+        }
+
+        .doctor-meta {
+            justify-content: center;
+        }
+
+        .doctor-schedule {
+            align-items: center;
+        }
+
+        .availability-sidebar {
+            position: static;
+            margin-top: 24px;
+        }
+    }
+
+    @@media (max-width: 768px) {
+        .form-header {
+            padding: 20px;
+            flex-direction: column;
+            text-align: center;
+        }
+
+        .form-body {
+            padding: 20px;
+        }
+
+        .form-actions {
+            flex-direction: column;
+        }
+
+        .btn-back,
+        .btn-submit {
+            justify-content: center;
+            width: 100%;
+        }
+    }
+</style>

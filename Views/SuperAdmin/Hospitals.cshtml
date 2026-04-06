@@ -1,0 +1,688 @@
+﻿@model List<EasySheba.Models.HospitalAdminProfile>
+
+@{
+    ViewData["Title"] = "All Hospitals | EasySheba";
+}
+
+<div class="dashboard-wrapper">
+    <!-- Hero Section -->
+    <div class="hero-section">
+        <div class="hero-bg-shapes">
+            <div class="shape shape-1"></div>
+            <div class="shape shape-2"></div>
+            <div class="shape shape-3"></div>
+        </div>
+        <div class="hero-content">
+            <div class="hero-tag">
+                <span class="pulse-dot"></span> Super Admin
+            </div>
+            <h1 class="hero-heading">
+                All <span class="gradient-text">Hospitals</span>
+            </h1>
+            <p class="hero-subheading">
+                Manage and monitor all registered hospitals.
+            </p>
+        </div>
+    </div>
+
+    <!-- Main Content -->
+    <div class="dashboard-main">
+        <!-- Alerts -->
+        @if (TempData["Success"] != null)
+        {
+            <div class="alert-modern success">
+                <i class="fas fa-check-circle"></i>
+                <span>@TempData["Success"]</span>
+                <button class="alert-close" onclick="this.parentElement.remove()">×</button>
+            </div>
+        }
+        @if (TempData["Error"] != null)
+        {
+            <div class="alert-modern error">
+                <i class="fas fa-exclamation-circle"></i>
+                <span>@TempData["Error"]</span>
+                <button class="alert-close" onclick="this.parentElement.remove()">×</button>
+            </div>
+        }
+
+        <!-- Stats Cards -->
+        <div class="stats-grid">
+            <div class="stat-card-modern">
+                <div class="stat-icon-bg">
+                    <i class="fas fa-hospital"></i>
+                </div>
+                <div class="stat-content">
+                    <h3 class="stat-number">@Model.Count</h3>
+                    <p class="stat-label">Total Hospitals</p>
+                </div>
+            </div>
+            <div class="stat-card-modern">
+                <div class="stat-icon-bg" style="background:#e6f7ec;">
+                    <i class="fas fa-check-circle" style="color:#16a34a;"></i>
+                </div>
+                <div class="stat-content">
+                    <h3 class="stat-number">@Model.Count</h3>
+                    <p class="stat-label">Active</p>
+                    <span class="stat-trend success">Approved</span>
+                </div>
+            </div>
+            <div class="stat-card-modern">
+                <div class="stat-icon-bg">
+                    <i class="fas fa-clock"></i>
+                </div>
+                <div class="stat-content">
+                    <a asp-action="Requests" class="stat-link" style="margin-top: 8px; display: inline-flex; align-items: center; gap: 6px;">
+                        <i class="fas fa-clock"></i> Pending Requests
+                    </a>
+                </div>
+            </div>
+        </div>
+
+        <!-- Hospital Table -->
+        <div class="table-card">
+            <div class="table-header">
+                <div class="header-left">
+                    <i class="fas fa-list"></i>
+                    <h4>Hospital List</h4>
+                </div>
+                <div class="search-wrapper">
+                    <i class="fas fa-search"></i>
+                    <input type="text" id="hospitalSearch" placeholder="Search by name or contact..." class="search-input">
+                </div>
+            </div>
+
+            @if (!Model.Any())
+            {
+                <div class="empty-modern">
+                    <div class="empty-icon">
+                        <i class="fas fa-hospital"></i>
+                    </div>
+                    <h3>No hospitals found</h3>
+                    <p>There are no approved hospitals to display at the moment.</p>
+                    <a asp-action="Requests" class="btn-primary" style="margin-top: 20px; display: inline-flex;">
+                        <i class="fas fa-clock"></i> View Pending Requests
+                    </a>
+                </div>
+            }
+            else
+            {
+                <div class="table-responsive">
+                    <table class="modern-table" id="hospitalsTable">
+                        <thead>
+                            <tr>
+                                <th>#</th>
+                                <th>Hospital Name</th>
+                                <th>Contact Number</th>
+                                <th>Status</th>
+                                <th>Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @{
+                                int counter = 1;
+                            }
+                            @foreach (var hospital in Model)
+                            {
+                                <tr class="hospital-row">
+                                    <td data-label="#">@counter</td>
+                                    <td data-label="Hospital Name">
+                                        <div class="hospital-info">
+                                            <div class="hospital-avatar">
+                                                <i class="fas fa-hospital"></i>
+                                            </div>
+                                            <div class="hospital-details">
+                                                <span class="hospital-name">@hospital.HospitalName</span>
+                                                <span class="hospital-id">ID: @hospital.Id</span>
+                                            </div>
+                                        </div>
+                                    </td>
+                                    <td data-label="Contact Number">
+                                        <div class="contact-info">
+                                            <i class="fas fa-phone-alt"></i>
+                                            <span>@hospital.ContactNumber</span>
+                                        </div>
+                                    </td>
+                                    <td data-label="Status">
+                                        <span class="status-badge approved">
+                                            <i class="fas fa-circle"></i> Approved
+                                        </span>
+                                    </td>
+                                    <td data-label="Actions">
+                                        <div class="action-buttons">
+                                            <a asp-action="HospitalDetails" asp-route-id="@hospital.Id"
+                                               class="btn-view" title="View Details">
+                                                <i class="fas fa-eye"></i>
+                                            </a>
+                                            <form asp-action="DeleteHospital" method="post" class="d-inline">
+                                                @Html.AntiForgeryToken()
+                                                <input type="hidden" name="id" value="@hospital.Id" />
+                                                <button type="submit" class="btn-delete"
+                                                        onclick="return confirmDelete('@hospital.HospitalName')"
+                                                        title="Delete Hospital">
+                                                    <i class="fas fa-trash-alt"></i>
+                                                </button>
+                                            </form>
+                                        </div>
+                                    </td>
+                                </tr>
+                                counter++;
+                            }
+                        </tbody>
+                    </table>
+                </div>
+            }
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script>
+        // Search functionality
+        const searchInput = document.getElementById('hospitalSearch');
+        if (searchInput) {
+            searchInput.addEventListener('keyup', function() {
+                let searchText = this.value.toLowerCase();
+                let rows = document.querySelectorAll('.hospital-row');
+
+                rows.forEach(row => {
+                    let hospitalName = row.querySelector('.hospital-name').textContent.toLowerCase();
+                    let contact = row.querySelector('.contact-info span').textContent.toLowerCase();
+
+                    if (hospitalName.includes(searchText) || contact.includes(searchText)) {
+                        row.style.display = '';
+                    } else {
+                        row.style.display = 'none';
+                    }
+                });
+            });
+        }
+
+        // Delete confirmation with hospital name
+        function confirmDelete(hospitalName) {
+            return confirm(`⚠️ Are you sure you want to delete "${hospitalName}"?\n\nThis action cannot be undone!`);
+        }
+
+        // Auto-hide alerts after 5 seconds
+        setTimeout(function() {
+            document.querySelectorAll('.alert-modern').forEach(function(alert) {
+                alert.style.opacity = '0';
+                setTimeout(() => alert.remove(), 300);
+            });
+        }, 5000);
+    </script>
+}
+
+<style>
+    /* ========== MODERN STYLES (matching other admin pages) ========== */
+    .dashboard-wrapper {
+        background: #f5f7fb;
+        min-height: 100vh;
+    }
+
+    /* Hero Section */
+    .hero-section {
+        background: linear-gradient(125deg, #ffffff 0%, #f8fafc 100%);
+        padding: 60px 5% 80px;
+        position: relative;
+        overflow: hidden;
+    }
+    .hero-bg-shapes { position: absolute; top: 0; left: 0; width: 100%; height: 100%; pointer-events: none; }
+    .shape { position: absolute; border-radius: 50%; background: rgba(22, 163, 74, 0.03); }
+    .shape-1 { width: 400px; height: 400px; top: -150px; right: -100px; }
+    .shape-2 { width: 250px; height: 250px; bottom: -80px; left: 10%; background: rgba(22, 163, 74, 0.05); }
+    .shape-3 { width: 180px; height: 180px; top: 30%; left: -60px; background: rgba(22, 163, 74, 0.04); }
+    .hero-content {
+        max-width: 1100px;
+        margin: 0 auto;
+        position: relative;
+        z-index: 2;
+        text-align: center;
+    }
+    .hero-tag {
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+        background: rgba(22, 163, 74, 0.1);
+        padding: 6px 18px;
+        border-radius: 40px;
+        font-size: 0.8rem;
+        font-weight: 500;
+        color: #16a34a;
+        margin-bottom: 24px;
+    }
+    .pulse-dot {
+        width: 8px;
+        height: 8px;
+        background: #16a34a;
+        border-radius: 50%;
+        display: inline-block;
+        animation: pulse 1.5s infinite;
+    }
+    @@keyframes pulse {
+        0%, 100% { opacity: 1; transform: scale(1); }
+        50% { opacity: 0.5; transform: scale(1.2); }
+    }
+    .hero-heading {
+        font-size: 3.5rem;
+        font-weight: 800;
+        color: #0f172a;
+        margin-bottom: 16px;
+        line-height: 1.2;
+    }
+    .gradient-text {
+        background: linear-gradient(135deg, #16a34a, #15803d);
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+        background-clip: text;
+    }
+    .hero-subheading {
+        font-size: 1.1rem;
+        color: #5a6e8a;
+        max-width: 550px;
+        margin: 0 auto;
+    }
+
+    /* Main Content */
+    .dashboard-main {
+        max-width: 1300px;
+        margin: 0 auto;
+        padding: 40px 24px 60px;
+    }
+
+    /* Alerts */
+    .alert-modern {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+        padding: 14px 20px;
+        border-radius: 16px;
+        margin-bottom: 24px;
+        animation: slideIn 0.3s ease;
+    }
+    @@keyframes slideIn {
+        from { transform: translateY(-10px); opacity: 0; }
+        to { transform: translateY(0); opacity: 1; }
+    }
+    .alert-modern.success {
+        background: #e8f5e9;
+        border-left: 4px solid #16a34a;
+        color: #1e7b3a;
+    }
+    .alert-modern.error {
+        background: #ffebee;
+        border-left: 4px solid #ef4444;
+        color: #b91c1c;
+    }
+    .alert-close {
+        margin-left: auto;
+        background: none;
+        border: none;
+        font-size: 1.2rem;
+        cursor: pointer;
+        color: inherit;
+        opacity: 0.6;
+    }
+
+    /* Stats Cards */
+    .stats-grid {
+        display: grid;
+        grid-template-columns: repeat(3, 1fr);
+        gap: 24px;
+        margin-bottom: 40px;
+    }
+    .stat-card-modern {
+        background: white;
+        border-radius: 24px;
+        padding: 20px;
+        transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
+        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.02);
+        border: 1px solid #eef2f6;
+        display: flex;
+        align-items: center;
+        gap: 16px;
+    }
+    .stat-card-modern:hover {
+        transform: translateY(-4px);
+        box-shadow: 0 20px 35px -12px rgba(0, 0, 0, 0.12);
+        border-color: rgba(22, 163, 74, 0.2);
+    }
+    .stat-icon-bg {
+        width: 56px;
+        height: 56px;
+        background: #e8f5e9;
+        border-radius: 18px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        flex-shrink: 0;
+    }
+    .stat-icon-bg i {
+        font-size: 28px;
+        color: #16a34a;
+    }
+    .stat-content {
+        flex: 1;
+    }
+    .stat-number {
+        font-size: 2rem;
+        font-weight: 800;
+        color: #0f172a;
+        margin-bottom: 4px;
+    }
+    .stat-label {
+        font-size: 0.85rem;
+        color: #64748b;
+        margin-bottom: 6px;
+    }
+    .stat-trend {
+        font-size: 0.7rem;
+        display: inline-flex;
+        align-items: center;
+        gap: 4px;
+        padding: 2px 8px;
+        border-radius: 20px;
+        background: #f1f5f9;
+    }
+    .stat-trend.success {
+        color: #16a34a;
+        background: #e8f5e9;
+    }
+    .stat-link {
+        text-decoration: none;
+        font-weight: 600;
+        color: #16a34a;
+        display: inline-flex;
+        align-items: center;
+        gap: 6px;
+        transition: gap 0.2s;
+    }
+    .stat-link:hover {
+        gap: 10px;
+    }
+
+    /* Table Card */
+    .table-card {
+        background: white;
+        border-radius: 24px;
+        border: 1px solid #eef2f6;
+        overflow: hidden;
+        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.02);
+    }
+    .table-header {
+        padding: 20px 24px;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        flex-wrap: wrap;
+        gap: 16px;
+        border-bottom: 1px solid #eef2f0;
+    }
+    .header-left {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+    }
+    .header-left i {
+        font-size: 1.2rem;
+        color: #16a34a;
+    }
+    .header-left h4 {
+        font-size: 1.1rem;
+        font-weight: 700;
+        color: #0a2f1f;
+        margin: 0;
+    }
+    .search-wrapper {
+        position: relative;
+        width: 280px;
+    }
+    .search-wrapper i {
+        position: absolute;
+        left: 12px;
+        top: 50%;
+        transform: translateY(-50%);
+        color: #94a3b8;
+        font-size: 0.9rem;
+    }
+    .search-input {
+        width: 100%;
+        padding: 10px 12px 10px 36px;
+        border: 1px solid #e2e8f0;
+        border-radius: 12px;
+        font-size: 0.85rem;
+        background: #fafef7;
+        transition: all 0.2s;
+    }
+    .search-input:focus {
+        outline: none;
+        border-color: #16a34a;
+        box-shadow: 0 0 0 3px rgba(22, 163, 74, 0.1);
+    }
+
+    /* Modern Table */
+    .table-responsive {
+        overflow-x: auto;
+    }
+    .modern-table {
+        width: 100%;
+        border-collapse: collapse;
+    }
+    .modern-table thead th {
+        padding: 16px 20px;
+        text-align: left;
+        font-size: 0.8rem;
+        font-weight: 600;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+        color: #64748b;
+        background: #fafef7;
+        border-bottom: 1px solid #eef2f0;
+    }
+    .modern-table tbody tr {
+        transition: background 0.2s;
+    }
+    .modern-table tbody tr:hover {
+        background: #fafef7;
+    }
+    .modern-table tbody td {
+        padding: 16px 20px;
+        border-bottom: 1px solid #eef2f0;
+        font-size: 0.85rem;
+        color: #1e293b;
+        vertical-align: middle;
+    }
+
+    /* Hospital Info */
+    .hospital-info {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+    }
+    .hospital-avatar {
+        width: 40px;
+        height: 40px;
+        background: #e6f7ec;
+        border-radius: 12px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+    }
+    .hospital-avatar i {
+        font-size: 20px;
+        color: #16a34a;
+    }
+    .hospital-details {
+        display: flex;
+        flex-direction: column;
+    }
+    .hospital-name {
+        font-weight: 700;
+        color: #0f172a;
+        margin-bottom: 2px;
+    }
+    .hospital-id {
+        font-size: 0.7rem;
+        color: #94a3b8;
+    }
+
+    /* Contact Info */
+    .contact-info {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+    }
+    .contact-info i {
+        color: #94a3b8;
+        font-size: 0.8rem;
+    }
+
+    /* Status Badge */
+    .status-badge {
+        display: inline-flex;
+        align-items: center;
+        gap: 6px;
+        padding: 4px 12px;
+        border-radius: 30px;
+        font-size: 0.7rem;
+        font-weight: 600;
+    }
+    .status-badge.approved {
+        background: #e6f7ec;
+        color: #16a34a;
+    }
+    .status-badge i {
+        font-size: 6px;
+    }
+
+    /* Action Buttons */
+    .action-buttons {
+        display: flex;
+        gap: 8px;
+    }
+    .btn-view, .btn-delete {
+        width: 32px;
+        height: 32px;
+        border-radius: 8px;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        transition: all 0.2s;
+        border: none;
+        cursor: pointer;
+        text-decoration: none;
+    }
+    .btn-view {
+        background: #e6f7ec;
+        color: #16a34a;
+    }
+    .btn-view:hover {
+        background: #16a34a;
+        color: white;
+        transform: translateY(-2px);
+    }
+    .btn-delete {
+        background: #fee2e2;
+        color: #dc2626;
+    }
+    .btn-delete:hover {
+        background: #dc2626;
+        color: white;
+        transform: translateY(-2px);
+    }
+
+    /* Empty State */
+    .empty-modern {
+        text-align: center;
+        padding: 60px 24px;
+    }
+    .empty-icon {
+        width: 80px;
+        height: 80px;
+        background: #f1f5f9;
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        margin: 0 auto 20px;
+        font-size: 2.5rem;
+        color: #94a3b8;
+    }
+    .empty-modern h3 {
+        font-size: 1.3rem;
+        color: #334155;
+        margin-bottom: 8px;
+    }
+    .empty-modern p {
+        color: #64748b;
+    }
+    .btn-primary {
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+        padding: 10px 20px;
+        background: #16a34a;
+        color: white;
+        border-radius: 12px;
+        font-weight: 600;
+        text-decoration: none;
+        transition: all 0.2s;
+        border: none;
+        cursor: pointer;
+    }
+    .btn-primary:hover {
+        background: #15803d;
+        transform: translateY(-2px);
+        box-shadow: 0 4px 12px rgba(22, 163, 74, 0.3);
+    }
+
+    /* Responsive */
+    @@media (max-width: 900px) {
+        .stats-grid {
+            grid-template-columns: repeat(2, 1fr);
+        }
+        .table-header {
+            flex-direction: column;
+            align-items: stretch;
+        }
+        .search-wrapper {
+            width: 100%;
+        }
+    }
+    @@media (max-width: 768px) {
+        .hero-heading {
+            font-size: 2rem;
+        }
+        .stats-grid {
+            grid-template-columns: 1fr;
+        }
+        .modern-table thead {
+            display: none;
+        }
+        .modern-table tbody tr {
+            display: block;
+            margin-bottom: 16px;
+            border: 1px solid #eef2f0;
+            border-radius: 16px;
+            padding: 12px;
+        }
+        .modern-table tbody td {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 8px 12px;
+            border-bottom: 1px solid #f1f5f9;
+        }
+        .modern-table tbody td:last-child {
+            border-bottom: none;
+        }
+        .modern-table tbody td:before {
+            content: attr(data-label);
+            font-weight: 600;
+            color: #0a2f1f;
+            margin-right: 12px;
+        }
+        .action-buttons {
+            justify-content: flex-end;
+        }
+    }
+</style>

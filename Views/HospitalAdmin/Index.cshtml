@@ -1,0 +1,638 @@
+﻿@{
+    ViewData["Title"] = "Hospital Admin Dashboard | EasySheba";
+}
+
+<div class="dashboard-wrapper">
+    <!-- Hero Section -->
+    <div class="doctor-hero-modern">
+        <div class="hero-bg-shapes">
+            <div class="shape shape-1"></div>
+            <div class="shape shape-2"></div>
+            <div class="shape shape-3"></div>
+        </div>
+        <div class="hero-content-modern">
+            <div class="hero-tag">
+                <span class="pulse-dot"></span> Hospital Admin Panel
+            </div>
+            <h1 class="hero-heading">
+                Welcome back, <span class="green-glow">@User.Identity.Name!</span>
+            </h1>
+            <p class="hero-subheading">
+                Manage your doctors, tests, beds, and appointments from one dashboard.
+            </p>
+        </div>
+    </div>
+
+    <!-- Main Content -->
+    <div class="dashboard-main">
+        <!-- Statistics Cards -->
+        <div class="stats-grid">
+            <!-- Total Doctors -->
+            <div class="stat-card-modern" id="doctorsCard">
+                <div class="stat-icon-bg">
+                    <i class="fas fa-user-md"></i>
+                </div>
+                <div class="stat-content">
+                    <h3 class="stat-number" id="doctorCount">0</h3>
+                    <p class="stat-label">Total Doctors</p>
+                    <span class="stat-trend success" id="doctorChange">
+                        <i class="fas fa-arrow-up"></i> Active
+                    </span>
+                </div>
+                <a asp-action="Doctors" class="stat-link">
+                    View All <i class="fas fa-arrow-right"></i>
+                </a>
+            </div>
+
+            <!-- Medical Tests -->
+            <div class="stat-card-modern" id="testsCard">
+                <div class="stat-icon-bg">
+                    <i class="fas fa-flask"></i>
+                </div>
+                <div class="stat-content">
+                    <h3 class="stat-number" id="testCount">0</h3>
+                    <p class="stat-label">Medical Tests</p>
+                    <span class="stat-trend info" id="testChange">
+                        <i class="fas fa-flask"></i> Available
+                    </span>
+                </div>
+                <a asp-action="MedicalTests" class="stat-link">
+                    View All <i class="fas fa-arrow-right"></i>
+                </a>
+            </div>
+
+            <!-- Total Beds -->
+            <div class="stat-card-modern" id="bedsCard">
+                <div class="stat-icon-bg">
+                    <i class="fas fa-bed"></i>
+                </div>
+                <div class="stat-content">
+                    <h3 class="stat-number" id="bedCount">0</h3>
+                    <p class="stat-label">Total Beds</p>
+                    <span class="stat-trend warning" id="bedChange">
+                        <i class="fas fa-bed"></i> Available
+                    </span>
+                </div>
+                <a asp-action="Beds" class="stat-link">
+                    View All <i class="fas fa-arrow-right"></i>
+                </a>
+            </div>
+
+            <!-- Pending Appointments -->
+            <div class="stat-card-modern" id="appointmentsCard">
+                <div class="stat-icon-bg">
+                    <i class="fas fa-calendar-check"></i>
+                </div>
+                <div class="stat-content">
+                    <h3 class="stat-number" id="pendingCount">0</h3>
+                    <p class="stat-label">Pending Approvals</p>
+                    <span class="stat-trend danger" id="pendingChange">
+                        <i class="fas fa-clock"></i> Need attention
+                    </span>
+                </div>
+                <a asp-action="Appointments" class="stat-link">
+                    View All <i class="fas fa-arrow-right"></i>
+                </a>
+            </div>
+        </div>
+
+        <!-- Quick Actions -->
+        <div class="quick-actions-section">
+            <div class="section-header">
+                <h2 class="section-title">
+                    <i class="fas fa-bolt"></i> Quick Actions
+                </h2>
+            </div>
+            <div class="actions-grid">
+                <a asp-action="AddDoctor" class="action-card">
+                    <div class="action-icon">
+                        <i class="fas fa-user-plus"></i>
+                    </div>
+                    <span>Add Doctor</span>
+                </a>
+                <a asp-action="AddMedicalTest" class="action-card">
+                    <div class="action-icon">
+                        <i class="fas fa-flask"></i>
+                    </div>
+                    <span>Add Test</span>
+                </a>
+                <a asp-action="AddBed" class="action-card">
+                    <div class="action-icon">
+                        <i class="fas fa-bed"></i>
+                    </div>
+                    <span>Add Bed</span>
+                </a>
+                <a asp-action="AddBlog" class="action-card">
+                    <div class="action-icon">
+                        <i class="fas fa-pen-fancy"></i>
+                    </div>
+                    <span>Write Blog</span>
+                </a>
+            </div>
+        </div>
+
+        <!-- Recent Appointments & Blog Posts -->
+        <div class="two-columns">
+            <div class="recent-section">
+                <div class="section-header">
+                    <h2 class="section-title">
+                        <i class="fas fa-list-ul"></i> Recent Appointment Requests
+                    </h2>
+                    <a asp-action="Appointments" class="view-all-link">
+                        View All <i class="fas fa-arrow-right"></i>
+                    </a>
+                </div>
+                <div class="list-container" id="recentAppointments">
+                    <div class="loading-spinner">
+                        <i class="fas fa-spinner fa-spin"></i> Loading...
+                    </div>
+                </div>
+            </div>
+
+            <div class="recent-section">
+                <div class="section-header">
+                    <h2 class="section-title">
+                        <i class="fas fa-newspaper"></i> Recent Blog Posts
+                    </h2>
+                    <a asp-action="Blogs" class="view-all-link">
+                        View All <i class="fas fa-arrow-right"></i>
+                    </a>
+                </div>
+                <div class="list-container" id="recentBlogs">
+                    <div class="loading-spinner">
+                        <i class="fas fa-spinner fa-spin"></i> Loading...
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script>
+        $(document).ready(function() {
+            loadDashboardStats();
+            loadRecentAppointments();
+            loadRecentBlogs();
+        });
+
+        function loadDashboardStats() {
+            $.ajax({
+                url: '@Url.Action("GetDashboardStats", "HospitalAdmin")',
+                type: 'GET',
+                success: function(data) {
+                    $('#doctorCount').text(data.doctorCount);
+                    $('#testCount').text(data.testCount);
+                    $('#bedCount').text(data.totalBeds);
+                    $('#pendingCount').text(data.pendingAppointments);
+                    $('#bedChange').html(`<i class="fas fa-bed"></i> ${data.availableBeds} Available`);
+                }
+            });
+        }
+
+        function loadRecentAppointments() {
+            $.ajax({
+                url: '@Url.Action("GetRecentAppointments", "HospitalAdmin")',
+                type: 'GET',
+                success: function(data) {
+                    let html = '';
+                    if (data.length === 0) {
+                        html = '<div class="empty-state"><i class="fas fa-calendar-alt"></i><p>No recent appointments</p></div>';
+                    } else {
+                        html = '<div class="list-items">';
+                        $.each(data, function(i, app) {
+                            html += `<div class="list-item">
+                                        <div class="item-info">
+                                            <div class="item-title">${app.patientName}</div>
+                                            <div class="item-subtitle">${app.appointmentType} - ${new Date(app.appointmentDate).toLocaleDateString()}</div>
+                                        </div>
+                                        <span class="status-badge ${app.status.toLowerCase()}">${app.status}</span>
+                                    </div>`;
+                        });
+                        html += '</div>';
+                    }
+                    $('#recentAppointments').html(html);
+                }
+            });
+        }
+
+        function loadRecentBlogs() {
+            $.ajax({
+                url: '@Url.Action("GetRecentBlogs", "HospitalAdmin")',
+                type: 'GET',
+                success: function(data) {
+                    let html = '';
+                    if (data.length === 0) {
+                        html = '<div class="empty-state"><i class="fas fa-newspaper"></i><p>No blog posts yet</p></div>';
+                    } else {
+                        html = '<div class="list-items">';
+                        $.each(data, function(i, blog) {
+                            html += `<div class="list-item">
+                                        <div class="item-info">
+                                            <div class="item-title">${blog.headline}</div>
+                                            <div class="item-subtitle"><i class="fas fa-calendar"></i> ${new Date(blog.createdAt).toLocaleDateString()}</div>
+                                        </div>
+                                        <span class="media-badge"><i class="fas fa-image"></i> ${blog.mediaCount}</span>
+                                    </div>`;
+                        });
+                        html += '</div>';
+                    }
+                    $('#recentBlogs').html(html);
+                }
+            });
+        }
+    </script>
+}
+
+<style>
+    /* ================= MODERN DASHBOARD STYLES ================= */
+    .dashboard-wrapper {
+        background: #f5f7fb;
+        min-height: 100vh;
+    }
+
+    /* Hero Section (reused from doctor index) */
+    .doctor-hero-modern {
+        background: linear-gradient(125deg, #ffffff 0%, #f8fafc 100%);
+        padding: 60px 5% 80px;
+        position: relative;
+        overflow: hidden;
+    }
+
+    .hero-bg-shapes {
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        pointer-events: none;
+    }
+
+    .shape {
+        position: absolute;
+        border-radius: 50%;
+        background: rgba(22, 163, 74, 0.03);
+    }
+    .shape-1 { width: 400px; height: 400px; top: -150px; right: -100px; }
+    .shape-2 { width: 250px; height: 250px; bottom: -80px; left: 10%; background: rgba(22, 163, 74, 0.05); }
+    .shape-3 { width: 180px; height: 180px; top: 30%; left: -60px; background: rgba(22, 163, 74, 0.04); }
+
+    .hero-content-modern {
+        max-width: 1100px;
+        margin: 0 auto;
+        position: relative;
+        z-index: 2;
+        text-align: center;
+    }
+
+    .hero-tag {
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+        background: rgba(22, 163, 74, 0.1);
+        padding: 6px 18px;
+        border-radius: 40px;
+        font-size: 0.8rem;
+        font-weight: 500;
+        color: #16a34a;
+        margin-bottom: 24px;
+    }
+
+    .pulse-dot {
+        width: 8px;
+        height: 8px;
+        background: #16a34a;
+        border-radius: 50%;
+        display: inline-block;
+        animation: pulse 1.5s infinite;
+    }
+
+    @@keyframes pulse {
+        0%, 100% { opacity: 1; transform: scale(1); }
+        50% { opacity: 0.5; transform: scale(1.2); }
+    }
+
+    .hero-heading {
+        font-size: 3.5rem;
+        font-weight: 800;
+        color: #0f172a;
+        margin-bottom: 16px;
+        line-height: 1.2;
+    }
+
+    .green-glow {
+        background: linear-gradient(135deg, #16a34a, #15803d);
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+        background-clip: text;
+    }
+
+    .hero-subheading {
+        font-size: 1.1rem;
+        color: #5a6e8a;
+        max-width: 550px;
+        margin: 0 auto;
+    }
+
+    /* Dashboard Main Content */
+    .dashboard-main {
+        max-width: 1300px;
+        margin: 0 auto;
+        padding: 40px 24px 60px;
+    }
+
+    /* Stats Grid */
+    .stats-grid {
+        display: grid;
+        grid-template-columns: repeat(4, 1fr);
+        gap: 24px;
+        margin-bottom: 48px;
+    }
+
+    .stat-card-modern {
+        background: white;
+        border-radius: 24px;
+        padding: 24px;
+        position: relative;
+        transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
+        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.02);
+        border: 1px solid #eef2f6;
+        display: flex;
+        flex-direction: column;
+    }
+
+    .stat-card-modern:hover {
+        transform: translateY(-4px);
+        box-shadow: 0 20px 35px -12px rgba(0, 0, 0, 0.12);
+        border-color: rgba(22, 163, 74, 0.2);
+    }
+
+    .stat-icon-bg {
+        width: 56px;
+        height: 56px;
+        background: #e8f5e9;
+        border-radius: 18px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        margin-bottom: 20px;
+    }
+
+    .stat-icon-bg i {
+        font-size: 28px;
+        color: #16a34a;
+    }
+
+    .stat-content {
+        margin-bottom: 20px;
+    }
+
+    .stat-number {
+        font-size: 2.2rem;
+        font-weight: 800;
+        color: #0f172a;
+        margin-bottom: 4px;
+    }
+
+    .stat-label {
+        font-size: 0.85rem;
+        color: #64748b;
+        margin-bottom: 8px;
+    }
+
+    .stat-trend {
+        font-size: 0.75rem;
+        display: inline-flex;
+        align-items: center;
+        gap: 4px;
+        padding: 2px 8px;
+        border-radius: 20px;
+        background: #f1f5f9;
+    }
+    .stat-trend.success { color: #16a34a; background: #e8f5e9; }
+    .stat-trend.info { color: #3b82f6; background: #eff6ff; }
+    .stat-trend.warning { color: #f59e0b; background: #fef3c7; }
+    .stat-trend.danger { color: #ef4444; background: #fee2e2; }
+
+    .stat-link {
+        margin-top: auto;
+        font-size: 0.8rem;
+        color: #16a34a;
+        text-decoration: none;
+        font-weight: 500;
+        display: inline-flex;
+        align-items: center;
+        gap: 6px;
+        transition: gap 0.2s;
+    }
+    .stat-link:hover {
+        gap: 10px;
+        color: #15803d;
+    }
+
+    /* Quick Actions */
+    .quick-actions-section {
+        margin-bottom: 48px;
+    }
+
+    .section-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 24px;
+        flex-wrap: wrap;
+        gap: 12px;
+    }
+
+    .section-title {
+        font-size: 1.25rem;
+        font-weight: 700;
+        color: #0f172a;
+        display: flex;
+        align-items: center;
+        gap: 8px;
+    }
+    .section-title i {
+        color: #16a34a;
+    }
+
+    .view-all-link {
+        font-size: 0.85rem;
+        color: #16a34a;
+        text-decoration: none;
+        font-weight: 500;
+        display: flex;
+        align-items: center;
+        gap: 6px;
+    }
+    .view-all-link:hover {
+        gap: 10px;
+    }
+
+    .actions-grid {
+        display: grid;
+        grid-template-columns: repeat(4, 1fr);
+        gap: 20px;
+    }
+
+    .action-card {
+        background: white;
+        border-radius: 20px;
+        padding: 24px;
+        text-align: center;
+        text-decoration: none;
+        transition: all 0.3s;
+        border: 1px solid #eef2f6;
+        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.02);
+    }
+    .action-card:hover {
+        transform: translateY(-4px);
+        border-color: #16a34a;
+        box-shadow: 0 12px 24px -12px rgba(22, 163, 74, 0.2);
+    }
+
+    .action-icon {
+        width: 56px;
+        height: 56px;
+        background: #e8f5e9;
+        border-radius: 18px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        margin: 0 auto 16px;
+    }
+    .action-icon i {
+        font-size: 28px;
+        color: #16a34a;
+    }
+    .action-card span {
+        font-size: 0.9rem;
+        font-weight: 600;
+        color: #1e293b;
+    }
+
+    /* Two Column Layout */
+    .two-columns {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 32px;
+    }
+
+    .recent-section {
+        background: white;
+        border-radius: 24px;
+        border: 1px solid #eef2f6;
+        overflow: hidden;
+    }
+
+    .recent-section .section-header {
+        padding: 20px 24px;
+        margin: 0;
+        border-bottom: 1px solid #eef2f6;
+    }
+
+    .list-container {
+        padding: 8px 0;
+    }
+
+    .list-items {
+        display: flex;
+        flex-direction: column;
+    }
+
+    .list-item {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        padding: 16px 24px;
+        border-bottom: 1px solid #f1f5f9;
+        transition: background 0.2s;
+    }
+    .list-item:hover {
+        background: #fafef7;
+    }
+
+    .item-info {
+        flex: 1;
+    }
+
+    .item-title {
+        font-weight: 600;
+        color: #0f172a;
+        margin-bottom: 4px;
+    }
+
+    .item-subtitle {
+        font-size: 0.75rem;
+        color: #64748b;
+        display: flex;
+        align-items: center;
+        gap: 6px;
+    }
+
+    .status-badge {
+        font-size: 0.7rem;
+        font-weight: 600;
+        padding: 4px 12px;
+        border-radius: 30px;
+    }
+    .status-badge.pending { background: #fef3c7; color: #d97706; }
+    .status-badge.approved { background: #e8f5e9; color: #16a34a; }
+    .status-badge.rejected { background: #fee2e2; color: #dc2626; }
+
+    .media-badge {
+        font-size: 0.7rem;
+        background: #f1f5f9;
+        padding: 4px 10px;
+        border-radius: 20px;
+        color: #475569;
+        display: flex;
+        align-items: center;
+        gap: 4px;
+    }
+
+    .empty-state {
+        text-align: center;
+        padding: 48px 24px;
+        color: #94a3b8;
+    }
+    .empty-state i {
+        font-size: 48px;
+        margin-bottom: 12px;
+        display: block;
+    }
+
+    .loading-spinner {
+        text-align: center;
+        padding: 48px;
+        color: #94a3b8;
+    }
+
+    /* Responsive */
+    @@media (max-width: 1100px) {
+        .stats-grid {
+            grid-template-columns: repeat(2, 1fr);
+        }
+        .actions-grid {
+            grid-template-columns: repeat(2, 1fr);
+        }
+        .two-columns {
+            grid-template-columns: 1fr;
+        }
+    }
+
+    @@media (max-width: 768px) {
+        .hero-heading {
+            font-size: 2rem;
+        }
+        .stats-grid {
+            grid-template-columns: 1fr;
+        }
+        .actions-grid {
+            grid-template-columns: 1fr;
+        }
+        .dashboard-main {
+            padding: 24px 16px 40px;
+        }
+    }
+</style>

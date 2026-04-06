@@ -1,0 +1,522 @@
+﻿@model EasySheba.Models.Appointment
+
+@{
+    ViewData["Title"] = "Reschedule Appointment | EasySheba";
+}
+
+<div class="reschedule-container">
+    <div class="hero-bg-reschedule">
+        <i class="fas fa-heart"></i>
+        <i class="fas fa-stethoscope"></i>
+        <i class="fas fa-pills"></i>
+        <i class="fas fa-notes-medical"></i>
+        <i class="fas fa-first-aid"></i>
+        <i class="fas fa-heartbeat"></i>
+        <i class="fas fa-calendar-alt"></i>
+        <i class="fas fa-clock"></i>
+    </div>
+
+    <div class="container py-5">
+        <div class="row justify-content-center">
+            <div class="col-md-8 col-lg-6">
+
+                <div class="reschedule-card">
+                    <!-- Header -->
+                    <div class="card-header-section">
+                        <div class="header-icon">
+                            <i class="fas fa-calendar-alt"></i>
+                        </div>
+                        <div>
+                            <h2 class="card-title">Reschedule Appointment</h2>
+                            <p class="card-subtitle">Choose a new date and time for your appointment</p>
+                        </div>
+                    </div>
+
+                    <div class="card-body-section">
+                        <!-- Current Schedule -->
+                        <div class="current-schedule">
+                            <div class="schedule-header">
+                                <i class="fas fa-info-circle"></i>
+                                <h6>Current Schedule</h6>
+                            </div>
+                            <div class="schedule-details">
+                                <div class="schedule-item">
+                                    <i class="fas fa-calendar-day"></i>
+                                    <span class="schedule-label">Date:</span>
+                                    <span class="schedule-value">@Model.AppointmentDate.ToString("dddd, MMMM dd, yyyy")</span>
+                                </div>
+                                <div class="schedule-item">
+                                    <i class="fas fa-clock"></i>
+                                    <span class="schedule-label">Time:</span>
+                                    <span class="schedule-value">@Model.AppointmentTime</span>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Reschedule Form -->
+                        <form asp-action="Reschedule" method="post">
+                            @Html.AntiForgeryToken()
+                            <input type="hidden" name="id" value="@Model.Id" />
+
+                            <div class="form-group">
+                                <label for="AppointmentDate" class="form-label">
+                                    <i class="fas fa-calendar-day"></i> New Appointment Date <span class="required">*</span>
+                                </label>
+                                <div class="input-wrapper">
+                                    <span class="input-icon"><i class="fas fa-calendar"></i></span>
+                                    <input id="AppointmentDate" type="date" name="AppointmentDate"
+                                           class="form-control"
+                                           min="@DateTime.Now.ToString("yyyy-MM-dd")"
+                                           value="@Model.AppointmentDate.ToString("yyyy-MM-dd")"
+                                           required />
+                                </div>
+                                <div class="field-hint">
+                                    <i class="fas fa-info-circle"></i> Select a date between today and next 30 days
+                                </div>
+                            </div>
+
+                            <div class="form-group">
+                                <label for="AppointmentTime" class="form-label">
+                                    <i class="fas fa-clock"></i> New Appointment Time <span class="required">*</span>
+                                </label>
+                                <div class="input-wrapper">
+                                    <span class="input-icon"><i class="fas fa-clock"></i></span>
+                                    <input id="AppointmentTime" type="time" name="AppointmentTime"
+                                           class="form-control"
+                                           value="@Model.AppointmentTime"
+                                           required />
+                                </div>
+                                <div class="field-hint">
+                                    <i class="fas fa-info-circle"></i> Available hours: 8:00 AM - 8:00 PM
+                                </div>
+                            </div>
+
+                            <!-- Info Note -->
+                            <div class="info-note">
+                                <i class="fas fa-lightbulb"></i>
+                                <div>
+                                    <strong>Note:</strong> Rescheduling is subject to availability. You'll receive a confirmation email once approved.
+                                </div>
+                            </div>
+
+                            <div class="form-actions">
+                                <a asp-action="MyAppointments" class="btn-back">
+                                    <i class="fas fa-arrow-left"></i> Back to Appointments
+                                </a>
+                                <button type="submit" class="btn-submit">
+                                    <i class="fas fa-save"></i> Update Schedule
+                                </button>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+    /* Container & Background */
+    .reschedule-container {
+        min-height: 100vh;
+        background: linear-gradient(135deg, #f8fef8 0%, #eef6ee 100%);
+        padding: 40px 0;
+        position: relative;
+        overflow: hidden;
+    }
+
+    .hero-bg-reschedule {
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        pointer-events: none;
+        z-index: 0;
+    }
+
+    .hero-bg-reschedule i {
+        position: absolute;
+        font-size: 40px;
+        color: rgba(22, 163, 74, 0.06);
+    }
+
+    .hero-bg-reschedule i:nth-child(1) { top: 15%; left: 5%; font-size: 45px; }
+    .hero-bg-reschedule i:nth-child(2) { top: 70%; left: 85%; font-size: 50px; }
+    .hero-bg-reschedule i:nth-child(3) { top: 80%; left: 15%; font-size: 42px; }
+    .hero-bg-reschedule i:nth-child(4) { top: 30%; left: 80%; font-size: 48px; }
+    .hero-bg-reschedule i:nth-child(5) { top: 50%; left: 45%; font-size: 55px; }
+    .hero-bg-reschedule i:nth-child(6) { top: 85%; left: 70%; font-size: 40px; }
+    .hero-bg-reschedule i:nth-child(7) { top: 20%; left: 55%; font-size: 38px; }
+    .hero-bg-reschedule i:nth-child(8) { top: 65%; left: 25%; font-size: 44px; }
+
+    /* Reschedule Card */
+    .reschedule-card {
+        background: white;
+        border-radius: 28px;
+        overflow: hidden;
+        box-shadow: 0 15px 35px rgba(0, 0, 0, 0.08);
+        border: 1px solid #eef2f0;
+        position: relative;
+        z-index: 1;
+        animation: fadeInUp 0.5s ease;
+    }
+
+    @@keyframes fadeInUp {
+        from {
+            opacity: 0;
+            transform: translateY(30px);
+        }
+        to {
+            opacity: 1;
+            transform: translateY(0);
+        }
+    }
+
+    /* Card Header */
+    .card-header-section {
+        background: linear-gradient(135deg, #fafef7, #ffffff);
+        padding: 32px 32px 24px;
+        border-bottom: 1px solid #eef2f0;
+        display: flex;
+        align-items: center;
+        gap: 20px;
+    }
+
+    .header-icon {
+        width: 64px;
+        height: 64px;
+        background: #e6f7ec;
+        border-radius: 20px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+    }
+
+    .header-icon i {
+        font-size: 32px;
+        color: #16a34a;
+    }
+
+    .card-title {
+        font-size: 1.6rem;
+        font-weight: 800;
+        color: #0a2f1f;
+        margin: 0 0 6px 0;
+    }
+
+    .card-subtitle {
+        font-size: 0.9rem;
+        color: #64748b;
+        margin: 0;
+    }
+
+    /* Card Body */
+    .card-body-section {
+        padding: 32px;
+    }
+
+    /* Current Schedule */
+    .current-schedule {
+        background: #fafef7;
+        border-radius: 20px;
+        padding: 20px;
+        margin-bottom: 32px;
+        border: 1px solid #eef2f0;
+    }
+
+    .schedule-header {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        margin-bottom: 16px;
+        padding-bottom: 12px;
+        border-bottom: 1px solid #eef2f0;
+    }
+
+    .schedule-header i {
+        font-size: 20px;
+        color: #16a34a;
+    }
+
+    .schedule-header h6 {
+        font-size: 0.95rem;
+        font-weight: 700;
+        color: #0a2f1f;
+        margin: 0;
+    }
+
+    .schedule-details {
+        display: flex;
+        flex-direction: column;
+        gap: 12px;
+    }
+
+    .schedule-item {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+        font-size: 0.9rem;
+    }
+
+    .schedule-item i {
+        width: 20px;
+        color: #16a34a;
+        font-size: 0.85rem;
+    }
+
+    .schedule-label {
+        font-weight: 600;
+        color: #475569;
+        min-width: 45px;
+    }
+
+    .schedule-value {
+        color: #0a2f1f;
+        font-weight: 500;
+    }
+
+    /* Form Elements */
+    .form-group {
+        margin-bottom: 24px;
+    }
+
+    .form-label {
+        display: block;
+        font-size: 0.85rem;
+        font-weight: 600;
+        color: #0a2f1f;
+        margin-bottom: 8px;
+    }
+
+    .form-label i {
+        color: #16a34a;
+        margin-right: 6px;
+        font-size: 0.8rem;
+    }
+
+    .required {
+        color: #dc2626;
+    }
+
+    .input-wrapper {
+        display: flex;
+        align-items: center;
+        border: 1px solid #e2e8f0;
+        border-radius: 14px;
+        background: #fafef7;
+        transition: all 0.3s ease;
+    }
+
+    .input-wrapper:focus-within {
+        border-color: #16a34a;
+        box-shadow: 0 0 0 3px rgba(22, 163, 74, 0.1);
+    }
+
+    .input-icon {
+        padding: 0 16px;
+        color: #94a3b8;
+        transition: color 0.3s ease;
+    }
+
+    .input-wrapper:focus-within .input-icon {
+        color: #16a34a;
+    }
+
+    .form-control {
+        flex: 1;
+        padding: 14px 0;
+        border: none;
+        background: transparent;
+        font-size: 0.95rem;
+        outline: none;
+        color: #0a2f1f;
+    }
+
+    .form-control::placeholder {
+        color: #cbd5e1;
+    }
+
+    .form-control:focus {
+        outline: none;
+    }
+
+    .field-hint {
+        font-size: 0.7rem;
+        color: #94a3b8;
+        margin-top: 6px;
+        display: flex;
+        align-items: center;
+        gap: 4px;
+    }
+
+    .field-hint i {
+        font-size: 0.65rem;
+        color: #16a34a;
+    }
+
+    /* Info Note */
+    .info-note {
+        background: #fef9e6;
+        border-left: 4px solid #f59e0b;
+        padding: 14px 16px;
+        border-radius: 12px;
+        margin: 24px 0;
+        display: flex;
+        align-items: flex-start;
+        gap: 12px;
+    }
+
+    .info-note i {
+        font-size: 1.1rem;
+        color: #f59e0b;
+        margin-top: 2px;
+    }
+
+    .info-note div {
+        font-size: 0.8rem;
+        color: #92400e;
+        line-height: 1.5;
+    }
+
+    .info-note strong {
+        font-weight: 700;
+    }
+
+    /* Form Actions */
+    .form-actions {
+        display: flex;
+        justify-content: space-between;
+        gap: 16px;
+        margin-top: 32px;
+    }
+
+    .btn-back {
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+        padding: 12px 24px;
+        background: white;
+        border: 1px solid #e2e8f0;
+        border-radius: 12px;
+        color: #64748b;
+        font-weight: 600;
+        font-size: 0.9rem;
+        text-decoration: none;
+        transition: all 0.3s ease;
+        cursor: pointer;
+    }
+
+    .btn-back:hover {
+        border-color: #16a34a;
+        color: #16a34a;
+        transform: translateY(-2px);
+        text-decoration: none;
+    }
+
+    .btn-submit {
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+        padding: 12px 32px;
+        background: #16a34a;
+        border: none;
+        border-radius: 12px;
+        color: white;
+        font-weight: 700;
+        font-size: 0.9rem;
+        cursor: pointer;
+        transition: all 0.3s ease;
+    }
+
+    .btn-submit:hover {
+        background: #15803d;
+        transform: translateY(-2px);
+        box-shadow: 0 8px 20px rgba(22, 163, 74, 0.3);
+    }
+
+    /* Responsive Design */
+    @@media (max-width: 768px) {
+        .reschedule-container {
+            padding: 20px 0;
+        }
+
+        .card-header-section {
+            padding: 24px 24px 20px;
+            flex-direction: column;
+            text-align: center;
+        }
+
+        .card-body-section {
+            padding: 24px;
+        }
+
+        .card-title {
+            font-size: 1.4rem;
+        }
+
+        .form-actions {
+            flex-direction: column;
+        }
+
+        .btn-back,
+        .btn-submit {
+            justify-content: center;
+            width: 100%;
+        }
+
+        .schedule-item {
+            flex-wrap: wrap;
+        }
+
+        .schedule-value {
+            flex: 1;
+        }
+    }
+
+    @@media (max-width: 480px) {
+        .card-header-section {
+            padding: 20px;
+        }
+
+        .card-body-section {
+            padding: 20px;
+        }
+
+        .header-icon {
+            width: 52px;
+            height: 52px;
+        }
+
+        .header-icon i {
+            font-size: 26px;
+        }
+
+        .card-title {
+            font-size: 1.2rem;
+        }
+
+        .current-schedule {
+            padding: 16px;
+        }
+
+        .schedule-item {
+            flex-direction: column;
+            align-items: flex-start;
+            gap: 4px;
+        }
+
+        .schedule-item i {
+            display: none;
+        }
+
+        .schedule-label {
+            min-width: auto;
+        }
+
+        .info-note {
+            padding: 12px;
+        }
+    }
+</style>
