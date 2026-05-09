@@ -274,98 +274,95 @@
 @section Scripts {
     <partial name="_ValidationScriptsPartial" />
     <script>
-        $(document).ready(function() {
-            // Remove any required validation for ImageFile
-            $("#ImageFile").removeAttr("data-val-required");
-            $("#ImageFile").removeAttr("data-val");
+        document.addEventListener('DOMContentLoaded', function() {
+            const uploadArea = document.getElementById('imageUploadArea');
+            const fileInput = document.getElementById('ImageFile');
+            const uploadPreview = document.getElementById('uploadPreview');
+            const previewImage = document.getElementById('previewImage');
+            const testImagePreview = document.getElementById('testImagePreview');
+            const removeImageBtn = document.querySelector('.remove-image');
 
-            // Image upload functionality
-            const uploadArea = $('#imageUploadArea');
-            const fileInput = $('#ImageFile');
-            const previewContainer = $('#previewImage');
-            const previewImg = $('#testImagePreview');
-            const uploadPreview = $('#uploadPreview');
+            if (uploadArea && fileInput) {
+                uploadArea.addEventListener('click', function(e) {
+                    e.stopPropagation();
+                    fileInput.click();
+                });
 
-            uploadArea.on('click', function() {
-                fileInput.click();
-            });
-
-            fileInput.on('change', function(event) {
-                const file = event.target.files[0];
-                if (file) {
-                    const reader = new FileReader();
-                    reader.onload = function(e) {
-                        uploadPreview.hide();
-                        previewContainer.show();
-                        previewImg.attr('src', e.target.result);
-                        // If a new image is selected, uncheck remove image checkbox
-                        $('#removeImage').prop('checked', false);
-                    };
-                    reader.readAsDataURL(file);
-                }
-            });
-
-            $('.remove-image').on('click', function() {
-                fileInput.val('');
-                previewContainer.hide();
-                uploadPreview.show();
-            });
-
-            // Drag and drop
-            uploadArea.on('dragover', function(e) {
-                e.preventDefault();
-                $(this).addClass('dragover');
-            });
-            uploadArea.on('dragleave', function(e) {
-                $(this).removeClass('dragover');
-            });
-            uploadArea.on('drop', function(e) {
-                e.preventDefault();
-                $(this).removeClass('dragover');
-                const files = e.originalEvent.dataTransfer.files;
-                if (files.length > 0) {
-                    fileInput.prop('files', files);
-                    fileInput.trigger('change');
-                }
-            });
-
-            // Handle remove image checkbox
-            $("#removeImage").on("change", function() {
-                if ($(this).is(":checked")) {
-                    if (!confirm("Are you sure you want to remove the test image? This cannot be undone.")) {
-                        $(this).prop("checked", false);
-                    } else {
-                        // Clear any selected file
-                        fileInput.val("");
-                        previewContainer.hide();
-                        uploadPreview.show();
-                    }
-                }
-            });
-
-            // If a new file is selected, uncheck remove image checkbox
-            fileInput.on("change", function() {
-                if ($(this).val() !== "") {
-                    $("#removeImage").prop("checked", false);
-                }
-            });
-
-            // Auto-fill day limits with default value
-            const defaultLimit = $('#defaultLimit');
-            const dayInputs = $('input[id$="Limit"]:not(#defaultLimit)');
-
-            defaultLimit.on('input', function() {
-                const defaultValue = $(this).val();
-                dayInputs.each(function() {
-                    if (!$(this).val() || $(this).val() === '0') {
-                        $(this).val(defaultValue);
+                fileInput.addEventListener('change', function(event) {
+                    const file = event.target.files[0];
+                    if (file) {
+                        const reader = new FileReader();
+                        reader.onload = function(e) {
+                            if (uploadPreview) uploadPreview.style.display = 'none';
+                            if (previewImage) previewImage.style.display = 'flex';
+                            if (testImagePreview) testImagePreview.src = e.target.result;
+                            // Uncheck the remove checkbox if a new file is selected
+                            const removeCheckbox = document.getElementById('removeImage');
+                            if (removeCheckbox) removeCheckbox.checked = false;
+                        };
+                        reader.readAsDataURL(file);
                     }
                 });
-            });
+
+                if (removeImageBtn) {
+                    removeImageBtn.addEventListener('click', function() {
+                        fileInput.value = '';
+                        if (previewImage) previewImage.style.display = 'none';
+                        if (uploadPreview) uploadPreview.style.display = 'block';
+                    });
+                }
+
+                uploadArea.addEventListener('dragover', function(e) {
+                    e.preventDefault();
+                    uploadArea.classList.add('dragover');
+                });
+                uploadArea.addEventListener('dragleave', function(e) {
+                    uploadArea.classList.remove('dragover');
+                });
+                uploadArea.addEventListener('drop', function(e) {
+                    e.preventDefault();
+                    uploadArea.classList.remove('dragover');
+                    const files = e.dataTransfer.files;
+                    if (files.length > 0) {
+                        fileInput.files = files;
+                        const changeEvent = new Event('change', { bubbles: true });
+                        fileInput.dispatchEvent(changeEvent);
+                    }
+                });
+            }
+
+            // Handle remove image checkbox
+            const removeCheckbox = document.getElementById('removeImage');
+            if (removeCheckbox) {
+                removeCheckbox.addEventListener('change', function() {
+                    if (this.checked) {
+                        if (confirm('Are you sure you want to remove the test image? This cannot be undone.')) {
+                            fileInput.value = '';
+                            if (previewImage) previewImage.style.display = 'none';
+                            if (uploadPreview) uploadPreview.style.display = 'block';
+                        } else {
+                            this.checked = false;
+                        }
+                    }
+                });
+            }
+
+            // Auto-fill day limits
+            const defaultLimit = document.getElementById('defaultLimit');
+            const dayInputs = document.querySelectorAll('input[id$="Limit"]:not(#defaultLimit)');
+            if (defaultLimit) {
+                defaultLimit.addEventListener('input', function() {
+                    const defaultValue = this.value;
+                    dayInputs.forEach(input => {
+                        if (!input.value || input.value === '0') {
+                            input.value = defaultValue;
+                        }
+                    });
+                });
+            }
         });
     </script>
 }
-
 <style>
     /* ========== MODERN STYLES (same as other admin pages) ========== */
     .dashboard-wrapper {

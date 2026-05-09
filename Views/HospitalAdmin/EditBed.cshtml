@@ -208,84 +208,71 @@
 @section Scripts {
     <partial name="_ValidationScriptsPartial" />
     <script>
-        $(document).ready(function() {
-            // Remove any client-side required validation for ImageFile
-            $("#ImageFile").removeAttr("data-val-required");
-            $("#ImageFile").removeAttr("data-val");
+        document.addEventListener('DOMContentLoaded', function() {
+            const uploadArea = document.getElementById('imageUploadArea'); // adjust ID if different
+            const fileInput = document.getElementById('ImageFile');
+            const uploadPreview = document.getElementById('uploadPreview');
+            const previewImage = document.getElementById('previewImage');
+            const bedImagePreview = document.getElementById('bedImagePreview');
+            const removeImageBtn = document.querySelector('.remove-image');
 
-            // Image upload functionality
-            const uploadArea = $('#imageUploadArea');
-            const fileInput = $('#ImageFile');
-            const previewContainer = $('#previewImage');
-            const previewImg = $('#bedImagePreview');
-            const uploadPreview = $('#uploadPreview');
+            // If your edit view uses different element IDs, adjust accordingly.
+            // Common IDs: imageUploadArea, ImageFile, uploadPreview, previewImage, bedImagePreview
 
-            uploadArea.on('click', function() {
-                fileInput.click();
-            });
+            if (uploadArea && fileInput) {
+                uploadArea.addEventListener('click', function(e) {
+                    e.stopPropagation();
+                    fileInput.click();
+                });
 
-            fileInput.on('change', function(event) {
-                const file = event.target.files[0];
-                if (file) {
-                    const reader = new FileReader();
-                    reader.onload = function(e) {
-                        uploadPreview.hide();
-                        previewContainer.show();
-                        previewImg.attr('src', e.target.result);
-                        // If a new image is selected, uncheck remove image checkbox
-                        $('#removeImage').prop('checked', false);
-                    };
-                    reader.readAsDataURL(file);
-                }
-            });
-
-            $('.remove-image').on('click', function() {
-                fileInput.val('');
-                previewContainer.hide();
-                uploadPreview.show();
-            });
-
-            // Drag and drop
-            uploadArea.on('dragover', function(e) {
-                e.preventDefault();
-                $(this).addClass('dragover');
-            });
-            uploadArea.on('dragleave', function(e) {
-                $(this).removeClass('dragover');
-            });
-            uploadArea.on('drop', function(e) {
-                e.preventDefault();
-                $(this).removeClass('dragover');
-                const files = e.originalEvent.dataTransfer.files;
-                if (files.length > 0) {
-                    fileInput.prop('files', files);
-                    fileInput.trigger('change');
-                }
-            });
-
-            // Handle remove image checkbox
-            $("#removeImage").on("change", function() {
-                if ($(this).is(":checked")) {
-                    if (!confirm("Are you sure you want to remove the bed image? This cannot be undone.")) {
-                        $(this).prop("checked", false);
-                    } else {
-                        // Clear any selected new file
-                        fileInput.val("");
-                        previewContainer.hide();
-                        uploadPreview.show();
+                fileInput.addEventListener('change', function(event) {
+                    const file = event.target.files[0];
+                    if (file) {
+                        const reader = new FileReader();
+                        reader.onload = function(e) {
+                            if (uploadPreview) uploadPreview.style.display = 'none';
+                            if (previewImage) previewImage.style.display = 'flex';
+                            if (bedImagePreview) bedImagePreview.src = e.target.result;
+                        };
+                        reader.readAsDataURL(file);
                     }
-                }
-            });
+                });
 
-            // If a new file is selected, uncheck remove image checkbox
-            fileInput.on("change", function() {
-                if ($(this).val() !== "") {
-                    $("#removeImage").prop("checked", false);
+                // Remove image button
+                if (removeImageBtn) {
+                    removeImageBtn.addEventListener('click', function() {
+                        fileInput.value = '';
+                        if (previewImage) previewImage.style.display = 'none';
+                        if (uploadPreview) uploadPreview.style.display = 'block';
+                        // Optionally, also trigger the "removeImage" checkbox if present
+                        const removeCheckbox = document.getElementById('removeImage');
+                        if (removeCheckbox) removeCheckbox.checked = true;
+                    });
                 }
-            });
+
+                // Drag and drop
+                uploadArea.addEventListener('dragover', function(e) {
+                    e.preventDefault();
+                    uploadArea.classList.add('dragover');
+                });
+                uploadArea.addEventListener('dragleave', function(e) {
+                    uploadArea.classList.remove('dragover');
+                });
+                uploadArea.addEventListener('drop', function(e) {
+                    e.preventDefault();
+                    uploadArea.classList.remove('dragover');
+                    const files = e.dataTransfer.files;
+                    if (files.length > 0) {
+                        fileInput.files = files;
+                        const changeEvent = new Event('change', { bubbles: true });
+                        fileInput.dispatchEvent(changeEvent);
+                    }
+                });
+            }
         });
     </script>
 }
+
 
 <style>
     /* ========== MODERN STYLES (same as Add Bed page) ========== */

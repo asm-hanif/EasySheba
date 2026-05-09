@@ -7,7 +7,16 @@
 
 @{
     ViewData["Title"] = "Find Doctors | EasySheba";
-    var today = DateTime.Today;
+
+    // Get date from query string, default to today
+    var dateParam = Context.Request.Query["date"].ToString();
+    DateTime selectedDate;
+    if (!DateTime.TryParse(dateParam, out selectedDate))
+    {
+        selectedDate = DateTime.Today;
+    }
+    // Optional: restrict to today or future only? We'll allow any date.
+    var today = selectedDate;
 }
 
 <!-- ================= MODERN DOCTOR PAGE ================= -->
@@ -21,7 +30,7 @@
         </div>
         <div class="hero-content-modern">
             <div class="hero-tag">
-                <span class="pulse-dot"></span> 150+ Expert Doctors
+                <span class="pulse-dot"></span> @Model.Count() Expert Doctors
             </div>
             <h1 class="hero-heading">
                 Find Your <span class="green-glow">Perfect</span> Doctor
@@ -30,7 +39,7 @@
                 Connect with trusted specialists. Book appointments in seconds.
             </p>
             
-            <!-- Search Bar - Clean & Minimal -->
+            <!-- Search Bar - with Date Picker -->
             <div class="search-bar-modern">
                 <div class="search-row">
                     <div class="search-field">
@@ -38,24 +47,55 @@
                         <input type="text" id="searchDoctor" placeholder="Doctor name..." autocomplete="off">
                     </div>
                     <div class="search-field">
-                        <i class="fas fa-stethoscope"></i>
-                        <select id="filterSpecialist">
-                            <option value="">All Specialties</option>
-                            <option>Cardiology</option>
-                            <option>Neurology</option>
-                            <option>Orthopedics</option>
-                            <option>Pediatrics</option>
-                            <option>Gynecology</option>
-                            <option>Dermatology</option>
-                            <option>Ophthalmology</option>
-                            <option>Dentistry</option>
-                        </select>
-                    </div>
+    <i class="fas fa-stethoscope"></i>
+    <select id="filterSpecialist">
+        <option value="">All Specialties</option>
+        <option>Cardiology</option>
+        <option>Cancer</option>
+        <option>Neurology</option>
+        <option>Orthopedics</option>
+        <option>Pediatrics</option>
+        <option>Gynecology</option>
+        <option>Dermatology</option>
+        <option>Ophthalmology</option>
+        <option>Dentistry</option>
+        <option>Psychiatry</option>
+        <option>General Medicine</option>
+        <option>Gastroenterology</option>
+        <option>Pulmonology</option>
+        <option>Nephrology</option>
+        <option>Urology</option>
+        <option>Endocrinology</option>
+        <option>Rheumatology</option>
+        <option>Oncology</option>
+        <option>Hematology</option>
+        <option>Infectious Disease</option>
+        <option>Allergy & Immunology</option>
+        <option>Anesthesiology</option>
+        <option>Radiology</option>
+        <option>Pathology</option>
+        <option>Emergency Medicine</option>
+        <option>Family Medicine</option>
+        <option>Geriatrics</option>
+        <option>Sports Medicine</option>
+        <option>Plastic Surgery</option>
+        <option>Cardiothoracic Surgery</option>
+        <option>Neurosurgery</option>
+        <option>Vascular Surgery</option>
+        <option>Otolaryngology (ENT)</option>
+        <option>Physical Medicine & Rehabilitation</option>
+        <option>Preventive Medicine</option>
+    </select>
+</div>
                     <div class="search-field">
                         <i class="fas fa-calendar-day"></i>
+                        <input type="date" id="datePicker" value="@today.ToString("yyyy-MM-dd")" min="@DateTime.Today.ToString("yyyy-MM-dd")">
+                    </div>
+                    <div class="search-field">
+                        <i class="fas fa-filter"></i>
                         <select id="filterAvailability">
-                            <option value="">Any Time</option>
-                            <option value="available">Available Today</option>
+                            <option value="">Any Availability</option>
+                            <option value="available">Available</option>
                             <option value="limited">Limited Slots</option>
                             <option value="booked">Fully Booked</option>
                         </select>
@@ -92,7 +132,7 @@
         <div class="stats-toolbar">
             <div class="stats-bubbles">
                 <div class="stat-bubble"><i class="fas fa-user-md"></i> <span>@Model.Count()</span> Doctors</div>
-                <div class="stat-bubble"><i class="fas fa-calendar-check"></i> Today Available</div>
+                <div class="stat-bubble"><i class="fas fa-calendar-check"></i> Showing availability for @today.ToString("dd MMM yyyy")</div>
                 <div class="stat-bubble"><i class="fas fa-clock"></i> Real-time Slots</div>
             </div>
             <button id="refreshBtn" class="refresh-modern">
@@ -248,7 +288,7 @@
                                 else if (isAvailableToday && availableSlots <= 0)
                                 {
                                     <button class="book-btn-modern disabled" disabled>
-                                        <i class="fas fa-clock"></i> Sold Out Today
+                                        <i class="fas fa-clock"></i> Sold Out
                                     </button>
                                 }
                                 else
@@ -259,16 +299,16 @@
                                 }
                             </div>
 
-                            <!-- Tomorrow Hint -->
+                            <!-- Next Available Hint (if not available today) -->
                             @if (!isAvailableToday)
                             {
-                                var tomorrow = DateTime.Today.AddDays(1);
-                                var tomorrowDayName = tomorrow.DayOfWeek.ToString();
-                                var tomorrowAvailable = doctor.AvailableDays?.Contains(tomorrowDayName) == true;
-                                if (tomorrowAvailable)
+                                var nextDay = today.AddDays(1);
+                                var nextDayName = nextDay.DayOfWeek.ToString();
+                                var nextAvailable = doctor.AvailableDays?.Contains(nextDayName) == true;
+                                if (nextAvailable)
                                 {
                                     <div class="tomorrow-hint">
-                                        <i class="fas fa-sun"></i> Available from tomorrow
+                                        <i class="fas fa-sun"></i> Available from @nextDay.ToString("dd MMM")
                                     </div>
                                 }
                             }
@@ -294,22 +334,30 @@
 @section Scripts {
     <script>
         $(document).ready(function() {
+            $('#datePicker').on('change', function() {
+                var selectedDate = $(this).val();
+                var url = new URL(window.location.href);
+                url.searchParams.set('date', selectedDate);
+                window.location.href = url.toString();
+            });
+
             function filterDoctors() {
-                var searchText = $("#searchDoctor").val().toLowerCase();
-                var specialist = $("#filterSpecialist").val().toLowerCase();
+                var searchText = $("#searchDoctor").val().toLowerCase().trim();
+                var specialist = $("#filterSpecialist").val().toLowerCase().trim();
                 var availability = $("#filterAvailability").val();
 
                 $(".doctor-card-modern").each(function() {
-                    var name = $(this).data("name");
-                    var docSpecialist = $(this).data("specialist");
-                    var available = parseInt($(this).data("available"));
+                    var name = ($(this).data("name") || "").toLowerCase().trim();
+                    var docSpecialist = ($(this).data("specialist") || "").toLowerCase().trim();
+                    var available = parseInt($(this).data("available")) || 0;
                     
                     var statusElement = $(this).find('.status-indicator');
                     var statusText = statusElement.text().toLowerCase();
                     var isNotAvailable = statusText.includes('off') || statusText.includes('not');
-                    var isFullyBooked = statusText.includes('full') || statusText.includes('booked');
+                    var isFullyBooked = statusText.includes('full') || statusText.includes('sold');
 
                     var nameMatch = name.includes(searchText);
+                    // Use includes() so "General Medicine" matches "General Medicine (MD)"
                     var specialistMatch = specialist === "" || docSpecialist.includes(specialist);
 
                     var availabilityMatch = false;
@@ -321,6 +369,11 @@
                         availabilityMatch = !isNotAvailable && !isFullyBooked && available > 0 && available <= 3;
                     } else if (availability === "booked") {
                         availabilityMatch = isFullyBooked || available <= 0;
+                    }
+
+                    // Debug: log specialist values if not matching (remove in production)
+                    if (specialist !== "" && !specialistMatch) {
+                        console.log("Selected:", specialist, "Doctor's:", docSpecialist);
                     }
 
                     if (nameMatch && specialistMatch && availabilityMatch) {
@@ -338,14 +391,9 @@
             $("#refreshBtn").on("click", function() {
                 location.reload();
             });
-
-            setInterval(function() {
-                location.reload();
-            }, 30000);
         });
     </script>
 }
-
 <style>
     /* ================= MODERN REDESIGN ================= */
     /* Keeping original green color scheme (#16a34a) with fresh modern style */

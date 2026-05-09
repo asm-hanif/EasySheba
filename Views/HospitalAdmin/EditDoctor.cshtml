@@ -82,25 +82,50 @@
                                 <span asp-validation-for="Name" class="validation-error"></span>
                             </div>
                             <div class="col-md-6 mb-4">
-                                <label asp-for="Department" class="form-label">Department <span class="required">*</span></label>
-                                <div class="input-group">
-                                    <span class="input-icon"><i class="fas fa-building"></i></span>
-                                    <select asp-for="Department" class="form-control">
-                                        <option value="">-- Select Department --</option>
-                                        <option>Cardiology</option>
-                                        <option>Neurology</option>
-                                        <option>Orthopedics</option>
-                                        <option>Pediatrics</option>
-                                        <option>Gynecology</option>
-                                        <option>Dermatology</option>
-                                        <option>Ophthalmology</option>
-                                        <option>Dentistry</option>
-                                        <option>Psychiatry</option>
-                                        <option>General Medicine</option>
-                                    </select>
-                                </div>
-                                <span asp-validation-for="Department" class="validation-error"></span>
-                            </div>
+    <label asp-for="Department" class="form-label">Department <span class="required">*</span></label>
+    <div class="input-group">
+        <span class="input-icon"><i class="fas fa-building"></i></span>
+        <select asp-for="Department" class="form-control">
+            <option value="">-- Select Department --</option>
+            <option>Cardiology</option>
+            <option>Cancer</option>
+            <option>Neurology</option>
+            <option>Orthopedics</option>
+            <option>Pediatrics</option>
+            <option>Gynecology</option>
+            <option>Dermatology</option>
+            <option>Ophthalmology</option>
+            <option>Dentistry</option>
+            <option>Psychiatry</option>
+            <option>General Medicine</option>
+            <option>Gastroenterology</option>
+            <option>Pulmonology</option>
+            <option>Nephrology</option>
+            <option>Urology</option>
+            <option>Endocrinology</option>
+            <option>Rheumatology</option>
+            <option>Oncology</option>
+            <option>Hematology</option>
+            <option>Infectious Disease</option>
+            <option>Allergy & Immunology</option>
+            <option>Anesthesiology</option>
+            <option>Radiology</option>
+            <option>Pathology</option>
+            <option>Emergency Medicine</option>
+            <option>Family Medicine</option>
+            <option>Geriatrics</option>
+            <option>Sports Medicine</option>
+            <option>Plastic Surgery</option>
+            <option>Cardiothoracic Surgery</option>
+            <option>Neurosurgery</option>
+            <option>Vascular Surgery</option>
+            <option>Otolaryngology (ENT)</option>
+            <option>Physical Medicine & Rehabilitation</option>
+            <option>Preventive Medicine</option>
+        </select>
+    </div>
+    <span asp-validation-for="Department" class="validation-error"></span>
+</div>
                             <div class="col-md-6 mb-4">
                                 <label asp-for="Degrees" class="form-label">Medical Degrees <span class="required">*</span></label>
                                 <div class="input-group">

@@ -3,7 +3,7 @@
 <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>@ViewData["Title"] - EasySheba</title>
+    <title>@ViewData["Title"]</title>
 
     <link rel="icon" type="image/x-icon" href="/images/easysheba-logo.png">
 
@@ -236,10 +236,45 @@
                 color: #16a34a;
             }
 
+            /* ===== SCROLL TO TOP BUTTON ===== */
+            .scroll-to-top {
+                position: fixed;
+                bottom: 30px;
+                right: 30px;
+                width: 50px;
+                height: 50px;
+                background: #16a34a;
+                color: white;
+                border: none;
+                border-radius: 50%;
+                cursor: pointer;
+                display: none;
+                align-items: center;
+                justify-content: center;
+                font-size: 24px;
+                transition: all 0.3s ease;
+                z-index: 999;
+                box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+            }
+
+                .scroll-to-top:hover {
+                    background: #15803d;
+                    transform: translateY(-3px);
+                    box-shadow: 0 6px 16px rgba(0,0,0,0.2);
+                }
+
             /* ===== RESPONSIVE ===== */
             @@media (max-width: 768px) {
                 .search-popup {
                     margin: 50px 15px;
+                }
+
+                .scroll-to-top {
+                    bottom: 20px;
+                    right: 20px;
+                    width: 40px;
+                    height: 40px;
+                    font-size: 18px;
                 }
             }
     </style>
@@ -286,7 +321,7 @@
                         <!-- Services Dropdown -->
                         <li class="nav-item dropdown">
                             <a class="nav-link dropdown-toggle" href="#" role="button"
-                               data-bs-toggle="dropdown">
+                                   data-bs-toggle="dropdown">
                                 Services
                             </a>
                             <ul class="dropdown-menu">
@@ -329,7 +364,7 @@
 
                             <li class="nav-item dropdown">
                                 <a class="nav-link dropdown-toggle" href="#" role="button"
-                                   data-bs-toggle="dropdown">
+                                       data-bs-toggle="dropdown">
                                     Services
                                 </a>
                                 <ul class="dropdown-menu">
@@ -424,6 +459,11 @@
         </div>
     </div>
 
+    <!-- ===== SCROLL TO TOP BUTTON ===== -->
+    <button onclick="scrollToTop()" class="scroll-to-top" id="scrollToTopBtn" title="Go to top">
+        <i class="fas fa-arrow-up"></i>
+    </button>
+
     <!-- ===== PAGE CONTENT - NO MARGIN, NO PADDING ===== -->
     <main class="section-bg py-4" style="min-height: 60vh;">
         <div class="container">
@@ -476,101 +516,124 @@
 
     <!-- Search Functionality Script - FIXED -->
     <script>
-        $(document).ready(function() {
-            // Search Toggle
-            $("#searchToggle").click(function(e) {
-                e.preventDefault();
-                $(".search-overlay").fadeIn(300);
-                setTimeout(() => $("#globalSearchInput").focus(), 300);
-            });
+            $(document).ready(function() {
+                // Search Toggle
+                $("#searchToggle").click(function(e) {
+                    e.preventDefault();
+                    $(".search-overlay").fadeIn(300);
+                    setTimeout(() => $("#globalSearchInput").focus(), 300);
+                });
 
-            $("#searchClose, .search-overlay").click(function(e) {
-                if (e.target === this || $(e.target).hasClass('btn-close')) {
-                    $(".search-overlay").fadeOut(300);
-                    $("#globalSearchInput").val('');
-                    $("#searchResults").hide();
+                $("#searchClose, .search-overlay").click(function(e) {
+                    if (e.target === this || $(e.target).hasClass('btn-close')) {
+                        $(".search-overlay").fadeOut(300);
+                        $("#globalSearchInput").val('');
+                        $("#searchResults").hide();
+                    }
+                });
+
+                $(".search-popup").click(function(e) {
+                    e.stopPropagation();
+                });
+
+                // Live Search
+                let searchTimer;
+                $("#globalSearchInput").on("keyup", function() {
+                    clearTimeout(searchTimer);
+                    var query = $(this).val();
+
+                    if (query.length < 2) {
+                        $("#searchResults").hide();
+                        return;
+                    }
+
+                    searchTimer = setTimeout(function() {
+                        $.ajax({
+                            url: '/Search/GlobalSearch',
+                            type: 'GET',
+                            data: { query: query },
+                            success: function(data) {
+                                let html = '<div class="search-results-list">';
+
+                                if (data.doctors && data.doctors.length > 0) {
+                                    html += '<h6 class="mt-2 mb-2"><i class="fas fa-user-md"></i> Doctors</h6>';
+                                    data.doctors.forEach(function(item) {
+                                        html += `<a href="/Doctor" class="result-item">
+                                                    <span class="result-title">Dr. ${item.name}</span>
+                                                    <span class="result-subtitle">${item.specialist}</span>
+                                                </a>`;
+                                    });
+                                }
+
+                                if (data.tests && data.tests.length > 0) {
+                                    html += '<h6 class="mt-3 mb-2"><i class="fas fa-flask"></i> Medical Tests</h6>';
+                                    data.tests.forEach(function(item) {
+                                        html += `<a href="/MedicalTest" class="result-item">
+                                                    <span class="result-title">${item.testName}</span>
+                                                    <span class="result-subtitle">${item.hospitalName}</span>
+                                                </a>`;
+                                    });
+                                }
+
+                                if (data.beds && data.beds.length > 0) {
+                                    html += '<h6 class="mt-3 mb-2"><i class="fas fa-bed"></i> Beds</h6>';
+                                    data.beds.forEach(function(item) {
+                                        html += `<a href="/Bed" class="result-item">
+                                                    <span class="result-title">${item.bedType}</span>
+                                                    <span class="result-subtitle">${item.hospitalName}</span>
+                                                </a>`;
+                                    });
+                                }
+
+                                if ((!data.doctors || data.doctors.length === 0) &&
+                                    (!data.tests || data.tests.length === 0) &&
+                                    (!data.beds || data.beds.length === 0)) {
+                                    html += '<p class="text-muted text-center py-3">No results found</p>';
+                                }
+
+                                html += '</div>';
+                                $("#searchResults").html(html).show();
+                            },
+                            error: function(xhr, status, error) {
+                                console.log("Search error: " + error);
+                                $("#searchResults").html('<p class="text-danger text-center py-3">Search temporarily unavailable</p>').show();
+                            }
+                        });
+                    }, 300);
+                });
+
+                // Close search on Escape key
+                $(document).keyup(function(e) {
+                    if (e.key === "Escape") {
+                        $(".search-overlay").fadeOut(300);
+                        $("#globalSearchInput").val('');
+                        $("#searchResults").hide();
+                    }
+                });
+            });
+    </script>
+
+    <!-- Scroll to Top Script -->
+    <script>
+            // Get the button
+            var scrollBtn = document.getElementById("scrollToTopBtn");
+
+            // Show/hide button based on scroll position
+            window.onscroll = function() {
+                if (document.body.scrollTop > 300 || document.documentElement.scrollTop > 300) {
+                    scrollBtn.style.display = "flex";
+                } else {
+                    scrollBtn.style.display = "none";
                 }
-            });
+            };
 
-            $(".search-popup").click(function(e) {
-                e.stopPropagation();
-            });
-
-            // Live Search
-            let searchTimer;
-            $("#globalSearchInput").on("keyup", function() {
-                clearTimeout(searchTimer);
-                var query = $(this).val();
-
-                if (query.length < 2) {
-                    $("#searchResults").hide();
-                    return;
-                }
-
-                searchTimer = setTimeout(function() {
-                    $.ajax({
-                        url: '/Search/GlobalSearch',
-                        type: 'GET',
-                        data: { query: query },
-                        success: function(data) {
-                            let html = '<div class="search-results-list">';
-
-                            if (data.doctors && data.doctors.length > 0) {
-                                html += '<h6 class="mt-2 mb-2"><i class="fas fa-user-md"></i> Doctors</h6>';
-                                data.doctors.forEach(function(item) {
-                                    html += `<a href="/Doctor" class="result-item">
-                                                <span class="result-title">Dr. ${item.name}</span>
-                                                <span class="result-subtitle">${item.specialist}</span>
-                                            </a>`;
-                                });
-                            }
-
-                            if (data.tests && data.tests.length > 0) {
-                                html += '<h6 class="mt-3 mb-2"><i class="fas fa-flask"></i> Medical Tests</h6>';
-                                data.tests.forEach(function(item) {
-                                    html += `<a href="/MedicalTest" class="result-item">
-                                                <span class="result-title">${item.testName}</span>
-                                                <span class="result-subtitle">${item.hospitalName}</span>
-                                            </a>`;
-                                });
-                            }
-
-                            if (data.beds && data.beds.length > 0) {
-                                html += '<h6 class="mt-3 mb-2"><i class="fas fa-bed"></i> Beds</h6>';
-                                data.beds.forEach(function(item) {
-                                    html += `<a href="/Bed" class="result-item">
-                                                <span class="result-title">${item.bedType}</span>
-                                                <span class="result-subtitle">${item.hospitalName}</span>
-                                            </a>`;
-                                });
-                            }
-
-                            if ((!data.doctors || data.doctors.length === 0) &&
-                                (!data.tests || data.tests.length === 0) &&
-                                (!data.beds || data.beds.length === 0)) {
-                                html += '<p class="text-muted text-center py-3">No results found</p>';
-                            }
-
-                            html += '</div>';
-                            $("#searchResults").html(html).show();
-                        },
-                        error: function(xhr, status, error) {
-                            console.log("Search error: " + error);
-                            $("#searchResults").html('<p class="text-danger text-center py-3">Search temporarily unavailable</p>').show();
-                        }
-                    });
-                }, 300);
-            });
-
-            // Close search on Escape key
-            $(document).keyup(function(e) {
-                if (e.key === "Escape") {
-                    $(".search-overlay").fadeOut(300);
-                    $("#globalSearchInput").val('');
-                    $("#searchResults").hide();
-                }
-            });
-        });
+            // Scroll to top function
+            function scrollToTop() {
+                window.scrollTo({
+                    top: 0,
+                    behavior: "smooth"
+                });
+            }
     </script>
 
     @RenderSection("Scripts", required: false)

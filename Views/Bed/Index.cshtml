@@ -2,6 +2,15 @@
 
 @{
     ViewData["Title"] = "Find Beds | EasySheba";
+
+    // Get date from query string, default to today
+    var dateParam = Context.Request.Query["date"].ToString();
+    DateTime selectedDate;
+    if (!DateTime.TryParse(dateParam, out selectedDate))
+    {
+        selectedDate = DateTime.Today;
+    }
+    var today = selectedDate;
 }
 
 <div class="doctor-page-wrapper">
@@ -14,7 +23,7 @@
         </div>
         <div class="hero-content-modern">
             <div class="hero-tag">
-                <span class="pulse-dot"></span> 50+ Hospitals
+                 <span class="pulse-dot"></span> @Model.Sum(b => b.TotalBeds ?? 0) Total Beds
             </div>
             <h1 class="hero-heading">
                 Find Your <span class="green-glow">Perfect Bed</span>
@@ -22,7 +31,7 @@
             <p class="hero-subheading">
                 Comfortable rooms, affordable prices. Book instantly.
             </p>
-            <!-- Search Bar -->
+            <!-- Search Bar with Date Picker -->
             <div class="search-bar-modern">
                 <div class="search-row">
                     <div class="search-field">
@@ -31,9 +40,13 @@
                     </div>
                     <div class="search-field">
                         <i class="fas fa-calendar-day"></i>
+                        <input type="date" id="datePicker" value="@today.ToString("yyyy-MM-dd")" min="@DateTime.Today.ToString("yyyy-MM-dd")">
+                    </div>
+                    <div class="search-field">
+                        <i class="fas fa-filter"></i>
                         <select id="filterAvailability">
                             <option value="">Any Availability</option>
-                            <option value="available">Available Today</option>
+                            <option value="available">Available</option>
                             <option value="booked">Fully Booked</option>
                         </select>
                     </div>
@@ -69,7 +82,7 @@
         <div class="stats-toolbar">
             <div class="stats-bubbles">
                 <div class="stat-bubble"><i class="fas fa-bed"></i> <span>@Model.Count()</span> Bed Types</div>
-                <div class="stat-bubble"><i class="fas fa-hospital"></i> Hospitals</div>
+                <div class="stat-bubble"><i class="fas fa-calendar-check"></i> Availability for @today.ToString("dd MMM yyyy")</div>
                 <div class="stat-bubble"><i class="fas fa-chart-line"></i> Real-time Availability</div>
             </div>
             <button id="refreshBtn" class="refresh-modern">
@@ -145,7 +158,7 @@
                                 @if (isAvailable)
                                 {
                                     <a asp-controller="Appointment" asp-action="BookBed" asp-route-bedId="@bed.Id"
-                                           class="book-btn-modern">
+                                       class="book-btn-modern">
                                         <i class="fas fa-calendar-check"></i> Book Now
                                         <i class="fas fa-arrow-right arrow-icon"></i>
                                     </a>
@@ -179,6 +192,14 @@
 @section Scripts {
     <script>
         $(document).ready(function() {
+            // Date picker change reloads page with selected date
+            $('#datePicker').on('change', function() {
+                var selectedDate = $(this).val();
+                var url = new URL(window.location.href);
+                url.searchParams.set('date', selectedDate);
+                window.location.href = url.toString();
+            });
+
             function filterBeds() {
                 var searchText = $("#searchBed").val().toLowerCase();
                 var availability = $("#filterAvailability").val();
@@ -215,6 +236,7 @@
     </script>
 }
 
+<!-- The <style> section remains unchanged from your original -->
 <!-- ========== COPY THE ENTIRE STYLE FROM Doctor/Index.cshtml HERE ========== -->
 <style>
     /* ================= MODERN REDESIGN ================= */

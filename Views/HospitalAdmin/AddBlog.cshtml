@@ -141,122 +141,128 @@
 @section Scripts {
     <partial name="_ValidationScriptsPartial" />
     <script>
-        $(document).ready(function() {
-            // Cover image upload functionality
-            setupFileUpload('coverUploadArea', 'CoverImageFile', 'coverPreviewImage', 'coverImagePreview');
+        document.addEventListener('DOMContentLoaded', function() {
+            // Cover image upload
+            const coverArea = document.getElementById('coverUploadArea');
+            const coverInput = document.getElementById('CoverImageFile');
+            const coverUploadPreview = document.getElementById('coverUploadPreview');
+            const coverPreviewImage = document.getElementById('coverPreviewImage');
+            const coverImg = document.getElementById('coverImagePreview');
+            const removeCoverBtn = coverPreviewImage ? coverPreviewImage.querySelector('.remove-image') : null;
 
-            // Additional media upload functionality (multiple files)
-            setupMediaUpload();
-
-            function setupFileUpload(uploadAreaId, fileInputId, previewContainerId, previewImgId) {
-                const uploadArea = $('#' + uploadAreaId);
-                const fileInput = $('#' + fileInputId);
-                const previewContainer = $('#' + previewContainerId);
-                const previewImg = $('#' + previewImgId);
-
-                uploadArea.on('click', function() {
-                    fileInput.click();
+            if (coverArea && coverInput) {
+                coverArea.addEventListener('click', function(e) {
+                    e.stopPropagation();
+                    coverInput.click();
                 });
 
-                fileInput.on('change', function(event) {
+                coverInput.addEventListener('change', function(event) {
                     const file = event.target.files[0];
                     if (file) {
                         const reader = new FileReader();
                         reader.onload = function(e) {
-                            uploadArea.find('.upload-preview').hide();
-                            previewContainer.show();
-                            previewImg.attr('src', e.target.result);
+                            if (coverUploadPreview) coverUploadPreview.style.display = 'none';
+                            if (coverPreviewImage) coverPreviewImage.style.display = 'flex';
+                            if (coverImg) coverImg.src = e.target.result;
                         };
                         reader.readAsDataURL(file);
                     }
                 });
 
-                // Remove image
-                previewContainer.find('.remove-image').on('click', function() {
-                    fileInput.val('');
-                    previewContainer.hide();
-                    uploadArea.find('.upload-preview').show();
-                });
+                if (removeCoverBtn) {
+                    removeCoverBtn.addEventListener('click', function() {
+                        coverInput.value = '';
+                        if (coverPreviewImage) coverPreviewImage.style.display = 'none';
+                        if (coverUploadPreview) coverUploadPreview.style.display = 'block';
+                    });
+                }
 
-                // Drag and drop
-                uploadArea.on('dragover', function(e) {
+                coverArea.addEventListener('dragover', function(e) {
                     e.preventDefault();
-                    $(this).addClass('dragover');
+                    coverArea.classList.add('dragover');
                 });
-                uploadArea.on('dragleave', function(e) {
-                    $(this).removeClass('dragover');
+                coverArea.addEventListener('dragleave', function(e) {
+                    coverArea.classList.remove('dragover');
                 });
-                uploadArea.on('drop', function(e) {
+                coverArea.addEventListener('drop', function(e) {
                     e.preventDefault();
-                    $(this).removeClass('dragover');
-                    const files = e.originalEvent.dataTransfer.files;
+                    coverArea.classList.remove('dragover');
+                    const files = e.dataTransfer.files;
                     if (files.length > 0) {
-                        fileInput.prop('files', files);
-                        fileInput.trigger('change');
+                        coverInput.files = files;
+                        const changeEvent = new Event('change', { bubbles: true });
+                        coverInput.dispatchEvent(changeEvent);
                     }
                 });
             }
 
-            function setupMediaUpload() {
-                const mediaArea = $('#mediaUploadArea');
-                const mediaInput = $('#MediaFiles');
-                const mediaPreviews = $('#mediaPreviews');
+            // Additional media upload (multiple files)
+            const mediaArea = document.getElementById('mediaUploadArea');
+            const mediaInput = document.getElementById('MediaFiles');
+            const mediaPreviews = document.getElementById('mediaPreviews');
 
-                mediaArea.on('click', function() {
+            if (mediaArea && mediaInput) {
+                mediaArea.addEventListener('click', function(e) {
+                    e.stopPropagation();
                     mediaInput.click();
                 });
 
-                mediaInput.on('change', function(event) {
+                mediaInput.addEventListener('change', function(event) {
                     const files = event.target.files;
                     if (files.length > 0) {
-                        mediaArea.find('.upload-preview').hide();
-                        mediaPreviews.show().empty();
+                        const uploadPreviewDiv = mediaArea.querySelector('.upload-preview');
+                        if (uploadPreviewDiv) uploadPreviewDiv.style.display = 'none';
+                        if (mediaPreviews) mediaPreviews.style.display = 'grid';
+                        mediaPreviews.innerHTML = '';
                         for (let i = 0; i < files.length; i++) {
                             const file = files[i];
                             const reader = new FileReader();
                             reader.onload = (function(f) {
                                 return function(e) {
-                                    const previewItem = $('<div class="media-preview-item"></div>');
+                                    const previewItem = document.createElement('div');
+                                    previewItem.className = 'media-preview-item';
                                     if (f.type.startsWith('image/')) {
-                                        previewItem.html(`<img src="${e.target.result}" alt="${f.name}"><span class="filename">${f.name}</span><button type="button" class="remove-media" data-index="${i}"><i class="fas fa-times"></i></button>`);
+                                        previewItem.innerHTML = `<img src="${e.target.result}" alt="${f.name}"><span class="filename">${f.name}</span><button type="button" class="remove-media" data-index="${i}"><i class="fas fa-times"></i></button>`;
                                     } else if (f.type.startsWith('video/')) {
-                                        previewItem.html(`<video controls><source src="${e.target.result}" type="${f.type}"></video><span class="filename">${f.name}</span><button type="button" class="remove-media" data-index="${i}"><i class="fas fa-times"></i></button>`);
+                                        previewItem.innerHTML = `<video controls><source src="${e.target.result}" type="${f.type}"></video><span class="filename">${f.name}</span><button type="button" class="remove-media" data-index="${i}"><i class="fas fa-times"></i></button>`;
                                     }
-                                    mediaPreviews.append(previewItem);
+                                    mediaPreviews.appendChild(previewItem);
                                 };
                             })(file);
                             reader.readAsDataURL(file);
                         }
                     } else {
-                        mediaPreviews.hide().empty();
-                        mediaArea.find('.upload-preview').show();
+                        if (mediaPreviews) mediaPreviews.style.display = 'none';
+                        const uploadPreviewDiv = mediaArea.querySelector('.upload-preview');
+                        if (uploadPreviewDiv) uploadPreviewDiv.style.display = 'block';
                     }
                 });
 
-                // Remove media item (this is more complex because we need to remove the file from the input's FileList)
-                // For simplicity, we'll just reload the input if user wants to remove all. But we can implement better.
-                $(document).on('click', '.remove-media', function() {
-                    // For this demo, we'll just reset the input and clear previews
-                    mediaInput.val('');
-                    mediaPreviews.hide().empty();
-                    mediaArea.find('.upload-preview').show();
+                mediaArea.addEventListener('dragover', function(e) {
+                    e.preventDefault();
+                    mediaArea.classList.add('dragover');
+                });
+                mediaArea.addEventListener('dragleave', function(e) {
+                    mediaArea.classList.remove('dragover');
+                });
+                mediaArea.addEventListener('drop', function(e) {
+                    e.preventDefault();
+                    mediaArea.classList.remove('dragover');
+                    const files = e.dataTransfer.files;
+                    if (files.length > 0) {
+                        mediaInput.files = files;
+                        const changeEvent = new Event('change', { bubbles: true });
+                        mediaInput.dispatchEvent(changeEvent);
+                    }
                 });
 
-                // Drag and drop for media
-                mediaArea.on('dragover', function(e) {
-                    e.preventDefault();
-                    $(this).addClass('dragover');
-                });
-                mediaArea.on('dragleave', function(e) {
-                    $(this).removeClass('dragover');
-                });
-                mediaArea.on('drop', function(e) {
-                    e.preventDefault();
-                    $(this).removeClass('dragover');
-                    const files = e.originalEvent.dataTransfer.files;
-                    if (files.length > 0) {
-                        mediaInput.prop('files', files);
-                        mediaInput.trigger('change');
+                // Remove all media when any remove button is clicked (simplified)
+                document.addEventListener('click', function(e) {
+                    if (e.target.closest('.remove-media')) {
+                        mediaInput.value = '';
+                        if (mediaPreviews) mediaPreviews.style.display = 'none';
+                        const uploadPreviewDiv = mediaArea.querySelector('.upload-preview');
+                        if (uploadPreviewDiv) uploadPreviewDiv.style.display = 'block';
                     }
                 });
             }

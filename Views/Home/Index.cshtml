@@ -45,15 +45,15 @@
 
             <div class="hero-stats">
                 <div class="stat-item">
-                    <div class="stat-number">150+</div>
+                    <div class="stat-number">@ViewBag.DoctorCount+</div>
                     <div class="stat-label">Specialist Doctors</div>
                 </div>
                 <div class="stat-item">
-                    <div class="stat-number">50+</div>
+                    <div class="stat-number">@ViewBag.HospitalCount+</div>
                     <div class="stat-label">Partner Hospitals</div>
                 </div>
                 <div class="stat-item">
-                    <div class="stat-number">5000+</div>
+                    <div class="stat-number">@ViewBag.PatientCount+</div>
                     <div class="stat-label">Happy Patients</div>
                 </div>
             </div>
@@ -98,7 +98,7 @@
                 <h3>Doctor Appointment</h3>
                 <p>Book your doctor appointment easily and securely. Get reminders and manage schedules effortlessly.</p>
                 <ul class="service-features">
-                    <li><i class="fas fa-check-circle"></i> 150+ Specialist Doctors</li>
+                    <li><i class="fas fa-check-circle"></i> @ViewBag.DoctorCount+ Specialist Doctors</li>
                     <li><i class="fas fa-check-circle"></i> Instant Booking System</li>
                     <li><i class="fas fa-check-circle"></i> No Waiting Hassle</li>
                 </ul>
@@ -213,14 +213,15 @@
     <script>
         function updateClock() {
             const now = new Date();
+            const hours = now.getHours();
+            let greeting = '';
+            if (hours >= 5 && hours < 12) greeting = 'Good Morning 🌅';
+            else if (hours >= 12 && hours < 17) greeting = 'Good Afternoon ☀️';
+            else if (hours >= 17 && hours < 21) greeting = 'Good Evening 🌙';
+            else greeting = 'Good Night 🌙';
+
             document.getElementById('clock').innerHTML = now.toLocaleTimeString();
             document.getElementById('date').innerHTML = now.toDateString();
-            
-            const hour = now.getHours();
-            let greeting = '';
-            if (hour < 12) greeting = 'Good Morning 🌅';
-            else if (hour < 17) greeting = 'Good Afternoon ☀️';
-            else greeting = 'Good Evening 🌙';
             document.getElementById('greeting').innerHTML = greeting;
         }
         updateClock();
@@ -249,13 +250,13 @@
         padding: 0 24px;
     }
 
-    /* Hero Section */
+    /* Hero Section - REDUCED TOP GAP */
     .hero-section {
         background: linear-gradient(135deg, #f8fafc 0%, #f1f5f9 100%);
-        padding: 80px 5%;
+        padding: 30px 5% 80px;
         position: relative;
         overflow: hidden;
-        min-height: 100vh;
+        min-height: auto;
         display: flex;
         align-items: center;
     }
@@ -278,7 +279,6 @@
         animation: floatIcon 20s ease-in-out infinite;
     }
 
-    /* Individual icon positions and animation delays */
     .hero-bg i:nth-child(1) { top: 15%; left: 5%; animation-duration: 18s; animation-delay: 0s; font-size: 40px; }
     .hero-bg i:nth-child(2) { top: 25%; left: 85%; animation-duration: 22s; animation-delay: 2s; font-size: 45px; }
     .hero-bg i:nth-child(3) { top: 70%; left: 12%; animation-duration: 20s; animation-delay: 1s; font-size: 38px; }
@@ -291,26 +291,11 @@
     .hero-bg i:nth-child(10) { top: 80%; left: 72%; animation-duration: 15s; animation-delay: 2s; font-size: 41px; }
 
     @@keyframes floatIcon {
-        0% {
-            transform: translateY(0px) translateX(0px) rotate(0deg);
-            opacity: 0.12;
-        }
-        25% {
-            transform: translateY(-30px) translateX(15px) rotate(5deg);
-            opacity: 0.2;
-        }
-        50% {
-            transform: translateY(-15px) translateX(-10px) rotate(10deg);
-            opacity: 0.18;
-        }
-        75% {
-            transform: translateY(20px) translateX(5px) rotate(5deg);
-            opacity: 0.15;
-        }
-        100% {
-            transform: translateY(0px) translateX(0px) rotate(0deg);
-            opacity: 0.12;
-        }
+        0% { transform: translateY(0px) translateX(0px) rotate(0deg); opacity: 0.12; }
+        25% { transform: translateY(-30px) translateX(15px) rotate(5deg); opacity: 0.2; }
+        50% { transform: translateY(-15px) translateX(-10px) rotate(10deg); opacity: 0.18; }
+        75% { transform: translateY(20px) translateX(5px) rotate(5deg); opacity: 0.15; }
+        100% { transform: translateY(0px) translateX(0px) rotate(0deg); opacity: 0.12; }
     }
 
     .hero-container {
@@ -384,8 +369,6 @@
         font-weight: 600;
         text-decoration: none;
         transition: all 0.3s ease;
-        border: none;
-        cursor: pointer;
         font-size: 1rem;
     }
 
@@ -520,9 +503,9 @@
         border-color: #16a34a;
     }
 
-    /* Services Section */
+    /* Services Section - MODIFIED: reduced bottom space */
     .services-section {
-        padding: 90px 0;
+        padding: 60px 0 40px;
         background: #ffffff;
     }
 
@@ -560,14 +543,10 @@
         background-clip: text;
     }
 
-    .text-center {
-        text-align: center;
-    }
-
     .service-card {
         display: flex;
         gap: 56px;
-        margin-bottom: 72px;
+        margin-bottom: 40px; /* reduced from 72px */
         align-items: center;
         background: #f8fafc;
         border-radius: 28px;
@@ -660,7 +639,7 @@
         font-size: 0.9rem;
     }
 
-    /* Why Choose Section */
+    /* Why Choose Section - unchanged */
     .why-section {
         padding: 90px 0;
         background: #f8fafc;
@@ -727,7 +706,7 @@
         font-size: 0.9rem;
     }
 
-    /* Testimonials Section */
+    /* Testimonials Section - unchanged */
     .testimonials-section {
         padding: 90px 0;
         background: #ffffff;
@@ -801,8 +780,7 @@
 
     @@media (max-width: 768px) {
         .hero-section {
-            padding: 60px 5%;
-            min-height: auto;
+            padding: 20px 5% 60px;
         }
         .hero-title {
             font-size: 2.2rem;

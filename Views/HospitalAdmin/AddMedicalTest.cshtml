@@ -250,71 +250,76 @@
 @section Scripts {
     <partial name="_ValidationScriptsPartial" />
     <script>
-        $(document).ready(function() {
-            // Auto-fill day limits with default value
-            const defaultLimit = $('#defaultLimit');
-            const dayInputs = $('input[name$="Limit"]:not([name="DailyAppointmentLimit"])');
+        document.addEventListener('DOMContentLoaded', function() {
+            const uploadArea = document.getElementById('imageUploadArea');
+            const fileInput = document.getElementById('ImageFile');
+            const uploadPreview = document.getElementById('uploadPreview');
+            const previewImage = document.getElementById('previewImage');
+            const testImagePreview = document.getElementById('testImagePreview');
+            const removeImageBtn = document.querySelector('.remove-image');
 
-            defaultLimit.on('input', function() {
-                const defaultValue = $(this).val();
-                dayInputs.each(function() {
-                    if (!$(this).val() || $(this).val() === '50') {
-                        $(this).val(defaultValue);
+            if (uploadArea && fileInput) {
+                uploadArea.addEventListener('click', function(e) {
+                    e.stopPropagation();
+                    fileInput.click();
+                });
+
+                fileInput.addEventListener('change', function(event) {
+                    const file = event.target.files[0];
+                    if (file) {
+                        const reader = new FileReader();
+                        reader.onload = function(e) {
+                            if (uploadPreview) uploadPreview.style.display = 'none';
+                            if (previewImage) previewImage.style.display = 'flex';
+                            if (testImagePreview) testImagePreview.src = e.target.result;
+                        };
+                        reader.readAsDataURL(file);
                     }
                 });
-            });
 
-            // Image upload functionality
-            const uploadArea = $('#imageUploadArea');
-            const fileInput = $('#ImageFile');
-            const previewContainer = $('#previewImage');
-            const previewImg = $('#testImagePreview');
-            const uploadPreview = $('#uploadPreview');
-
-            uploadArea.on('click', function() {
-                fileInput.click();
-            });
-
-            fileInput.on('change', function(event) {
-                const file = event.target.files[0];
-                if (file) {
-                    const reader = new FileReader();
-                    reader.onload = function(e) {
-                        uploadPreview.hide();
-                        previewContainer.show();
-                        previewImg.attr('src', e.target.result);
-                    };
-                    reader.readAsDataURL(file);
+                if (removeImageBtn) {
+                    removeImageBtn.addEventListener('click', function() {
+                        fileInput.value = '';
+                        if (previewImage) previewImage.style.display = 'none';
+                        if (uploadPreview) uploadPreview.style.display = 'block';
+                    });
                 }
-            });
 
-            $('.remove-image').on('click', function() {
-                fileInput.val('');
-                previewContainer.hide();
-                uploadPreview.show();
-            });
+                uploadArea.addEventListener('dragover', function(e) {
+                    e.preventDefault();
+                    uploadArea.classList.add('dragover');
+                });
+                uploadArea.addEventListener('dragleave', function(e) {
+                    uploadArea.classList.remove('dragover');
+                });
+                uploadArea.addEventListener('drop', function(e) {
+                    e.preventDefault();
+                    uploadArea.classList.remove('dragover');
+                    const files = e.dataTransfer.files;
+                    if (files.length > 0) {
+                        fileInput.files = files;
+                        const changeEvent = new Event('change', { bubbles: true });
+                        fileInput.dispatchEvent(changeEvent);
+                    }
+                });
+            }
 
-            // Drag and drop
-            uploadArea.on('dragover', function(e) {
-                e.preventDefault();
-                $(this).addClass('dragover');
-            });
-            uploadArea.on('dragleave', function(e) {
-                $(this).removeClass('dragover');
-            });
-            uploadArea.on('drop', function(e) {
-                e.preventDefault();
-                $(this).removeClass('dragover');
-                const files = e.originalEvent.dataTransfer.files;
-                if (files.length > 0) {
-                    fileInput.prop('files', files);
-                    fileInput.trigger('change');
-                }
-            });
+            // Auto-fill day limits (keep your existing jQuery code or convert to plain JS)
+            const defaultLimit = document.getElementById('defaultLimit');
+            const dayInputs = document.querySelectorAll('input[name$="Limit"]:not([name="DailyAppointmentLimit"])');
+            if (defaultLimit) {
+                defaultLimit.addEventListener('input', function() {
+                    const defaultValue = this.value;
+                    dayInputs.forEach(input => {
+                        if (!input.value || input.value === '50') {
+                            input.value = defaultValue;
+                        }
+                    });
+                });
+            }
         });
     </script>
 }
-
 <style>
     /* ========== GLOBAL STYLES (matching other admin pages) ========== */
     .dashboard-wrapper {

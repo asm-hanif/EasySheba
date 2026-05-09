@@ -185,53 +185,72 @@
 @section Scripts {
     <partial name="_ValidationScriptsPartial" />
     <script>
-        $(document).ready(function() {
-            // Image preview functionality
-            $('#fileUploadArea').on('click', function() {
-                $('#ImageFile').click();
-            });
+        document.addEventListener('DOMContentLoaded', function() {
+            const uploadArea = document.getElementById('fileUploadArea');
+            const fileInput = document.getElementById('ImageFile');
+            const uploadPreview = document.getElementById('uploadPreview');
+            const previewImage = document.getElementById('previewImage');
+            const bedImagePreview = document.getElementById('bedImagePreview');
+            const removeImageBtn = document.querySelector('.remove-image');
 
-            $('#ImageFile').on('change', function(event) {
-                const file = event.target.files[0];
-                if (file) {
-                    const reader = new FileReader();
-                    reader.onload = function(e) {
-                        $('#uploadPreview').hide();
-                        $('#previewImage').show();
-                        $('#bedImagePreview').attr('src', e.target.result);
-                    };
-                    reader.readAsDataURL(file);
-                }
-            });
+            // Click on the upload area triggers file input
+            if (uploadArea) {
+                uploadArea.addEventListener('click', function(e) {
+                    // Prevent any child element clicks from interfering
+                    e.stopPropagation();
+                    fileInput.click();
+                });
+            }
 
-            $('.remove-image').on('click', function() {
-                $('#ImageFile').val('');
-                $('#previewImage').hide();
-                $('#uploadPreview').show();
-            });
+            // When a file is selected
+            if (fileInput) {
+                fileInput.addEventListener('change', function(event) {
+                    const file = event.target.files[0];
+                    if (file) {
+                        const reader = new FileReader();
+                        reader.onload = function(e) {
+                            uploadPreview.style.display = 'none';
+                            previewImage.style.display = 'flex';
+                            bedImagePreview.src = e.target.result;
+                        };
+                        reader.readAsDataURL(file);
+                    }
+                });
+            }
+
+            // Remove image button
+            if (removeImageBtn) {
+                removeImageBtn.addEventListener('click', function() {
+                    fileInput.value = '';
+                    previewImage.style.display = 'none';
+                    uploadPreview.style.display = 'block';
+                });
+            }
 
             // Drag and drop
-            const dropArea = $('#fileUploadArea');
-            dropArea.on('dragover', function(e) {
-                e.preventDefault();
-                $(this).addClass('dragover');
-            });
-            dropArea.on('dragleave', function(e) {
-                $(this).removeClass('dragover');
-            });
-            dropArea.on('drop', function(e) {
-                e.preventDefault();
-                $(this).removeClass('dragover');
-                const files = e.originalEvent.dataTransfer.files;
-                if (files.length > 0) {
-                    $('#ImageFile').prop('files', files);
-                    $('#ImageFile').trigger('change');
-                }
-            });
+            if (uploadArea) {
+                uploadArea.addEventListener('dragover', function(e) {
+                    e.preventDefault();
+                    uploadArea.classList.add('dragover');
+                });
+                uploadArea.addEventListener('dragleave', function(e) {
+                    uploadArea.classList.remove('dragover');
+                });
+                uploadArea.addEventListener('drop', function(e) {
+                    e.preventDefault();
+                    uploadArea.classList.remove('dragover');
+                    const files = e.dataTransfer.files;
+                    if (files.length > 0) {
+                        fileInput.files = files;
+                        // Trigger change event manually
+                        const changeEvent = new Event('change', { bubbles: true });
+                        fileInput.dispatchEvent(changeEvent);
+                    }
+                });
+            }
         });
     </script>
 }
-
 <style>
     /* ========== GLOBAL STYLES (matching doctor pages) ========== */
     .dashboard-wrapper {

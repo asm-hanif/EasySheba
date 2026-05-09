@@ -59,25 +59,50 @@
                                 <span asp-validation-for="Name" class="validation-error"></span>
                             </div>
                             <div class="col-md-6 mb-4">
-                                <label asp-for="Department" class="form-label">Department <span class="required">*</span></label>
-                                <div class="input-group">
-                                    <span class="input-icon"><i class="fas fa-building"></i></span>
-                                    <select asp-for="Department" class="form-control">
-                                        <option value="">-- Select Department --</option>
-                                        <option>Cardiology</option>
-                                        <option>Neurology</option>
-                                        <option>Orthopedics</option>
-                                        <option>Pediatrics</option>
-                                        <option>Gynecology</option>
-                                        <option>Dermatology</option>
-                                        <option>Ophthalmology</option>
-                                        <option>Dentistry</option>
-                                        <option>Psychiatry</option>
-                                        <option>General Medicine</option>
-                                    </select>
-                                </div>
-                                <span asp-validation-for="Department" class="validation-error"></span>
-                            </div>
+    <label asp-for="Department" class="form-label">Department <span class="required">*</span></label>
+    <div class="input-group">
+        <span class="input-icon"><i class="fas fa-building"></i></span>
+        <select asp-for="Department" class="form-control">
+            <option value="">-- Select Department --</option>
+            <option>Cardiology</option>
+            <option>Cancer</option>
+            <option>Neurology</option>
+            <option>Orthopedics</option>
+            <option>Pediatrics</option>
+            <option>Gynecology</option>
+            <option>Dermatology</option>
+            <option>Ophthalmology</option>
+            <option>Dentistry</option>
+            <option>Psychiatry</option>
+            <option>General Medicine</option>
+            <option>Gastroenterology</option>
+            <option>Pulmonology</option>
+            <option>Nephrology</option>
+            <option>Urology</option>
+            <option>Endocrinology</option>
+            <option>Rheumatology</option>
+            <option>Oncology</option>
+            <option>Hematology</option>
+            <option>Infectious Disease</option>
+            <option>Allergy & Immunology</option>
+            <option>Anesthesiology</option>
+            <option>Radiology</option>
+            <option>Pathology</option>
+            <option>Emergency Medicine</option>
+            <option>Family Medicine</option>
+            <option>Geriatrics</option>
+            <option>Sports Medicine</option>
+            <option>Plastic Surgery</option>
+            <option>Cardiothoracic Surgery</option>
+            <option>Neurosurgery</option>
+            <option>Vascular Surgery</option>
+            <option>Otolaryngology (ENT)</option>
+            <option>Physical Medicine & Rehabilitation</option>
+            <option>Preventive Medicine</option>
+        </select>
+    </div>
+    <span asp-validation-for="Department" class="validation-error"></span>
+</div>
                             <div class="col-md-6 mb-4">
                                 <label asp-for="Degrees" class="form-label">Medical Degrees <span class="required">*</span></label>
                                 <div class="input-group">
@@ -286,71 +311,76 @@
 @section Scripts {
     <partial name="_ValidationScriptsPartial" />
     <script>
-        $(document).ready(function() {
-            // Auto-fill day limits with default value
-            const defaultLimit = $('#defaultLimit');
-            const dayInputs = $('input[name$="Limit"]:not([name="DailyAppointmentLimit"])');
+        document.addEventListener('DOMContentLoaded', function() {
+            const uploadArea = document.getElementById('imageUploadArea');
+            const fileInput = document.getElementById('ImageFile');
+            const uploadPreview = document.getElementById('uploadPreview');
+            const previewImage = document.getElementById('previewImage');
+            const doctorImagePreview = document.getElementById('doctorImagePreview');
+            const removeImageBtn = document.querySelector('.remove-image');
 
-            defaultLimit.on('input', function() {
-                const defaultValue = $(this).val();
-                dayInputs.each(function() {
-                    if (!$(this).val() || $(this).val() === '20') {
-                        $(this).val(defaultValue);
+            if (uploadArea && fileInput) {
+                uploadArea.addEventListener('click', function(e) {
+                    e.stopPropagation();
+                    fileInput.click();
+                });
+
+                fileInput.addEventListener('change', function(event) {
+                    const file = event.target.files[0];
+                    if (file) {
+                        const reader = new FileReader();
+                        reader.onload = function(e) {
+                            if (uploadPreview) uploadPreview.style.display = 'none';
+                            if (previewImage) previewImage.style.display = 'flex';
+                            if (doctorImagePreview) doctorImagePreview.src = e.target.result;
+                        };
+                        reader.readAsDataURL(file);
                     }
                 });
-            });
 
-            // Image upload functionality
-            const uploadArea = $('#imageUploadArea');
-            const fileInput = $('#ImageFile');
-            const previewContainer = $('#previewImage');
-            const previewImg = $('#doctorImagePreview');
-            const uploadPreview = $('#uploadPreview');
-
-            uploadArea.on('click', function() {
-                fileInput.click();
-            });
-
-            fileInput.on('change', function(event) {
-                const file = event.target.files[0];
-                if (file) {
-                    const reader = new FileReader();
-                    reader.onload = function(e) {
-                        uploadPreview.hide();
-                        previewContainer.show();
-                        previewImg.attr('src', e.target.result);
-                    };
-                    reader.readAsDataURL(file);
+                if (removeImageBtn) {
+                    removeImageBtn.addEventListener('click', function() {
+                        fileInput.value = '';
+                        if (previewImage) previewImage.style.display = 'none';
+                        if (uploadPreview) uploadPreview.style.display = 'block';
+                    });
                 }
-            });
 
-            $('.remove-image').on('click', function() {
-                fileInput.val('');
-                previewContainer.hide();
-                uploadPreview.show();
-            });
+                uploadArea.addEventListener('dragover', function(e) {
+                    e.preventDefault();
+                    uploadArea.classList.add('dragover');
+                });
+                uploadArea.addEventListener('dragleave', function(e) {
+                    uploadArea.classList.remove('dragover');
+                });
+                uploadArea.addEventListener('drop', function(e) {
+                    e.preventDefault();
+                    uploadArea.classList.remove('dragover');
+                    const files = e.dataTransfer.files;
+                    if (files.length > 0) {
+                        fileInput.files = files;
+                        const changeEvent = new Event('change', { bubbles: true });
+                        fileInput.dispatchEvent(changeEvent);
+                    }
+                });
+            }
 
-            // Drag and drop
-            uploadArea.on('dragover', function(e) {
-                e.preventDefault();
-                $(this).addClass('dragover');
-            });
-            uploadArea.on('dragleave', function(e) {
-                $(this).removeClass('dragover');
-            });
-            uploadArea.on('drop', function(e) {
-                e.preventDefault();
-                $(this).removeClass('dragover');
-                const files = e.originalEvent.dataTransfer.files;
-                if (files.length > 0) {
-                    fileInput.prop('files', files);
-                    fileInput.trigger('change');
-                }
-            });
+            // Auto-fill day limits with default value (keep as is)
+            const defaultLimit = document.getElementById('defaultLimit');
+            const dayInputs = document.querySelectorAll('input[name$="Limit"]:not([name="DailyAppointmentLimit"])');
+            if (defaultLimit) {
+                defaultLimit.addEventListener('input', function() {
+                    const defaultValue = this.value;
+                    dayInputs.forEach(input => {
+                        if (!input.value || input.value === '20') {
+                            input.value = defaultValue;
+                        }
+                    });
+                });
+            }
         });
     </script>
 }
-
 <style>
     /* ========== GLOBAL STYLES (matching other admin pages) ========== */
     .dashboard-wrapper {
